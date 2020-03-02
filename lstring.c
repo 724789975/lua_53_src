@@ -65,20 +65,28 @@ unsigned int luaS_hashlongstr (TString *ts) {
 }
 
 
-/*
-** resizes the string table
-*/
+/**
+ * resizes the string table
+ * 当stringtable中的字符串数量（stringtable.muse域）
+ * 超过预定容量（stringtable.size域）时
+ * 说明stringtable太拥挤，许多字符串可能都哈希到同一个维度中去
+ * 这将会降低stringtable的遍历效率
+ * 这个时候需要调用luaS_resize方法将stringtable的哈希链表数组扩大
+ * 重新排列所有字符串的位置
+ */
 void luaS_resize (lua_State *L, int newsize) {
   int i;
-  stringtable *tb = &G(L)->strt;
-  if (newsize > tb->size) {  /* grow table if needed */
+  stringtable *tb = &G(L)->strt;// 取得全局stringtable
+  if (newsize > tb->size) {  /* grow table if needed */ // 如果stringtable的新容量大于旧容量，重新分配
     luaM_reallocvector(L, tb->hash, tb->size, newsize, TString *);
     for (i = tb->size; i < newsize; i++)
       tb->hash[i] = NULL;
   }
+  // 根据新容量进行重新哈希
   for (i = 0; i < tb->size; i++) {  /* rehash */
     TString *p = tb->hash[i];
     tb->hash[i] = NULL;
+    // 将每个哈希链表中的元素哈希到新的位置（头插法）
     while (p) {  /* for each node in the list */
       TString *hnext = p->u.hnext;  /* save next */
       unsigned int h = lmod(p->hash, newsize);  /* new position */
@@ -87,6 +95,7 @@ void luaS_resize (lua_State *L, int newsize) {
       p = hnext;
     }
   }
+  // 如果stringtable的新容量小于旧容量，那么要减小表的长度
   if (newsize < tb->size) {  /* shrink table if needed */
     /* vanishing slice should be empty */
     lua_assert(tb->hash[newsize] == NULL && tb->hash[tb->size - 1] == NULL);
@@ -169,8 +178,11 @@ void luaS_remove (lua_State *L, TString *ts) {
 static TString *internshrstr (lua_State *L, const char *str, size_t l) {
   TString *ts;
   global_State *g = G(L);
+  // 计算传入字符串哈希值
   unsigned int h = luaS_hash(str, l, g->seed);
+  // 找到目标位置字符串链表
   TString **list = &g->strt.hash[lmod(h, g->strt.size)];
+  // 在字符串链表搜索传入字符串
   lua_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
   for (ts = *list; ts != NULL; ts = ts->u.hnext) {
     if (l == ts->shrlen &&
@@ -185,6 +197,7 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
     luaS_resize(L, g->strt.size * 2);
     list = &g->strt.hash[lmod(h, g->strt.size)];  /* recompute with new size */
   }
+  // 没有找到创建新的字符串
   ts = createstrobj(L, l, LUA_TSHRSTR, h);
   memcpy(getstr(ts), str, l * sizeof(char));
   ts->shrlen = cast_byte(l);

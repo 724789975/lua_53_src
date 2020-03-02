@@ -318,15 +318,29 @@ typedef TValue *StkId;  /* index to stack elements */
 ** 字符串结构
 ** 真正的字符串的内容，直接存储在结构体后面的内存里
 ** 为了保证内存的对齐，对TString和基本类型合并做一个字节对齐
+**
+** Lua字符串对象 = TString结构 + 实际字符串数据
+** TString结构 = GCObject *指针 + 字符串信息数据
 */
 typedef struct TString {
   CommonHeader;
-  lu_byte extra;  /* 用来标记是否是long string, reserved words for short strings; "has hash" for longs */
-  lu_byte shrlen;  /* 字符串长度 length for short strings */
-  unsigned int hash; //存储在全局字符串池里的哈希值
+  /**
+   * 用于记录辅助信息
+   * 对于短字符串，该字段用来标记字符串是否为保留字，用于词法分析器中对保留字的快速判断；
+   * 对于长字符串，该字段将用于惰性求哈希值的策略（第一次用到才进行哈希）
+   * , reserved words for short strings; "has hash" for longs */
+  lu_byte extra;  
+  
+  lu_byte shrlen;  /* 由于Lua并不以'\0'字符结尾来识别字符串的长度，因此需要一个len域来记录其长度 length for short strings */
+  unsigned int hash; /*记录字符串的hash值，可以用来加快字符串的匹配和查找*/
   union {
     size_t lnglen;  /* 长字符串存储形式 length for long strings */
-    struct TString *hnext;  /* 链表形式存储下一个TSring，短字符串用到 linked list for hash table */
+    /**
+     * hash table中相同hash值的字符串将串成一个列表，
+     * hnext域为指向下一个列表节点的指针，
+     * 短字符串用到 linked list for hash table
+     */
+    struct TString *hnext;
   } u;
 } TString;
 

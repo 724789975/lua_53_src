@@ -406,8 +406,9 @@ int luaV_lessequal (lua_State *L, const TValue *l, const TValue *r) {
 */
 int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2) {
   const TValue *tm;
+  /* 如果类型（含子类型）不同*/
   if (ttype(t1) != ttype(t2)) {  /* not the same variant? */
-    if (ttnov(t1) != ttnov(t2) || ttnov(t1) != LUA_TNUMBER)
+    if (ttnov(t1) != ttnov(t2) || ttnov(t1) != LUA_TNUMBER) // 如果大类型不同或大类型不是数字类型
       return 0;  /* only numbers can be equal with different variants */
     else {  /* two numbers with different variants */
       lua_Integer i1, i2;  /* compare them as integers */
@@ -422,8 +423,11 @@ int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2) {
     case LUA_TBOOLEAN: return bvalue(t1) == bvalue(t2);  /* true must be 1 !! */
     case LUA_TLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
     case LUA_TLCF: return fvalue(t1) == fvalue(t2);
+
+    /* 根据子类型不同，用不同字符串比较策略进行比较*/
     case LUA_TSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
     case LUA_TLNGSTR: return luaS_eqlngstr(tsvalue(t1), tsvalue(t2));
+    
     case LUA_TUSERDATA: {
       if (uvalue(t1) == uvalue(t2)) return 1;
       else if (L == NULL) return 0;

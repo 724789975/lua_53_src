@@ -74,9 +74,15 @@ struct lua_longjmp;  /* defined in ldo.c */
 
 
 typedef struct stringtable {
+  /**
+   * 字符串开散列算法哈希表
+   * hash是一维数组指针
+   * 其中数组元素类型为TString *（指向TString类型对象指针）
+   * 它并不是一个二维数组（数组元素类型为TString）指针
+   */
   TString **hash;
-  int nuse;  /* number of elements */
-  int size;
+  int nuse;  /* 字符串表当前字符串数量 number of elements */
+  int size;/*字符串表最大字符串数量*/
 } stringtable;
 
 
@@ -168,7 +174,7 @@ typedef struct CallInfo {
 #define CIST_LUA	(1<<1)	/* call is running a Lua function */
 #define CIST_HOOKED	(1<<2)	/* call is running a debug hook */
 #define CIST_FRESH	(1<<3)	/* call is running on a fresh invocation
-                                   of luaV_execute */
+                            //       of luaV_execute */
 #define CIST_YPCALL	(1<<4)	/* call is a yieldable protected call */
 #define CIST_TAIL	(1<<5)	/* call was tail called */
 #define CIST_HOOKYIELD	(1<<6)	/* last hook called yielded */
