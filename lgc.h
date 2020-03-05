@@ -112,6 +112,20 @@
 	  condchangemem(L,pre,pos); }
 
 /* more often than not, 'pre'/'pos' are empty */
+/**
+ * 它以宏形式定义出来，用于自动的 GC
+ * 如果我们审查 lapi.c ldo.c lvm.c 
+ * 会发现大部分会导致内存增长的 api 中
+ * 都调用了它
+ * 保证 gc 可以随内存使用增加而自动进行
+ * 使用自动 gc 会有一个问题
+ * 它很可能使系统的峰值内存占用远超过实际需求量
+ * 原因就在于，收集行为往往发生在调用栈很深的地方
+ * 当你的应用程序呈现出某种周期性（大多数包驱动的服务都是这样）
+ * 在一个服务周期内，往往会引用众多临时对象
+ * 这个时候做 mark 工作
+ * 会导致许多临时对象也被 mark 住
+ */
 #define luaC_checkGC(L)		luaC_condGC(L,(void)0,(void)0)
 
 
