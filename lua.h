@@ -5,20 +5,6 @@
 ** See Copyright Notice at the end of this file
 */
 
-/*
-** lua库说明
-** lauxlib.c	库编写用到的辅助函数库 
-** lbaselib.c	基础库 
-** ldblib.c	  Debug 库 
-** linit.c		内嵌库的初始化 
-** liolib.c	  IO 库 
-** lmathlib.c	数学库 
-** loadlib.c	动态扩展库管理 
-** loslib.c	  OS 库 
-** lstrlib.c	字符串库 
-** ltablib.c	表处理库
-*/
-
 #ifndef lua_h
 #define lua_h
 
