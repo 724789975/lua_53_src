@@ -232,6 +232,32 @@ GCObject *luaC_newobj (lua_State *L, int tt, size_t sz) {
 ** to appropriate list to be visited (and turned black) later. (Open
 ** upvalues are already linked in 'headuv' list.)
 */
+/**
+ * 它按 GCObject 的实际类型来 mark 它
+ * reallymarkobject 的时间复杂度是 O(1) 的
+ * 它不会递归标记相关对象，虽然大多数 GCObject 都关联有其它对象
+ * 保证 O(1) 时间使得标记过程可以均匀分摊在逐个短小的时间片内，不至于停止世界太久
+ * 这里就需要用到三色标记法
+ * reallymarkobject 进入时，先把对象设置为灰色（通过 white2gray 这个宏）
+ * 然后再根据具体类型，当一个对象的所有关联对象都被标记后，再从灰色转为黑色
+ * 因为 TSTRING 一定没有关联对象，而且所有的字符串都是统一独立处理的
+ * 这里可以做一个小优化，不需要设置为黑色，只要不是白色就可以清理。所以此处不必染黑
+ * 但 TUSERDATA 则不同，它是跟其它对象一起处理的。标记 userdata 就需要调用 gray2black 了
+ * 另外，还需要标记 userdata 的元表和环境表
+ * TUPVAL 是一个特殊的东西
+ * 在 lua 编程，以及写 C 代码和 lua 交互时，都看不到这种类型
+ * 它用来解决多个 closure 共享同一个 upvalue 的情况
+ * 实际上是对一个 upvalue 的引用
+ * 问什么 TUPVAL 会有 open 和 closed 两种状态？应该这样理解
+ * 当一个 lua 函数本执行的时候
+ * 和 C 语言不一样，它不仅可以看到当前层次上的 local 变量
+ * 还可以看到上面所有层次的 local 变量
+ * 这个可见性是由 lua 解析器解析你的 lua 代码时定位的（换句话说，就是在“编译”期决定的）
+ * 那些不属于你的函数当前层次上的 local 变量，就称之为 upvalue 
+ * upvalue 这个概念是由 parser 引入的
+ * 在 Lua 中，任何一个 function 其实都是由 proto 和运行时绑定的 upvalue 构成的
+ * proto 将如何绑定 upvalue 是在 parser 生成的 bytecode 里描述清楚了的
+ */
 static void reallymarkobject (global_State *g, GCObject *o) {
  reentry:
   white2gray(o);
