@@ -12,16 +12,15 @@
 ** ltablib.c	表处理库
 */
 
-Tvaluefield             ----------> Value                 --------> GCObject               -----------> GCheader               -----------> CommonHeader
+Tvaluefield             ----------> Value                ---------> GCObject              ------------> GCheader              ------------> CommonHeader
 Value value ------------|           GCObject *gc --------|          GCheader gch ---------|             CommonHeader ---------|             GCObject *next
 int tt                              void *p                         union TString ts                                                        lu_byte tt
-                                    lua Number n                    union Udata u                                                           lu_byte marked
+                                    lua_Number n                    union Udata u                                                           lu_byte marked
                                     int b                           union Closure cl
-                                                                    struct Table h
-                                                                    struct Proto p
+                                    lua_CFunction f                 struct Table h
+                                    lua_Integer i                   struct Proto p
                                                                     struct UpVal uv
-                                                                    struct lua State th
-
+                                                                    struct lua_State th
 
 
 
