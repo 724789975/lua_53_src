@@ -53,22 +53,24 @@ typedef struct Token {
 } Token;
 
 
-/* state of the lexer plus state of the parser when shared by all
+/**
+ * 语法分析上下文状态
+ * state of the lexer plus state of the parser when shared by all
    functions */
 typedef struct LexState {
-  int current;  /* current character (charint) */
-  int linenumber;  /* input line counter */
-  int lastline;  /* line of last token 'consumed' */
-  Token t;  /* current token */
-  Token lookahead;  /* look ahead token */
-  struct FuncState *fs;  /* current function (parser) */
-  struct lua_State *L;
-  ZIO *z;  /* input stream */
+  int current;  /* 解析字符指针 current character (charint) */
+  int linenumber;  /* 行数计数器 input line counter */
+  int lastline;  /* 最后一行 line of last token 'consumed' */
+  Token t;  /* 当前Token current token */
+  Token lookahead;  /* 头部Token look ahead token */
+  struct FuncState *fs;  /* 当前解析的方法 current function (parser) */
+  struct lua_State *L; //Lua栈
+  ZIO *z;  /* io输入流 input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
   struct Dyndata *dyd;  /* dynamic structures used by the parser */
-  TString *source;  /* current source name */
-  TString *envn;  /* environment variable name */
+  TString *source;  /* 当前源名称 current source name */
+  TString *envn;  /* 环境变量 environment variable name */
 } LexState;
 
 

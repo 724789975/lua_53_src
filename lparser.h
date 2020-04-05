@@ -107,16 +107,18 @@ typedef struct Dyndata {
 struct BlockCnt;  /* defined in lparser.c */
 
 
-/* state needed to generate code for a given function
+/**
+ * 存储函数编译状态
+ *  state needed to generate code for a given function
  */
 typedef struct FuncState {
-  Proto *f;  /* current function header */
+  Proto *f;  /* 存放Opcode 当前函数的头 current function header */
   struct FuncState *prev;  /* enclosing function */
-  struct LexState *ls;  /* lexical state */
-  struct BlockCnt *bl;  /* chain of current blocks */
-  int pc;  /* next position to code (equivalent to 'ncode') */
+  struct LexState *ls;  /* 上下文的状态 lexical state */
+  struct BlockCnt *bl;  /* 当前块链 chain of current blocks */
+  int pc;  /* 代码的下一个位置，指向Proto->code中的数组指针 next position to code (equivalent to 'ncode') */
   int lasttarget;   /* 'label' of last 'jump label' */
-  int jpc;  /* list of pending jumps to 'pc' */
+  int jpc;  /* 即将跳转的pc列表 list of pending jumps to 'pc' */
   int nk;  /* number of elements in 'k' */
   int np;  /* number of elements in 'p' */
   int firstlocal;  /* index of first local var (in Dyndata array) */

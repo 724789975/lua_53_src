@@ -286,10 +286,13 @@ void luaK_patchclose (FuncState *fs, int list, int level) {
 }
 
 
-/*
-** Emit instruction 'i', checking for array sizes and saving also its
-** line information. Return 'i' position.
-*/
+/**
+ * Emit instruction 'i', checking for array sizes and saving also its
+ * line information. Return 'i' position.
+ * Opcode存放在Proto结构上
+ * 其中f->code数组用于存放code
+ * fs->pc主要是计数器，标记code的个数及数组下标 
+**/
 static int luaK_code (FuncState *fs, Instruction i) {
   Proto *f = fs->f;
   dischargejpc(fs);  /* 'pc' will change */

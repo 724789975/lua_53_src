@@ -595,6 +595,9 @@ static int block_follow (LexState *ls, int withuntil) {
 }
 
 
+/**
+ * 语法树解析
+ */
 static void statlist (LexState *ls) {
   /* statlist -> { stat [';'] } */
   while (!block_follow(ls, 1)) {
@@ -1148,6 +1151,12 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
 }
 
 
+/**
+ * 变量赋值操作
+ * ls：语法解析上下文状态
+ * lh：变量名称存储在expdesc结构中，链表形式，可以存储多个变量名
+ * nvars：值的个数
+ */
 static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   expdesc e;
   check_condition(ls, vkisvar(lh->v.k), "syntax error");
@@ -1163,10 +1172,10 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   }
   else {  /* assignment -> '=' explist */
     int nexps;
-    checknext(ls, '=');
+    checknext(ls, '=');//跳转到下一个Token
     nexps = explist(ls, &e);
     if (nexps != nvars)
-      adjust_assign(ls, nvars, nexps, &e);
+      adjust_assign(ls, nvars, nexps, &e);//调整 判断左边的变量数是否等于右边的值数
     else {
       luaK_setoneret(ls->fs, &e);  /* close last expression */
       luaK_storevar(ls->fs, &lh->v, &e);
@@ -1383,6 +1392,11 @@ static void forstat (LexState *ls, int line) {
 }
 
 
+/**
+ * 解析：
+ * if (条件) then 逻辑块 end
+ * elseif （条件） then 逻辑块 end
+ */
 static void test_then_block (LexState *ls, int *escapelist) {
   /* test_then_block -> [IF | ELSEIF] cond THEN block */
   BlockCnt bl;
@@ -1390,8 +1404,8 @@ static void test_then_block (LexState *ls, int *escapelist) {
   expdesc v;
   int jf;  /* instruction to skip 'then' code (if condition is false) */
   luaX_next(ls);  /* skip IF or ELSEIF */
-  expr(ls, &v);  /* read condition */
-  checknext(ls, TK_THEN);
+  expr(ls, &v);  /* 条件语句读取，返回结果值存储在v中 read condition */
+  checknext(ls, TK_THEN);  //下一个Token
   if (ls->t.token == TK_GOTO || ls->t.token == TK_BREAK) {
     luaK_goiffalse(ls->fs, &v);  /* will jump to label if condition is true */
     enterblock(fs, &bl, 0);  /* must enter block before 'goto' */
@@ -1406,10 +1420,10 @@ static void test_then_block (LexState *ls, int *escapelist) {
   }
   else {  /* regular case (not goto/break) */
     luaK_goiftrue(ls->fs, &v);  /* skip over block if condition is false */
-    enterblock(fs, &bl, 0);
+    enterblock(fs, &bl, 0);//用于管理递归块管理
     jf = v.f;
   }
-  statlist(ls);  /* 'then' part */
+  statlist(ls);  /* 状态机继续解析IF语句块内语义 'then' part */
   leaveblock(fs);
   if (ls->t.token == TK_ELSE ||
       ls->t.token == TK_ELSEIF)  /* followed by 'else'/'elseif'? */
@@ -1417,16 +1431,29 @@ static void test_then_block (LexState *ls, int *escapelist) {
   luaK_patchtohere(fs, jf);
 }
 
-
+/**
+ * 解析if语句:
+ * IF (cond) THEN block
+ * {ELSEIF (cond) THEN block}
+ * [ELSE block]
+ * END
+ */
 static void ifstat (LexState *ls, int line) {
   /* ifstat -> IF cond THEN block {ELSEIF cond THEN block} [ELSE block] END */
-  FuncState *fs = ls->fs;
+  FuncState *fs = ls->fs;//获取函数栈
   int escapelist = NO_JUMP;  /* exit list for finished parts */
+
+   /* 首先解析 if (条件) then 逻辑块 end */
   test_then_block(ls, &escapelist);  /* IF cond THEN block */
+
+  /* 然后解析 elseif (条件) then 逻辑块 end*/
   while (ls->t.token == TK_ELSEIF)
     test_then_block(ls, &escapelist);  /* ELSEIF cond THEN block */
+
+      /* 最后解析 else 逻辑块 end */
   if (testnext(ls, TK_ELSE))
     block(ls);  /* 'else' part */
+
   check_match(ls, TK_END, TK_IF, line);
   luaK_patchtohere(fs, escapelist);  /* patch escape list to 'if' end */
 }
@@ -1488,15 +1515,19 @@ static void funcstat (LexState *ls, int line) {
   luaK_fixline(ls->fs, line);  /* definition "happens" in the first line */
 }
 
-
+/**
+ * 普通表达式处理逻辑
+ */
 static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
-  struct LHS_assign v;
-  suffixedexp(ls, &v.v);
+  struct LHS_assign v; //处理多个值
+  suffixedexp(ls, &v.v);//处理变量名
+
+  /* 变量赋值处理 */
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
-    assignment(ls, &v, 1);
+    assignment(ls, &v, 1); //赋值
   }
   else {  /* stat -> func */
     check_condition(ls, v.v.k == VCALL, "syntax error");
@@ -1537,10 +1568,12 @@ static void retstat (LexState *ls) {
   testnext(ls, ';');  /* skip optional semicolon */
 }
 
-
+/**
+ * 解析语法树，按照块状分割
+ */
 static void statement (LexState *ls) {
   int line = ls->linenumber;  /* may be needed for error messages */
-  enterlevel(ls);
+  enterlevel(ls);//作用域
   switch (ls->t.token) {
     case ';': {  /* stat -> ';' (empty statement) */
       luaX_next(ls);  /* skip ';' */
@@ -1603,7 +1636,7 @@ static void statement (LexState *ls) {
   lua_assert(ls->fs->f->maxstacksize >= ls->fs->freereg &&
              ls->fs->freereg >= ls->fs->nactvar);
   ls->fs->freereg = ls->fs->nactvar;  /* free registers */
-  leavelevel(ls);
+  leavelevel(ls);//作用域
 }
 
 /* }====================================================================== */
