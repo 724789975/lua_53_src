@@ -196,10 +196,10 @@ typedef struct CallInfo {
 typedef struct global_State {
   lua_Alloc frealloc;  /* Lua的全局内存分配器，用户可以替换成自己的 function to reallocate memory */
   void *ud;         /*分配器的userdata auxiliary data to 'frealloc' */
-  l_mem totalbytes;  /* number of bytes currently allocated - GCdebt */
-  l_mem GCdebt;  /* bytes allocated not yet compensated by the collector */
+  l_mem totalbytes;  /* 实际内存分配器所分配的内存与GCdebt的差值 number of bytes currently allocated - GCdebt */
+  l_mem GCdebt;  /* 需要回收的内存数量 bytes allocated not yet compensated by the collector */
   lu_mem GCmemtrav;  /* memory traversed by the GC */
-  lu_mem GCestimate;  /* an estimate of the non-garbage memory in use */
+  lu_mem GCestimate;  /* 内存实际使用量的估计值 an estimate of the non-garbage memory in use */
   stringtable strt;  /* 字符串table Lua的字符串分短字符串和长字符串 hash table for strings */
   TValue l_registry;  //Lua注册表
   unsigned int seed;  /* randomized seed for hashes */
