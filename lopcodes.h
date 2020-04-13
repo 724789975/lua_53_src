@@ -26,6 +26,17 @@
   for that argument (so that -max is represented by 0, and +max is
   represented by 2*max), which is half the maximum for the corresponding
   unsigned argument.
+
+  1)每条指令都会对一个对象做出影响，受影响的对象被称为 A。它由 8 bits 来表示。 A 通常是一个寄存器的索引，也可能是对 Upvalue 的操作。
+2)作用到 A 的参数一般有两个，每个参数 由 9 bits 表示，分别称为 B 和 C。
+3)一部分指令不需要两个操作参数，这时候可以把 B 和 C 合并为一个 18 bits 的整数 Bx 来适应更大的范围。
+4)当操作码涉及到跳转指令时，这个参数表示跳转偏移量。向前跳转需要设置偏移量为一个负数。这类指令需要带符号信息来区别，记作 sBx。 其中0被表示为 2^17 ;  1 则表示为 2^17 + 1  ;  -1 表示为 2^17 - 1 。
+5)Lua VM 在运行期，会将需要的常量加载到 寄存器中（Lua 栈），然后利用这些寄存器做相应的工作。 加载常量的操作码 为LOADK，它由两个参数 A ,Bx ,这个操作把Bx 所指的常量加载到 A 所指的寄存器中。 Bx 有 18 bit 长，所以 LOADK 这个操作只能索引到 2^18 个常量。 为了扩大索引常量的上限，提供了LOADKX，它将常量索引号放在了接下来的一条EXTRAARG 指令中。 OP_EXTRAARG 指令 把 opcode所占的 8bit 以外的26 bit 都用于参数表示， 称之为* Ax*。 
+
+参数 A、B、C 一般用来存放指令操作数据的地址（索引），而地址（索引）有以下三种： 
+1. 寄存器 idx 
+2. 常量表 idx 
+3. upvalue idx 
 ===========================================================================*/
 
 
@@ -154,9 +165,9 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 
 
 /*
-** R(x) - register
-** Kst(x) - constant (in constant table)
-** RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x)
+** R(x) - register 表示这一定是 寄存器索引（一定要操作Lua 栈） 
+** Kst(x) - constant (in constant table) 
+** RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x) 表示这有可能是 一个寄存器索引 或 是一个常量索引，RK 只能用 参数B 与 参数 C (SIZE_B = SIZE_C = 9)，其中参数的最高位区分 寄存器索引与常量索引。
 */
 
 

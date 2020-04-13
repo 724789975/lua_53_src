@@ -729,6 +729,7 @@ void luaV_finishOp (lua_State *L) {
 */
 
 
+//获取二进制操作码的Opcode值和参数A、B、C
 #define RA(i)	(base+GETARG_A(i))
 #define RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))
 #define RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))
@@ -786,7 +787,7 @@ void luaV_finishOp (lua_State *L) {
     Protect(luaV_finishset(L,t,k,v,slot)); }
 
 
-
+//操作码执行函数
 void luaV_execute (lua_State *L) {
   CallInfo *ci = L->ci;
   LClosure *cl;
@@ -804,6 +805,7 @@ void luaV_execute (lua_State *L) {
     StkId ra;
     vmfetch();
     vmdispatch (GET_OPCODE(i)) {
+      //变量赋值操作
       vmcase(OP_MOVE) {
         setobjs2s(L, ra, RB(i));
         vmbreak;
@@ -820,6 +822,7 @@ void luaV_execute (lua_State *L) {
         setobj2s(L, ra, rb);
         vmbreak;
       }
+      //加载布尔值
       vmcase(OP_LOADBOOL) {
         setbvalue(ra, GETARG_B(i));
         if (GETARG_C(i)) ci->u.l.savedpc++;  /* skip next instruction (if C) */
@@ -856,6 +859,7 @@ void luaV_execute (lua_State *L) {
         settableProtected(L, upval, rb, rc);
         vmbreak;
       }
+      //全局变量设置操作
       vmcase(OP_SETUPVAL) {
         UpVal *uv = cl->upvals[GETARG_B(i)];
         setobj(L, uv->v, ra);

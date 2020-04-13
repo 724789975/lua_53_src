@@ -268,16 +268,17 @@ static void markupval (FuncState *fs, int level) {
   upvalue into all intermediate functions.
 */
 static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
-  if (fs == NULL)  /* no more levels? */
+  if (fs == NULL)  /* 全局变量 no more levels? */
     init_exp(var, VVOID, 0);  /* default is global */
   else {
-    int v = searchvar(fs, n);  /* look up locals at current level */
+    int v = searchvar(fs, n);  /* 从函数局部变量中查找局部变量值 look up locals at current level */
     if (v >= 0) {  /* found? */
-      init_exp(var, VLOCAL, v);  /* variable is local */
+      init_exp(var, VLOCAL, v);  /* 局部变量 variable is local */
       if (!base)
         markupval(fs, v);  /* local will be used as an upval */
     }
     else {  /* not found as local at current level; try upvalues */
+    //查询全局变量，如果没有找到全局变量，则newupvalue重新生成
       int idx = searchupvalue(fs, n);  /* try existing upvalues */
       if (idx < 0) {  /* not found? */
         singlevaraux(fs->prev, n, var, 0);  /* try upper levels */
@@ -291,11 +292,13 @@ static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
   }
 }
 
-
+//单个变量名称处理
+// * Lua 中的变量全是全局变量，无论语句块或是函数里，除非用 local 显式声明为局部变量，变量默认值均为nil
+// 使用local创建一个局部变量，与全局变量不同，局部变量只在被声明的那个代码块内有效。
 static void singlevar (LexState *ls, expdesc *var) {
-  TString *varname = str_checkname(ls);
+  TString *varname = str_checkname(ls);//获取变量名称  获取的时候执行了：luaX_next
   FuncState *fs = ls->fs;
-  singlevaraux(fs, varname, var, 1);
+  singlevaraux(fs, varname, var, 1);//判断变量类型 是local、upvalue
   if (var->k == VVOID) {  /* global name? */
     expdesc key;
     singlevaraux(fs, ls->envn, var, 1);  /* get environment variable */
@@ -1522,12 +1525,12 @@ static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
   struct LHS_assign v; //处理多个值
-  suffixedexp(ls, &v.v);//处理变量名
+  suffixedexp(ls, &v.v);//主要用来处理赋值变量名称，判断变量的类型：局部变量、全局变量、Table格式、函数等。
 
   /* 变量赋值处理 */
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
-    assignment(ls, &v, 1); //赋值
+    assignment(ls, &v, 1); //主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数，生成32位的二进制操作码
   }
   else {  /* stat -> func */
     check_condition(ls, v.v.k == VCALL, "syntax error");
