@@ -1134,10 +1134,13 @@ void luaC_runtilstate (lua_State *L, int statesmask) {
 }
 
 
-/*
-** get GC debt and convert it from Kb to 'work units' (avoid zero debt
-** and overflows)
-*/
+/**
+ * 返回值和GCdebt，gcstepmul这两个字段有关
+ * gcstepmul是对GCdebt的一个缩放，gcstepmul越大，返回的值越大
+ * 说明GC一步要做的工作量越多
+ * get GC debt and convert it from Kb to 'work units' (avoid zero debt
+ * and overflows)
+**/
 static l_mem getdebt (global_State *g) {
   l_mem debt = g->GCdebt;
   int stepmul = g->gcstepmul;
@@ -1154,18 +1157,22 @@ static l_mem getdebt (global_State *g) {
 */
 void luaC_step (lua_State *L) {
   global_State *g = G(L);
+  // 1. 计算GC的内存债务
   l_mem debt = getdebt(g);  /* GC deficit (be paid now) */
   if (!g->gcrunning) {  /* not running? */
     luaE_setdebt(g, -GCSTEPSIZE * 10);  /* avoid being called too often */
     return;
   }
+  // 2. 循环执行singlestep，直到GC周期完毕，或debt小于某个值
   do {  /* repeat until pause or enough "credit" (negative debt) */
     lu_mem work = singlestep(L);  /* perform one single step */
     debt -= work;
   } while (debt > -GCSTEPSIZE && g->gcstate != GCSpause);
+  // 3. 如果GC结束，计算下一个阀值
   if (g->gcstate == GCSpause)
     setpause(g);  /* pause until next cycle */
   else {
+    // 4. 否则计算下一次触发的时机
     debt = (debt / g->gcstepmul) * STEPMULADJ;  /* convert 'work units' to Kb */
     luaE_setdebt(g, debt);
     runafewfinalizers(L);

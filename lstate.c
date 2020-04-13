@@ -91,10 +91,13 @@ static unsigned int makeseed (lua_State *L) {
 }
 
 
-/*
-** set GCdebt to a new value keeping the value (totalbytes + GCdebt)
-** invariant (and avoiding underflows in 'totalbytes')
-*/
+/**
+ * debt可以小于0，这表示后面要分配debt的内存量之后，才会使GCdebt变成大于0
+ * 也就是才会触发GC
+ * 但不管debt怎么变，gettotalbytes(g)的值一定是精确的内存分配量
+ * set GCdebt to a new value keeping the value (totalbytes + GCdebt)
+ * invariant (and avoiding underflows in 'totalbytes')
+**/
 void luaE_setdebt (global_State *g, l_mem debt) {
   l_mem tb = gettotalbytes(g);
   lua_assert(tb > 0);
