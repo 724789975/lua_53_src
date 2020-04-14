@@ -157,7 +157,10 @@ static void checkname (LexState *ls, expdesc *e) {
   codestring(ls, e, str_checkname(ls));
 }
 
-
+/**
+ * 新增一个局部变量，为该变量分配空间，并返回其在f->locvars数组中的下标
+ * 注意: 数组f->locvars分配的空间大小为f->sizelocvars，但是数组长度却由fs->nlocavars来控制
+ */
 static int registerlocalvar (LexState *ls, TString *varname) {
   FuncState *fs = ls->fs;
   Proto *f = fs->f;
@@ -174,7 +177,7 @@ static int registerlocalvar (LexState *ls, TString *varname) {
 
 static void new_localvar (LexState *ls, TString *name) {
   FuncState *fs = ls->fs;
-  Dyndata *dyd = ls->dyd;
+  Dyndata *dyd = ls->dyd;//dyd中保存的actvar信息只有下标idx。fs->f->locvars[idx]方可访问到此局部变量
   int reg = registerlocalvar(ls, name);
   checklimit(fs, dyd->actvar.n + 1 - fs->firstlocal,
                   MAXVARS, "local variables");
@@ -263,7 +266,21 @@ static void markupval (FuncState *fs, int level) {
 }
 
 
-/*
+/**
+ *                      开始
+ *                      ↓
+ *                      fs!=NULL？-----------------------------─┐
+ *                      ↓yes									|
+ *                      local level没找到？--------------------------------no----------->返回LOCAL
+ *                      ↓yes									|
+ *                      当前level upvalue中没找到？------------------------no--------->返回UPVALUE
+ *                      ↓yes									↓
+ *                      在prev->level没找到？---------------->返回GLOBAL
+ *                      ↓yes									|
+ *                      new upvalue，并返回UPVALUE				|
+ *                      |										|
+ *                      ↓										|
+ *                      结束<------------------------------------
   Find variable with given name 'n'. If it is an upvalue, add this
   upvalue into all intermediate functions.
 */
@@ -603,6 +620,7 @@ static int block_follow (LexState *ls, int withuntil) {
  */
 static void statlist (LexState *ls) {
   /* statlist -> { stat [';'] } */
+  /* 只要当前token不代表下一个block，则继续解析statement */
   while (!block_follow(ls, 1)) {
     if (ls->t.token == TK_RETURN) {
       statement(ls);
@@ -755,7 +773,9 @@ static void constructor (LexState *ls, expdesc *t) {
 /* }====================================================================== */
 
 
-
+/**
+ * 解析函数的形参列表parlist(ls)
+ */
 static void parlist (LexState *ls) {
   /* parlist -> [ param { ',' param } ] */
   FuncState *fs = ls->fs;
@@ -765,12 +785,12 @@ static void parlist (LexState *ls) {
   if (ls->t.token != ')') {  /* is 'parlist' not empty? */
     do {
       switch (ls->t.token) {
-        case TK_NAME: {  /* param -> NAME */
+        case TK_NAME: {  /*ls->t.token为变量名的话，则新增一个局部变量 param -> NAME */
           new_localvar(ls, str_checkname(ls));
           nparams++;
           break;
         }
-        case TK_DOTS: {  /* param -> '...' */
+        case TK_DOTS: {  /* 如果为’…’，则说明使用了变参，那么设定f->is_vararg=1后break–由于…只能是函数形参列表里面的最后一个参数，所以读到’…’之后退出是有必要的 param -> '...' */
           luaX_next(ls);
           f->is_vararg = 1;  /* declared vararg */
           break;
@@ -781,6 +801,7 @@ static void parlist (LexState *ls) {
   }
   adjustlocalvars(ls, nparams);
   f->numparams = cast_byte(fs->nactvar);
+  /* 需要将参数列表里的局部变量保留到寄存器中 */
   luaK_reserveregs(fs, fs->nactvar);  /* reserve register for parameters */
 }
 
@@ -793,19 +814,19 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   /* body ->  '(' parlist ')' block END */
   FuncState new_fs;
   BlockCnt bl;
-  new_fs.f = addprototype(ls);
+  new_fs.f = addprototype(ls);//addprototype是为了new一个proto，并将其加入ls->fs->p数组中，和mainfunc类似，会先open_func；
   new_fs.f->linedefined = line;
   open_func(ls, &new_fs, &bl);
   checknext(ls, '(');
-  if (ismethod) {
+  if (ismethod) {//判定ismethod为true，则会添加一个self的局部变量
     new_localvarliteral(ls, "self");  /* create 'self' parameter */
-    adjustlocalvars(ls, 1);
+    adjustlocalvars(ls, 1);//adjustlocalvars函数仅仅是为了将设定一下新增的localvar的pc指针
   }
   parlist(ls);
   checknext(ls, ')');
   statlist(ls);
   new_fs.f->lastlinedefined = ls->linenumber;
-  check_match(ls, TK_END, TK_FUNCTION, line);
+  check_match(ls, TK_END, TK_FUNCTION, line);//check_match会校验函数结束标志符”end”，调用codeclosure，然后把OP_CLOSURE这条指令添加到父函数的code之中
   codeclosure(ls, e);
   close_func(ls);
 }
@@ -899,7 +920,9 @@ static void primaryexp (LexState *ls, expdesc *v) {
   }
 }
 
-
+/**
+ * 主要用来处理赋值变量名称，判断变量的类型：局部变量、全局变量、Table格式、函数等。
+**/
 static void suffixedexp (LexState *ls, expdesc *v) {
   /* suffixedexp ->
        primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
@@ -1155,7 +1178,7 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
 
 
 /**
- * 变量赋值操作
+ * 主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数，生成32位的二进制操作码
  * ls：语法解析上下文状态
  * lh：变量名称存储在expdesc结构中，链表形式，可以存储多个变量名
  * nvars：值的个数
@@ -1492,10 +1515,15 @@ static void localstat (LexState *ls) {
   adjustlocalvars(ls, nvars);
 }
 
-
+/*
+ * 解析函数名，保存结果到v
+ * 1. function A 或者 function A.a
+ * 2. function A:a
+ */
 static int funcname (LexState *ls, expdesc *v) {
   /* funcname -> NAME {fieldsel} [':' NAME] */
   int ismethod = 0;
+  /* 首先将它作为一个简单的变量名去解析 */
   singlevar(ls, v);
   while (ls->t.token == '.')
     fieldsel(ls, v);
@@ -1506,15 +1534,17 @@ static int funcname (LexState *ls, expdesc *v) {
   return ismethod;
 }
 
-
+/**
+ * 解析一个函数
+ **/
 static void funcstat (LexState *ls, int line) {
   /* funcstat -> FUNCTION funcname body */
   int ismethod;
   expdesc v, b;
   luaX_next(ls);  /* skip FUNCTION */
-  ismethod = funcname(ls, &v);
-  body(ls, &b, ismethod, line);
-  luaK_storevar(ls->fs, &v, &b);
+  ismethod = funcname(ls, &v);//解析函数名，保存结果到v 
+  body(ls, &b, ismethod, line);//解析函数体，保存结果到b
+  luaK_storevar(ls->fs, &v, &b);//编码生成赋值语句
   luaK_fixline(ls->fs, line);  /* definition "happens" in the first line */
 }
 
@@ -1525,12 +1555,12 @@ static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
   struct LHS_assign v; //处理多个值
-  suffixedexp(ls, &v.v);//主要用来处理赋值变量名称，判断变量的类型：局部变量、全局变量、Table格式、函数等。
+  suffixedexp(ls, &v.v);
 
   /* 变量赋值处理 */
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
-    assignment(ls, &v, 1); //主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数，生成32位的二进制操作码
+    assignment(ls, &v, 1);
   }
   else {  /* stat -> func */
     check_condition(ls, v.v.k == VCALL, "syntax error");
@@ -1573,6 +1603,21 @@ static void retstat (LexState *ls) {
 
 /**
  * 解析语法树，按照块状分割
+ *     stat ::=  ‘;’ | 
+ *       varlist ‘=’ explist | 
+ *       functioncall | 
+ *       label | 
+ *       break | 
+ *       goto Name | 
+ *       do block end | 
+ *       while exp do block end | 
+ *       repeat block until exp | 
+ *       if exp then block {elseif exp then block} [else block] end | 
+ *       for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+ *       for namelist in explist do block end | 
+ *       function funcname funcbody | 
+ *       local function Name funcbody | 
+ *       local namelist [‘=’ explist] 
  */
 static void statement (LexState *ls) {
   int line = ls->linenumber;  /* may be needed for error messages */
@@ -1669,8 +1714,8 @@ static void mainfunc (LexState *ls, FuncState *fs) {
 */
 LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
                        Dyndata *dyd, const char *name, int firstchar) {
-  LexState lexstate;
-  FuncState funcstate;
+  LexState lexstate;//LexState不仅用于保存当前的词法分析状态信息，而且也保存了整个编译系统的全局状态
+  FuncState funcstate;//FuncState结构体来保存当前函数编译的状态数据
   LClosure *cl = luaF_newLclosure(L, 1);  /* create main closure */
   setclLvalue(L, L->top, cl);  /* anchor it (to avoid being collected) */
   luaD_inctop(L);

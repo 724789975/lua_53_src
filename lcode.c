@@ -715,9 +715,10 @@ void luaK_exp2nextreg (FuncState *fs, expdesc *e) {
 }
 
 
-/*
-** Ensures final expression result (including results from its jump
-** lists) is in some (any) register and return that register.
+/**
+ * 返回寄存器索引
+ * Ensures final expression result (including results from its jump
+ * lists) is in some (any) register and return that register.
 */
 int luaK_exp2anyreg (FuncState *fs, expdesc *e) {
   luaK_dischargevars(fs, e);

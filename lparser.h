@@ -51,6 +51,9 @@ typedef enum {
 #define vkisvar(k)	(VLOCAL <= (k) && (k) <= VINDEXED)
 #define vkisinreg(k)	((k) == VNONRELOC || (k) == VLOCAL)
 
+/**
+ * 用于描述 表达式 的结构体 函数名可以用它来表达 函数体也可以用它来表达
+ **/
 typedef struct expdesc {
   expkind k;
   union {
