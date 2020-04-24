@@ -129,14 +129,17 @@
 #define luaC_checkGC(L)		luaC_condGC(L,(void)0,(void)0)
 
 
+//把 v 向 p 关联时，当 v 为白色且 p 为黑色时，调用 luaC_barrier_
 #define luaC_barrier(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
 	luaC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
 
+//将 v 关联到 p 时，调用 luaC_barrierback_  前提条件是 v 为白色，且 p 为黑色
 #define luaC_barrierback(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
 	luaC_barrierback_(L,p) : cast_void(0))
 
+//把 o 向 p 关联时，当 o 为白色且 p 为黑色时，调用 luaC_barrier_
 #define luaC_objbarrier(L,p,o) (  \
 	(isblack(p) && iswhite(o)) ? \
 	luaC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
