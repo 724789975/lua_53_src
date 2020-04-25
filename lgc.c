@@ -145,12 +145,16 @@ static int iscleared (global_State *g, const TValue *o) {
   else return iswhite(gcvalue(o));
 }
 
-
-/*
-** barrier that moves collector forward, that is, mark the white object
-** being pointed by a black object. (If in sweep phase, clear the black
-** object to white [sweep it] to avoid other barrier calls for this
-** same object.)
+/**
+ * barrier that moves collector forward, that is, mark the white object
+ * being pointed by a black object. (If in sweep phase, clear the black
+ * object to white [sweep it] to avoid other barrier calls for this
+ * same object.)
+ * luaC_barrier_函数用来实现“向前”的barrier。“向前”的意思就是当一个black对象需要引用一个white对象时，立即mark这个white对象。这样white对象就变为gray对象，等待下一步的扫描。这也就是帮助gc向前标识一步。luaC_barrier_函数被用在以下引用变化处：
+ * 虚拟机执行过程中或者通过api修改close upvalue对其他对象的引用
+ * 通过api设置userdata或table的metatable引用
+ * 通过api设置userdata的env table引用
+ * 编译构建proto对象过程中proto对象对其他编译产生对象的引用
 */
 void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
   global_State *g = G(L);
@@ -164,9 +168,17 @@ void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
 }
 
 
-/*
-** barrier that moves collector backward, that is, mark the black object
-** pointing to a white object as gray again.
+/**
+ * barrier that moves collector backward, that is, mark the black object
+ * pointing to a white object as gray again.
+ * luaC_barrierback_函数用来实现“向后”的barrier。
+ * “向后”的意思就是当一个black对象需要引用一个white对象时，将已经扫描过的black对象再次变为gray对象，等待重新扫描。
+ * 这也就是将gc的mark后退一步。luaC_barrierback_目前只用于监控table的key和value对象引用的变化。
+ * Table是lua中最主要的数据结构，连全局变量都是被保存在一个table中，所以table的变化是比较频繁的，并且同一个引用可能被反复设置成不同的对象。
+ * 对table的引用使用“向前”的barrier，逐个扫描每次引用变化的对象，会造成很多不必要的消耗。
+ * 而使用“向后”的barrier就等于将table分成了“未变”和“已变”两种状态。
+ * 只要一个table改变了一次，就将其变成gray，等待重新扫描。
+ * 被变成gray的table在被重新扫描之前，无论引用再发生多少次变化也都无关紧要了。
 */
 void luaC_barrierback_ (lua_State *L, Table *t) {
   global_State *g = G(L);

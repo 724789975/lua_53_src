@@ -29,8 +29,21 @@
 #define MAXUPVAL	255
 
 
-/*
-** Upvalues for Lua closures
+/**
+ * Upvalues for Lua closures
+ * Upvalue对象在垃圾回收中的处理是比较特殊的。
+ * 对于open状态的upvalue，其v指向的是一个stack上的TValue，所以open upvalue与thread的关系非常紧密。
+ * 引用到open upvalue的只可能是其从属的thread，以及lua closure。
+ * 如果没有lua closure引用这个open upvalue，就算他一定被thread引用着，也已经没有实际的意义了，应该被回收掉。
+ * 也就是说thread对open upvalue的引用完全是一个弱引用。
+ * 所以Lua没有将open upvalue当作一个独立的可回收对象，而是将其清理工作交给从属的thread对象来完成。
+ * 在mark过程中，open upvalue对象只使用white和gray两个状态，来代表是否被引用到。
+ * 通过上面的引用关系可以看到，有可能引用open upvalue的对象只可能被lua closure引用到。
+ * 所以一个gray的open upvalue就代表当前有lua closure正在引用他，而这个lua closure不一定在这个thread的stack上面。
+ * 在清扫阶段，thread对象会遍历所有从属于自己的open upvalue。
+ * 如果不是gray，就说明当前没有lua closure引用这个open upvalue了，可以被销毁。
+ * 当退出upvalue的语法域或者thread被销毁，open upvalue会被close。
+ * 所有close upvalue与thread已经没有弱引用关系，会被转化为一个普通的可回收对象，和其他对象一样进行独立的垃圾回收。
 */
 struct UpVal {
   TValue *v;  /* 指向了闭包变量的真正的值的指针 points to stack or to its own value */

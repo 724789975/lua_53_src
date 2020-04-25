@@ -72,10 +72,21 @@
 typedef struct GCObject GCObject;
 
 
-/*
-** Common Header for all collectable objects (in macro form, to be
-** included in other objects)
-** marked是在垃圾回收过程中用以标记对象存活状态
+/**
+ * Common Header for all collectable objects (in macro form, to be
+ * included in other objects)
+ * marked是在垃圾回收过程中用以标记对象存活状态
+ * 其中0和1位用来表示对象的white状态和垃圾状态。
+ * 当垃圾回收的标识阶段结束后，剩下的white对象就是垃圾对象。
+ * 由于lua并不是立即清除这些垃圾对象，而是一步步逐渐清除，所以这些对象还会在系统中存在一段时间。
+ * 这就需要我们能够区分出同样为white状态的垃圾对象和非垃圾对象。Lua使用两个标志位来表示white，就是为了高效的解决这个问题。
+ * 这个标志位会轮流被当作white状态标志，另一个表示垃圾状态。
+ * 在global_State中保存着一个currentwhite，来表示当前是那个标志位用来标识white。
+ * 每当GC标识阶段完成，系统会切换这个标志位，这样原来为white的所有对象不需要遍历就变成了垃圾对象，而真正的white对象则使用新的标志位标识。
+ * 
+ * 第2个标志位用来表示black状态，而既非white也非black就是gray状态。
+ * 除了short string和open upvalue之外，所有的GCObject都通过next被串接到全局状态global_State中的allgc链表上。
+ * 我们可以通过遍历allgc链表来访问系统中的所有GCObject。short string被字符串标单独管理。open upvalue会在被close时也连接到allgc上。
 */
 #define CommonHeader	GCObject *next; lu_byte tt; lu_byte marked
 

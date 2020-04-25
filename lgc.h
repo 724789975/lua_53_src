@@ -36,6 +36,13 @@
 /*
 ** Possible states of the Garbage Collector
 */
+
+/**
+ * 这一步主要就是将所有gray对象变成black，并将其引用到的white对象变成gray，直到没有gray对象存在为止。
+ * 在GCSpropagate状态下，barrier会起作用。
+ * Lua并不监控所有的引用变化，否则会非常影响效率。
+ * 一些我们认为经常会发生变化的地方，比如stack的引用变化，就不用barrier。
+*/
 #define GCSpropagate	0
 #define GCSatomic	1
 #define GCSswpallgc	2
@@ -43,6 +50,18 @@
 #define GCSswptobefnz	4
 #define GCSswpend	5
 #define GCScallfin	6
+/**
+ * GCSpause状态标志着当前没有开始gc。
+ * gc一旦开始，第一步要做的就是标识所有的root对象。
+ * root对象包括global_State引用的mainthread对象，registry table，全局的metatable和上次gc所产生的还没有进行finalize的垃圾对象。
+ * 标识工作就是将white对象设置成gray，是通过函数reallymarkobject进行的。
+ * reallymarkobject会根据不同的对象作不同的处理。
+ * 对于string对象，本身没有对其它对象的引用，就可以立即设置成black，无需等待后面的遍历。
+ * 对于userdata对象，只会引用到一个metatable和env，所以直接mark后也可以立即设置成black。
+ * 对于upvalue对象，直接mark引用的对象。
+ * 所有root对象会被设置成gray状态，等待下一步的propagate。
+ * 第一步完成后，gc状态会切换成GCSpropagate。
+*/
 #define GCSpause	7
 
 

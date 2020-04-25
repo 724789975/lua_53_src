@@ -202,9 +202,33 @@ Incremental Garbage Collection
 这种垃圾回收方式被称为"Incremental Garbage Collection"(简称为"IGC"，Lua所采用的就是这种方法。使用"IGC"并不是没有代价的。IGC所检测出来的垃圾对象集合比实际的集合要小，也就是说，有些在GC过程中变成垃圾的对象，有可能在本轮GC中检测不到。不过，这些残余的垃圾对象一定会在下一轮GC被检测出来，不会造成泄露。
 
 
+引用关系
+垃圾回收过程通过对象之间的引用关系来标识对象。以下是lua对象之间在垃圾回收标识过程中需要遍历的引用关系：
+所有字符串对象，无论是长串还是短串，都没有对其他对象的引用。
+usedata对象会引用到一个metatable和一个env table。
+Upval对象通过v引用一个TValue，再通过这个TValue间接引用一个对象。在open状态下，这个v指向stack上的一个TValue。在close状态下，v指向Upval自己的TValue。
+Table对象会通过key，value引用到其他对象，并且如果数组部分有效，也会通过数组部分引用。并且，table会引用一个metatable对象。
+Lua closure会引用到Proto对象，并且会通过upvalues数组引用到Upval对象。
+C closure会通过upvalues数组引用到其他对象。这里的upvalue与lua closure的upvalue完全不是一个意思。
+Proto对象会引用到一些编译期产生的名称，常量，以及内嵌于本Proto中的Proto对象。
+Thread对象通过stack引用其他对象。
 
 
-
-
+barrier的位置
+lapi.c moveto luaC_barrier
+lapi.c lua_load luaC_barrier
+lapi.c lua_setupvalue luaC_barrier
+lcode.c addk luaC_barrier
+lvm.c OP_SETUPVAL luaC_barrier
+lapi.c lua_rawset lua_rawseti lua_rawsetp  luaC_barrierback
+ltable.c luaH_newkey  luaC_barrierback
+lvm.c luaV_settable luaC_barrierback
+lvm.c OP_SETLIST luaC_barrierback
+lapi.c lua_setmetatable luaC_objbarrier userdate->mt
+lapi.c lua_setuservalue luaC_objbarrier
+lapi.c lua_upvaluejoin luaC_objbarrier
+ldo.c f_parser luaC_objbarrier initialize upvalue
+lparser.c luaC_objbarrier
+lapi.c lua_setmetatable luaC_objbarrierback
 
 
