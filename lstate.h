@@ -246,7 +246,7 @@ struct lua_State {
   CommonHeader;
   unsigned short nci;  /* number of items in 'ci' list 存储一共多少个CallInfo */
   lu_byte status;/* 解析容器的用于记录中间状态*/
-  StkId top;  /*线程栈的栈顶指针 first free slot in the stack */
+  StkId top;  /*线程栈的栈顶指针 当前械的下一个可用位置 first free slot in the stack */
   global_State *l_G;/* 这个是Lua的全局对象，所有的lua_State共享一个global_State，global_State里塞进了各种全局字段 */
   CallInfo *ci;  /*当前运行函数信息 call info for current function */
   const Instruction *oldpc;  /*在当前thread 的解释执行指令的过程中，指向最后一次执行的指令的指针 last pc traced */

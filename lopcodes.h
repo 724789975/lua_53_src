@@ -164,10 +164,14 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 #define NO_REG		MAXARG_A
 
 
-/*
-** R(x) - register 表示这一定是 寄存器索引（一定要操作Lua 栈） 
-** Kst(x) - constant (in constant table) 
-** RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x) 表示这有可能是 一个寄存器索引 或 是一个常量索引，RK 只能用 参数B 与 参数 C (SIZE_B = SIZE_C = 9)，其中参数的最高位区分 寄存器索引与常量索引。
+/**
+ * R(x) - register 表示这一定是 寄存器索引（一定要操作Lua 栈） 
+ * Kst(x) - constant (in constant table) 
+ * RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x) 表示这有可能是 一个寄存器索引 或 是一个常量索引，RK 只能用 参数B 与 参数 C (SIZE_B = SIZE_C = 9)，其中参数的最高位区分 寄存器索引与常量索引。
+ * pc 程序计数器（ program counter ），这个数据用于指示当前指令的地址 
+ * Upvalue(n) upvalue数组中的第n个数据
+ * Gbl[sym] 全局符号表中取名为sym的数据 
+ * sBx 有符号整数 用于表示跳转偏移量
 */
 
 
@@ -179,67 +183,68 @@ typedef enum {
 /*----------------------------------------------------------------------
 name		args	description
 ------------------------------------------------------------------------*/
-OP_MOVE,/*	A B	R(A) := R(B)					*/
-OP_LOADK,/*	A Bx	R(A) := Kst(Bx)					*/
+OP_MOVE,/*	A B	R(A) := R(B)					从R(B）中取数据赋值给R(A) */
+OP_LOADK,/*	A Bx	R(A) := Kst(Bx)					从Kst(Bx）常盘数组中取数据赋值给R(A) */
 OP_LOADKX,/*	A 	R(A) := Kst(extra arg)				*/
-OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if (C) pc++			*/
-OP_LOADNIL,/*	A B	R(A), R(A+1), ..., R(A+B) := nil		*/
-OP_GETUPVAL,/*	A B	R(A) := UpValue[B]				*/
+OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if (C) pc++			取B参数的布尔值赋值给R(A），如果满足C为真的条件，则将pc指 针递增，即执行下一条指令 */
+OP_LOADNIL,/*	A B	R(A), R(A+1), ..., R(A+B) := nil		从寄存器R(A）到R(B）的数据赋值为nil*/
+OP_GETUPVAL,/*	A B	R(A) := UpValue[B]				从UpValue数组中取值赋值给R(A) */
 
 OP_GETTABUP,/*	A B C	R(A) := UpValue[B][RK(C)]			*/
-OP_GETTABLE,/*	A B C	R(A) := R(B)[RK(C)]				*/
+OP_GETTABLE,/*	A B C	R(A) := R(B)[RK(C)]				以RK(C）作为表索引，以R(B）的数据作为表，取出来的数据赋值 给R(A) */
 
 OP_SETTABUP,/*	A B C	UpValue[A][RK(B)] := RK(C)			*/
-OP_SETUPVAL,/*	A B	UpValue[B] := R(A)				*/
-OP_SETTABLE,/*	A B C	R(A)[RK(B)] := RK(C)				*/
+OP_SETUPVAL,/*	A B	UpValue[B] := R(A)				将R(A）的值赋值给以B作为upvalue数组索引的变量*/
+OP_SETTABLE,/*	A B C	R(A)[RK(B)] := RK(C)				将RK(C）的值赋值给R(A）表中索引为RK(B）的变量*/
 
-OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				*/
+OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				创建一个新的表，并将其赋值给R(A），其中数组部分的初始大小 是B，散列部分的大小是C */
 
-OP_SELF,/*	A B C	R(A+1) := R(B); R(A) := R(B)[RK(C)]		*/
+OP_SELF,/*	A B C	R(A+1) := R(B); R(A) := R(B)[RK(C)]		做好调用成员函数之前的准备， 其中待调用模块赋值到R(A+l) 中，而待调用的成员函数存放在R(A）中，待调用的模块存放在 R(B）中，待调用的函数名存放在RK(C）中
+*/
 
-OP_ADD,/*	A B C	R(A) := RK(B) + RK(C)				*/
-OP_SUB,/*	A B C	R(A) := RK(B) - RK(C)				*/
-OP_MUL,/*	A B C	R(A) := RK(B) * RK(C)				*/
-OP_MOD,/*	A B C	R(A) := RK(B) % RK(C)				*/
-OP_POW,/*	A B C	R(A) := RK(B) ^ RK(C)				*/
-OP_DIV,/*	A B C	R(A) := RK(B) / RK(C)				*/
+OP_ADD,/*	A B C	R(A) := RK(B) + RK(C)				加法操作 */
+OP_SUB,/*	A B C	R(A) := RK(B) - RK(C)				减法操作 */
+OP_MUL,/*	A B C	R(A) := RK(B) * RK(C)				乘法操作 */
+OP_MOD,/*	A B C	R(A) := RK(B) % RK(C)				模操作 */
+OP_POW,/*	A B C	R(A) := RK(B) ^ RK(C)				乘方操作 */
+OP_DIV,/*	A B C	R(A) := RK(B) / RK(C)				除法操作 */
 OP_IDIV,/*	A B C	R(A) := RK(B) // RK(C)				*/
 OP_BAND,/*	A B C	R(A) := RK(B) & RK(C)				*/
 OP_BOR,/*	A B C	R(A) := RK(B) | RK(C)				*/
 OP_BXOR,/*	A B C	R(A) := RK(B) ~ RK(C)				*/
 OP_SHL,/*	A B C	R(A) := RK(B) << RK(C)				*/
 OP_SHR,/*	A B C	R(A) := RK(B) >> RK(C)				*/
-OP_UNM,/*	A B	R(A) := -R(B)					*/
+OP_UNM,/*	A B	R(A) := -R(B)					取负操作 */
 OP_BNOT,/*	A B	R(A) := ~R(B)					*/
-OP_NOT,/*	A B	R(A) := not R(B)				*/
-OP_LEN,/*	A B	R(A) := length of R(B)				*/
+OP_NOT,/*	A B	R(A) := not R(B)				非操作*/
+OP_LEN,/*	A B	R(A) := length of R(B)				取长度操作 */
 
-OP_CONCAT,/*	A B C	R(A) := R(B).. ... ..R(C)			*/
+OP_CONCAT,/*	A B C	R(A) := R(B).. ... ..R(C)			连接操作 */
 
-OP_JMP,/*	A sBx	pc+=sBx; if (A) close all upvalues >= R(A - 1)	*/
-OP_EQ,/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		*/
-OP_LT,/*	A B C	if ((RK(B) <  RK(C)) ~= A) then pc++		*/
-OP_LE,/*	A B C	if ((RK(B) <= RK(C)) ~= A) then pc++		*/
+OP_JMP,/*	A sBx	pc+=sBx; if (A) close all upvalues >= R(A - 1)	跳转操作 */
+OP_EQ,/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		比较相等操作，如果比较RK(B）和RK(C）所得的结果不等于A，那么 递增pc指令 */
+OP_LT,/*	A B C	if ((RK(B) <  RK(C)) ~= A) then pc++		比较小于操作，如果比较RK(B）小子RK(C）所得的结果不等于A，那 么递增pc指令 */
+OP_LE,/*	A B C	if ((RK(B) <= RK(C)) ~= A) then pc++		比较小于等于操作，如果比较RK(B）小于等于RK(C）所得的结果不 等于A，那么递增pc指令 */
 
-OP_TEST,/*	A C	if not (R(A) <=> C) then pc++			*/
-OP_TESTSET,/*	A B C	if (R(B) <=> C) then R(A) := R(B) else pc++	*/
+OP_TEST,/*	A C	if not (R(A) <=> C) then pc++			测试操作，如果R(A）参数的布尔值不等于C，将pc指针加一，直接跳过下一条指令的执行 */
+OP_TESTSET,/*	A B C	if (R(B) <=> C) then R(A) := R(B) else pc++	测试设置操作，与OP_TEST指令类似，所不同的是当比较的参数 不相等时，执行一个赋值操*/
 
-OP_CALL,/*	A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) */
-OP_TAILCALL,/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		*/
-OP_RETURN,/*	A B	return R(A), ... ,R(A+B-2)	(see note)	*/
+OP_CALL,/*	A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) 调用函数指令，其中函数地址存放在R（时，函数参数数量存放在 B中，有两种情况： I ）为0表示参数从A+l的位置一直到函数梭的 top 位置，这表示函数参数中有另外的函数调用，因为在调用时 并不知道有多少参数，所以只好告诉虚拟机函数参数一直到函 数梭的top位置了； 2 ）大于0时函数参数数量为自－1 */
+OP_TAILCALL,/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		尾调用操作， R(A）存放函数地址，参数B表示函数参数数盐，意 义与前面OP CALL指令的B参数一样， C参数在这里恒为0表示有多个返回值*/
+OP_RETURN,/*	A B	return R(A), ... ,R(A+B-2)	(see note)	返回操作， R(A）表示函数参数的起始地址， B参数用于表示函数 参数数量，有两种情况： I ）为0表示参数从A+l的位置一直到函 数梭的top位置，这表示函数参数中有另外的函数调用，因为在 调用时并不知道有多少参数，所以只好告诉虚拟机函数参数一 直到函数梭的top{i'L置了， 2 ）大子。时函数参数数量为B-1。 参数 C表示函数返回值数量，也有两种情况： I ）为0时表示有可变数 量的值返回； 2 ）为l时表示返回值数量为C-1 */
 
 OP_FORLOOP,/*	A sBx	R(A)+=R(A+2);
-			if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }*/
-OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				*/
+			if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) } 数字for的循环操作，根据循环步长来更新循环变茧，判断循环 条件是存终止，如果没有，就跳转到循环体继续执行下一次循 环，否则退出循环。 R(A）存放循环变量的初始值， R(A+l）存放循 环终止值， R(A+2）存放循环步长值， R(A+3）存放循环变盐， sBx参 数存放循环体开始指令的偏移盘 */
+OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				数字for循环准备操作。 R(A）存放循环变量的初始值， R(A+l）存放 循环终止值， R(A+2）存放循环步长值， R(A+3）存放循环变盐， sBx 参数存放紧跟着的OP FORLOOP指令的偏移量*/
 
 OP_TFORCALL,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));	*/
-OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }*/
+OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx } 泛型循环操作*/
 
-OP_SETLIST,/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	*/
+OP_SETLIST,/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	对表的数组部分进行赋值 */
 
-OP_CLOSURE,/*	A Bx	R(A) := closure(KPROTO[Bx])			*/
+OP_CLOSURE,/*	A Bx	R(A) := closure(KPROTO[Bx])			创建一个函数对象，其中民数Proto信息存放在Bx巾， 生成的函 R(A), . .. ,R(A+n)) 数对象存放在 R(A）中，这个指令后面可能会跟着f'OVE或者 GET UPVAL指令，取决于引用到的外部参数的位置，这些外部参 数的数量由n决定 */
 
-OP_VARARG,/*	A B	R(A), R(A+1), ..., R(A+B-2) = vararg		*/
+OP_VARARG,/*	A B	R(A), R(A+1), ..., R(A+B-2) = vararg		可变参数赋值操作 */
 
 OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 } OpCode;
