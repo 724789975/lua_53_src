@@ -145,6 +145,9 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 #define BITRK		(1 << (SIZE_B - 1))
 
 /* test whether value is a constant */
+/**
+ * 判断这个数据的第八位是不是l ，如果是，则认为 应该从K数组中获取数据，否则就是从函数战寄存器中获取数据。 
+ */
 #define ISK(x)		((x) & BITRK)
 
 /* gets the index of the constant */

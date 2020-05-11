@@ -790,9 +790,9 @@ void luaV_finishOp (lua_State *L) {
 //操作码执行函数
 void luaV_execute (lua_State *L) {
   CallInfo *ci = L->ci;
-  LClosure *cl;
-  TValue *k;
-  StkId base;
+  LClosure *cl;//当前所在的函数环境
+  TValue *k;//当前函数环境的常量数组
+  StkId base;//当前函数环境的战base地址
   ci->callstatus |= CIST_FRESH;  /* fresh invocation of 'luaV_execute" */
  newframe:  /* reentry point when frame changes (call/return) */
   lua_assert(ci == L->ci);
