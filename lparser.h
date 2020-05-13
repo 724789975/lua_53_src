@@ -55,7 +55,7 @@ typedef enum {
  * 用于描述 表达式 的结构体 函数名可以用它来表达 函数体也可以用它来表达
  **/
 typedef struct expdesc {
-  expkind k;
+  expkind k;//表示具体的类型
   union {
     lua_Integer ival;    /* for VKINT */
     lua_Number nval;  /* for VKFLT */
@@ -128,7 +128,7 @@ typedef struct FuncState {
   short nlocvars;  /* number of elements in 'f->locvars' */
   lu_byte nactvar;  /* number of active local variables */
   lu_byte nups;  /* number of upvalues */
-  lu_byte freereg;  /* first free register */
+  lu_byte freereg;  /* 是当前函数拢的下一个可用位置 first free register */
 } FuncState;
 
 

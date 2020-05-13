@@ -703,15 +703,17 @@ static void exp2reg (FuncState *fs, expdesc *e, int reg) {
 }
 
 
-/*
-** Ensures final expression result (including results from its jump
-** lists) is in next available register.
+/**
+ * Ensures final expression result (including results from its jump
+ * lists) is in next available register.
+ * 根据这个结构体的 信息来生成对应的字节码
 */
 void luaK_exp2nextreg (FuncState *fs, expdesc *e) {
-  luaK_dischargevars(fs, e);
+  luaK_dischargevars(fs, e);//根据变量所在的不同作用域（ local, global, upvalue ) 来决定这个变量是否需要重定向。 
   freeexp(fs, e);
-  luaK_reserveregs(fs, 1);
-  exp2reg(fs, e, fs->freereg - 1);
+  luaK_reserveregs(fs, 1);//分配可用的函数寄存器空间，得到这个空间对应的寄存器索引。 有了空间，才能存储变量
+  exp2reg(fs, e, fs->freereg - 1);//真正完成把表达式的数据放入寄存器空间的工作。 在这个函数中，最终又会调用discharge2reg函数，这个函数式根据不同的表达式类型（ NIL，布尔表达式， 数字等）来生成存取表达式的值到寄存器的字节码。
+
 }
 
 

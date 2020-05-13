@@ -201,7 +201,7 @@ static LocVar *getlocvar (FuncState *fs, int i) {
   return &fs->f->locvars[idx];
 }
 
-
+//调整局部变量
 static void adjustlocalvars (LexState *ls, int nvars) {
   FuncState *fs = ls->fs;
   fs->nactvar = cast_byte(fs->nactvar + nvars);
@@ -831,7 +831,13 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   close_func(ls);
 }
 
-
+/**
+ * 调用函数expr解析表达式
+ * 当解析的表达式列表中还存在其他表达式时
+ * 即有逗号（，）分隔的式子时，针对每个表达式继续调用expr函数解析表达式
+ * 将结果缓存在expdesc结构体中
+ * 然后调用函数 luaK_exp2nextreg将表达式存入当前函数的下一个可用寄存器中
+*/
 static int explist (LexState *ls, expdesc *v) {
   /* explist -> expr { ',' expr } */
   int n = 1;  /* at least one expression */
@@ -960,7 +966,9 @@ static void suffixedexp (LexState *ls, expdesc *v) {
   }
 }
 
-
+/**
+ * 
+*/
 static void simpleexp (LexState *ls, expdesc *v) {
   /* simpleexp -> FLT | INT | STRING | NIL | TRUE | FALSE | ... |
                   constructor | FUNCTION body | suffixedexp */
