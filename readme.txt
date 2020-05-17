@@ -24,7 +24,7 @@ int tt                              void *p                         union TStrin
 
 
 
-(1）在飞parser函数中，对代码文件的分析返回了Proto指针。 这个指针会保存在Closure指针 中，留待后续继续使用。
+(1）在非parser函数中，对代码文件的分析返回了Proto指针。 这个指针会保存在Closure指针 中，留待后续继续使用。
 (2）在luaD_precall函数中，将lua_state的savedpc指针指向第1步中Proto结构体的code指针， 同时准备好函数调用时的战信息。
 (3）在luaV_execute函数中， pc指针指向第2步中的savedpc指针，紧眼着就是一个大的循环体， 依次取出其中的OpCode执行。
 执行完毕后，调用luaD_poscall函数恢复到上一个函数的环境
