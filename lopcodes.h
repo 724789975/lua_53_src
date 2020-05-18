@@ -194,11 +194,25 @@ OP_LOADNIL,/*	A B	R(A), R(A+1), ..., R(A+B) := nil		从寄存器R(A）到R(B）�
 OP_GETUPVAL,/*	A B	R(A) := UpValue[B]				从UpValue数组中取值赋值给R(A) */
 
 OP_GETTABUP,/*	A B C	R(A) := UpValue[B][RK(C)]			*/
-OP_GETTABLE,/*	A B C	R(A) := R(B)[RK(C)]				以RK(C）作为表索引，以R(B）的数据作为表，取出来的数据赋值 给R(A) */
+
+/**
+ * 	A B C	R(A) := R(B)[RK(C)]				以RK(C）作为表索引，以R(B）的数据作为表，取出来的数据赋值 给R(A)
+ * 参数A 存放结果的寄存器
+ * 参数B 表所在的寄存器
+ * 参数C key存放的位置，注意其中各式是以，也就是说这个值可能来向寄存器．也可能来自常量数组
+ */
+OP_GETTABLE,
 
 OP_SETTABUP,/*	A B C	UpValue[A][RK(B)] := RK(C)			*/
 OP_SETUPVAL,/*	A B	UpValue[B] := R(A)				将R(A）的值赋值给以B作为upvalue数组索引的变量*/
-OP_SETTABLE,/*	A B C	R(A)[RK(B)] := RK(C)				将RK(C）的值赋值给R(A）表中索引为RK(B）的变量*/
+
+/**
+ * 	A B C	R(A)[RK(B)] := RK(C)				将RK(C）的值赋值给R(A）表中索引为RK(B）的变量
+ * 参数A 表所在的寄存器
+ * 参数B key存放的位置，注意其格式是RK，也就是说这个值可能来自寄存器，也可能来自常量数组
+ * 参数c value存放的位置， 注意其格式是RK，也就是说这个值可能来自寄存器，也可能来自常量数组
+ */
+OP_SETTABLE,
 
 OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				创建一个新的表，并将其赋值给R(A），其中数组部分的初始大小 是B，散列部分的大小是C */
 
@@ -243,7 +257,13 @@ OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				数字for循环准备操作。 R(A�
 OP_TFORCALL,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));	*/
 OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx } 泛型循环操作*/
 
-OP_SETLIST,/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	对表的数组部分进行赋值 */
+/**
+ * 	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	对表的数组部分进行赋值
+ * 参数A OP_NEWTABLE指令中创建好的表所在的寄存器，它后面紧跟着待写入的数据
+ * 参数B 待写入数据的数量
+ * 参数C FPF 索引，即每次写入最多的是LFIELDS_PER_FLUSH 
+*/
+OP_SETLIST,
 
 OP_CLOSURE,/*	A Bx	R(A) := closure(KPROTO[Bx])			创建一个函数对象，其中民数Proto信息存放在Bx巾， 生成的函 R(A), . .. ,R(A+n)) 数对象存放在 R(A）中，这个指令后面可能会跟着f'OVE或者 GET UPVAL指令，取决于引用到的外部参数的位置，这些外部参 数的数量由n决定 */
 
@@ -309,7 +329,10 @@ LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
 LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 
 
-/* number of list items to accumulate before a SETLIST instruction */
+/**
+ * number of list items to accumulate before a SETLIST instruction
+ * 当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP_SETLIST函数写入寄存器中
+ */
 #define LFIELDS_PER_FLUSH	50
 
 

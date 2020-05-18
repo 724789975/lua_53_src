@@ -659,11 +659,11 @@ static void yindex (LexState *ls, expdesc *v) {
 
 
 struct ConsControl {
-  expdesc v;  /* last list item read */
-  expdesc *t;  /* table descriptor */
-  int nh;  /* total number of 'record' elements */
-  int na;  /* total number of array elements */
-  int tostore;  /* number of array elements pending to be stored */
+  expdesc v;  /*存储表构造过程中最后一个表达式的信息。  last list item read */
+  expdesc *t;  /*构造表相关的表达式信息，与上一个字段的区别在于这里使用的是指针， 因为这个字段是由外部传入的。  table descriptor */
+  int nh;  /*初始化表时，散列部分数据的数量 total number of 'record' elements */
+  int na;  /*初始化表时，数组部分数据的数量 total number of array elements */
+  int tostore;  /*Lua解析器中定义了一个叫 LFIELDS_PER_FLUSH的常量，当前的值是50，这个值的意义在于，当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP SETLIST函数写人寄存器中 number of array elements pending to be stored */
 };
 
 
@@ -750,7 +750,11 @@ static void constructor (LexState *ls, expdesc *t) {
      sep -> ',' | ';' */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
+  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);//生成一条OP_NEWTABLE指令。 注意，这条指令创建的表最终会根据指令中的参数A存储的寄存器地址，赋值给本函数楼内的寄存器， 所以很显然这条指令是需要重定向的
+  
+  /**
+   * 初始化ConsControl结构体，
+  */
   struct ConsControl cc;
   cc.na = cc.nh = cc.tostore = 0;
   cc.t = t;

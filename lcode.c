@@ -706,7 +706,7 @@ static void exp2reg (FuncState *fs, expdesc *e, int reg) {
 /**
  * Ensures final expression result (including results from its jump
  * lists) is in next available register.
- * 根据这个结构体的 信息来生成对应的字节码
+ * 根据expdesc这个结构体的信息来生成对应的字节码
 */
 void luaK_exp2nextreg (FuncState *fs, expdesc *e) {
   luaK_dischargevars(fs, e);//根据变量所在的不同作用域（ local, global, upvalue ) 来决定这个变量是否需要重定向。 
