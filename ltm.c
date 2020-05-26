@@ -66,7 +66,10 @@ const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
   else return tm;
 }
 
-
+/**
+ * 只有在数据类型为Table和udata的时候，才能拿到对象的metatable表
+ * 其他时候 是至iJglobal_State结构体的成员mt中获取的，但是这对于其他数据类型而言，一直是空值
+ */
 const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
   Table *mt;
   switch (ttnov(o)) {

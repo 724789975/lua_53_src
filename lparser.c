@@ -1552,7 +1552,7 @@ static int funcname (LexState *ls, expdesc *v) {
 static void funcstat (LexState *ls, int line) {
   /* funcstat -> FUNCTION funcname body */
   int ismethod;
-  expdesc v, b;
+  expdesc v, b; //定义存放表达式信息的变量V和b，其中V用来保存函数名信息，b用来保存函数体信息
   luaX_next(ls);  /* skip FUNCTION */
   ismethod = funcname(ls, &v);//解析函数名，保存结果到v 
   body(ls, &b, ismethod, line);//解析函数体，保存结果到b
