@@ -394,10 +394,14 @@ static int moveresults (lua_State *L, const TValue *firstResult, StkId res,
 }
 
 
-/*
-** Finishes a function call: calls hook if necessary, removes CallInfo,
-** moves current number of results to proper place; returns 0 iff call
-** wanted multiple (variable number of) results.
+/**
+ * Finishes a function call: calls hook if necessary, removes CallInfo,
+ * moves current number of results to proper place; returns 0 iff call
+ * wanted multiple (variable number of) results.
+ * 调用函数完毕之后的恢复工作
+ * 1 将虚拟机的base地址和savedpc恢复到上一个调用环境CallInfo保存下来的值
+ * 2 根据函数需要返回的值将这些值写入函数战中相应的地址，返回参数不足的用nil补全
+ * 3 最后更新虚拟机的top地址
 */
 int luaD_poscall (lua_State *L, CallInfo *ci, StkId firstResult, int nres) {
   StkId res;
