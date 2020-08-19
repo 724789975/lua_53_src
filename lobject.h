@@ -504,7 +504,9 @@ typedef struct CClosure {
 
 typedef struct LClosure {
   ClosureHeader;
+  //用于保存分析阶段生成的字节码等信息
   struct Proto *p;
+  //用于保存这个Closure相关的UpValue
   UpVal *upvals[1];  /* list of upvalues */
 } LClosure;
 

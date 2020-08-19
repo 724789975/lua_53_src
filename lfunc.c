@@ -55,16 +55,24 @@ void luaF_initupvals (lua_State *L, LClosure *cl) {
 
 
 UpVal *luaF_findupval (lua_State *L, StkId level) {
+  //首先将pp指针指向虚拟机的openupval ，它用于保存当前所有处于open状态的 UpValue
   UpVal **pp = &L->openupval;
   UpVal *p;
   UpVal *uv;
   lua_assert(isintwups(L) || L->openupval == NULL);
+  
+  /**
+   * 遍历这个链表来查找这个UpValue。
+   * 循环终止的条件之一是该UpValue的V指针小于传入的参数level。
+   * 根据前面看到的这个参数的意义，这个条件的含义就是在所有 包含该函数的战中查找这个变量。
+   */
   while (*pp != NULL && (p = *pp)->v >= level) {
     lua_assert(upisopen(p));
     if (p->v == level)  /* found a corresponding upvalue? */
       return p;  /* return it */
     pp = &p->u.open.next;
   }
+
   /* not found: create a new upvalue */
   uv = luaM_new(L, UpVal);
   uv->refcount = 0;
