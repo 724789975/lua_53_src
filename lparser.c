@@ -1066,7 +1066,10 @@ static BinOpr getbinopr (int op) {
   }
 }
 
-
+/**
+ * 优先级越高对应的数字就越大。
+ * 需要说明的是，这里还区分了一个操作符的左右优先级
+ */
 static const struct {
   lu_byte left;  /* left priority for each binary operator */
   lu_byte right; /* right priority */

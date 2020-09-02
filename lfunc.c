@@ -64,7 +64,7 @@ UpVal *luaF_findupval (lua_State *L, StkId level) {
   /**
    * 遍历这个链表来查找这个UpValue。
    * 循环终止的条件之一是该UpValue的V指针小于传入的参数level。
-   * 根据前面看到的这个参数的意义，这个条件的含义就是在所有 包含该函数的战中查找这个变量。
+   * 根据前面看到的这个参数的意义，这个条件的含义就是在所有 包含该函数的栈中查找这个变量。
    */
   while (*pp != NULL && (p = *pp)->v >= level) {
     lua_assert(upisopen(p));
@@ -74,11 +74,16 @@ UpVal *luaF_findupval (lua_State *L, StkId level) {
   }
 
   /* not found: create a new upvalue */
+  /**
+   * 到了这里，说明前面并没有找到这个变量，
+   * 此时创建一个新的UpValue，并将其放入openupval链表中。
+   */
   uv = luaM_new(L, UpVal);
   uv->refcount = 0;
   uv->u.open.next = *pp;  /* link it to list of open upvalues */
   uv->u.open.touched = 1;
   *pp = uv;
+  // 需要注意的是，将这个变量存入v指针中，这说明最开始使用的是针对这个值的引用。
   uv->v = level;  /* current value lives in the stack */
   if (!isintwups(L)) {  /* thread not in list of threads with upvalues? */
     L->twups = G(L)->twups;  /* link it to the list */
@@ -87,17 +92,20 @@ UpVal *luaF_findupval (lua_State *L, StkId level) {
   return uv;
 }
 
-
+/**
+ * level 函数栈的基地址
+ */
 void luaF_close (lua_State *L, StkId level) {
   UpVal *uv;
   while (L->openupval != NULL && (uv = L->openupval)->v >= level) {
     lua_assert(upisopen(uv));
     L->openupval = uv->u.open.next;  /* remove from 'open' list */
-    if (uv->refcount == 0)  /* no references? */
+    if (uv->refcount == 0)  /* 如果没有地方引用这个变量 那么直接释放 no references? */
       luaM_free(L, uv);  /* free upvalue */
     else {
+		//将引用的UpValue的值存下来，同时放在gc链表上，待后面回收。 
       setobj(L, &uv->u.value, uv->v);  /* move value to upvalue slot */
-      uv->v = &uv->u.value;  /* now current value lives here */
+      uv->v = &uv->u.value;  /* 重新将v指针指向了value的地址 now current value lives here */
       luaC_upvalbarrier(L, uv);
     }
   }

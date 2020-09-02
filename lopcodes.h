@@ -285,7 +285,8 @@ OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx } 泛型循�
 OP_SETLIST,
 
 /**
- * A Bx	R(A) := closure(KPROTO[Bx])			创建一个函数对象，其中民数Proto信息存放在Bx中， 生成的函数R(A), . .. ,R(A+n))函数对象存放在 R(A）中，这个指令后面可能会跟着MOVE或者 GET_UPVAL指令，取决于引用到的外部参数的位置，这些外部参数的数量由n决定
+ * A Bx	R(A) := closure(KPROTO[Bx], R(A), ... ,R(A+n)) 
+ * 创建一个函数对象，其中参数Proto信息存放在Bx中， 生成的函数R(A), . .. ,R(A+n))函数对象存放在 R(A）中，这个指令后面可能会跟着MOVE或者 GET_UPVAL指令，取决于引用到的外部参数的位置，这些外部参数的数量由n决定
  * 参数A 存放函数的寄存器
  * 参数B Proto数组的索引
  * 参数C 无

@@ -650,7 +650,7 @@ static void pushclosure (lua_State *L, Proto *p, UpVal **encup, StkId base,
     /* new closure is white, so we do not need a barrier here */
   }
   if (!isblack(p))  /* cache will not break GC invariant? */
-    p->cache = ncl;  /* save it on cache for reuse */
+    p->cache = ncl;  /* 设置为复用状态 save it on cache for reuse */
 }
 
 
