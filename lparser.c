@@ -663,7 +663,7 @@ struct ConsControl {
   expdesc *t;  /*构造表相关的表达式信息，与上一个字段的区别在于这里使用的是指针， 因为这个字段是由外部传入的。  table descriptor */
   int nh;  /*初始化表时，散列部分数据的数量 total number of 'record' elements */
   int na;  /*初始化表时，数组部分数据的数量 total number of array elements */
-  int tostore;  /*Lua解析器中定义了一个叫 LFIELDS_PER_FLUSH的常量，当前的值是50，这个值的意义在于，当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP SETLIST函数写人寄存器中 number of array elements pending to be stored */
+  int tostore;  /*Lua解析器中定义了一个叫 LFIELDS_PER_FLUSH的常量，当前的值是50，这个值的意义在于，当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP_SETLIST函数写人寄存器中 number of array elements pending to be stored */
 };
 
 
