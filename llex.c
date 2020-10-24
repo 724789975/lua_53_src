@@ -210,7 +210,7 @@ static int check_next2 (LexState *ls, const char *set) {
 /*
 ** this function is quite liberal in what it accepts, as 'luaO_str2num'
 ** will reject ill-formed numerals.
-** 读取数字类型，具体的数字放置在seminfo->i/seminfo->r上
+** 读取数字类型,具体的数字放置在seminfo->i/seminfo->r上
 */
 static int read_numeral (LexState *ls, SemInfo *seminfo) {
   TValue obj;
@@ -430,15 +430,15 @@ static void read_string (LexState *ls, int del, SemInfo *seminfo) {
 }
 
 /**
- * Token解析函数，逐个读取字符流
+ * Token解析函数,逐个读取字符流
  * 其中next函数：从ZIO文件流上读取下一个字符
- * 完成一个Token的切割，则返回Token结果
+ * 完成一个Token的切割,则返回Token结果
  */
 static int llex (LexState *ls, SemInfo *seminfo) {
   luaZ_resetbuffer(ls->buff);
   for (;;) {
     switch (ls->current) {
-      /* 换行符号 ，跳过 */
+      /* 换行符号 ,跳过 */
       case '\n': case '\r': {  /* line breaks */
         inclinenumber(ls);
         break;

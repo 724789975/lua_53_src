@@ -158,7 +158,7 @@ typedef LUAI_UACINT l_uacInt;
 /*
 ** type for virtual-machine instructions;
 ** must be an unsigned with (at least) 4 bytes (see details in lopcodes.h)
-** 前面6位放置Opcode操作指令，8位放置操作指令A，9位放置操作指令B，9位放置操作指令C
+** 前面6位放置Opcode操作指令,8位放置操作指令A,9位放置操作指令B,9位放置操作指令C
 */
 #if LUAI_BITSINT >= 32
 typedef unsigned int Instruction;

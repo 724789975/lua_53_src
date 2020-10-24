@@ -424,7 +424,7 @@ int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2) {
     case LUA_TLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
     case LUA_TLCF: return fvalue(t1) == fvalue(t2);
 
-    /* 根据子类型不同，用不同字符串比较策略进行比较*/
+    /* 根据子类型不同,用不同字符串比较策略进行比较*/
     case LUA_TSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
     case LUA_TLNGSTR: return luaS_eqlngstr(tsvalue(t1), tsvalue(t2));
     

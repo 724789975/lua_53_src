@@ -110,13 +110,27 @@ static void fixjump (FuncState *fs, int pc, int dest) {
 }
 
 
-/*
-** Concatenate jump-list 'l2' into jump-list 'l1'
+/**
+ * Concatenate jump-list 'l2' into jump-list 'l1'
+ * 参数11是空悬链表的第一个指令位置,l2是待加入该链表的指令位置
 */
 void luaK_concat (FuncState *fs, int *l1, int l2) {
+  /**
+   * 如果l2是NO_JUMP,则直接返回,因为这个位置存储的指令不是一个跳转指令
+   */
   if (l2 == NO_JUMP) return;  /* nothing to concatenate? */
+  /**
+   * 如果l1是NO_JUMP,说明这个跳转链表为空,当前没有空悬的跳转指令在该链表中,直接赋值为l2
+   */
   else if (*l1 == NO_JUMP)  /* no original list? */
+  {
     *l1 = l2;  /* 'l1' points to 'l2' */
+  }
+  /**
+   * 11现在是一个非空的跳转链表,首先遍历这个链表到最后一个元素,
+   * 其判定标准是跳转位置为NO_JUMP时表示是跳转链表的最后一个元素,然后调用fixjump函数将最后一个元素的跳转位置设置为l2,
+   * 这样l2就添加到了该跳转链表中
+   */
   else {
     int list = *l1;
     int next;
@@ -216,10 +230,11 @@ static void removevalues (FuncState *fs, int list) {
 }
 
 
-/*
-** Traverse a list of tests, patching their destination address and
-** registers: tests producing values jump to 'vtarget' (and put their
-** values in 'reg'), other tests jump to 'dtarget'.
+/**
+ * Traverse a list of tests, patching their destination address and
+ * registers: tests producing values jump to 'vtarget' (and put their
+ * values in 'reg'), other tests jump to 'dtarget'.
+ * 遍历一个跳转链表的所有元素，调用于fix_jump函数将跳转地址回填到链表中的每个指令中
 */
 static void patchlistaux (FuncState *fs, int list, int vtarget, int reg,
                           int dtarget) {
@@ -245,9 +260,9 @@ static void dischargejpc (FuncState *fs) {
 }
 
 
-/*
-** Add elements in 'list' to list of pending jumps to "here"
-** (current position)
+/**
+ * Add elements in 'list' to list of pending jumps to "here"
+ * (current position)
 */
 void luaK_patchtohere (FuncState *fs, int list) {
   luaK_getlabel(fs);  /* mark "here" as a jump target */
@@ -289,9 +304,10 @@ void luaK_patchclose (FuncState *fs, int list, int level) {
 /**
  * Emit instruction 'i', checking for array sizes and saving also its
  * line information. Return 'i' position.
+ * 每次新生成一个指令最终会调用的函数
  * Opcode存放在Proto结构上
  * 其中f->code数组用于存放code
- * fs->pc主要是计数器，标记code的个数及数组下标 
+ * fs->pc主要是计数器,标记code的个数及数组下标
 **/
 static int luaK_code (FuncState *fs, Instruction i) {
   Proto *f = fs->f;
@@ -593,9 +609,9 @@ void luaK_dischargevars (FuncState *fs, expdesc *e) {
 
 /**
  * discharge2reg函数是底层赋值的操作函数。针对值的不同类型进行不同的封装操作码。
- * 布尔类型：则通过luaK_codeABC函数，封装OP_LOADBOOL操作符，参数A为变量名称，参数B为布尔值
- * 对象赋值：如果是两个对象变量之间的赋值，则会封装OP_MOVE操作符，参数A为变量名称，参数B为赋值变量对象地址
- * 全局变量操作：全局变量OP_SETUPVAL操作符，参数A为值，B为变量名称值（这里不太一样）
+ * 布尔类型：则通过luaK_codeABC函数,封装OP_LOADBOOL操作符,参数A为变量名称,参数B为布尔值
+ * 对象赋值：如果是两个对象变量之间的赋值,则会封装OP_MOVE操作符,参数A为变量名称,参数B为赋值变量对象地址
+ * 全局变量操作：全局变量OP_SETUPVAL操作符,参数A为值,B为变量名称值（这里不太一样）
  * Ensures expression value is in register 'reg' (and therefore
  * 'e' will become a non-relocatable expression).
 **/
@@ -711,8 +727,8 @@ static void exp2reg (FuncState *fs, expdesc *e, int reg) {
 void luaK_exp2nextreg (FuncState *fs, expdesc *e) {
   luaK_dischargevars(fs, e);//根据变量所在的不同作用域（ local, global, upvalue ) 来决定这个变量是否需要重定向。 
   freeexp(fs, e);
-  luaK_reserveregs(fs, 1);//分配可用的函数寄存器空间，得到这个空间对应的寄存器索引。 有了空间，才能存储变量
-  exp2reg(fs, e, fs->freereg - 1);//真正完成把表达式的数据放入寄存器空间的工作。 在这个函数中，最终又会调用discharge2reg函数，这个函数式根据不同的表达式类型（ NIL，布尔表达式， 数字等）来生成存取表达式的值到寄存器的字节码。
+  luaK_reserveregs(fs, 1);//分配可用的函数寄存器空间,得到这个空间对应的寄存器索引。 有了空间,才能存储变量
+  exp2reg(fs, e, fs->freereg - 1);//真正完成把表达式的数据放入寄存器空间的工作。 在这个函数中,最终又会调用discharge2reg函数,这个函数式根据不同的表达式类型（ NIL,布尔表达式, 数字等）来生成存取表达式的值到寄存器的字节码。
 
 }
 
@@ -787,24 +803,24 @@ int luaK_exp2RK (FuncState *fs, expdesc *e) {
 
 
 /**
- * uaK_storevar函数中，通过变量的类型，来区分不同的操作。主要分为：局部变量、全局变量、下标类型
- * 局部变量：主要调用exp2reg函数，该函数底层调用discharge2reg函数，通过值的不同类型，来实现不同的操作码生成操作
- * 全局变量：全局变量首先会调用luaK_exp2anyreg函数，实际底层也是调用了exp2reg函数，针对不同值类型进行不同的操作码封装操作。然后调用luaK_codeABC函数，进行OP_SETUPVAL全局变量的设置操作。
- * 下标类型：通过变量类型，来确定OP_SETTABLE或者OP_SETTABUP操作符，并调用luaK_codeABC函数进行操作码封装。
+ * uaK_storevar函数中,通过变量的类型,来区分不同的操作。主要分为：局部变量、全局变量、下标类型
+ * 局部变量：主要调用exp2reg函数,该函数底层调用discharge2reg函数,通过值的不同类型,来实现不同的操作码生成操作
+ * 全局变量：全局变量首先会调用luaK_exp2anyreg函数,实际底层也是调用了exp2reg函数,针对不同值类型进行不同的操作码封装操作。然后调用luaK_codeABC函数,进行OP_SETUPVAL全局变量的设置操作。
+ * 下标类型：通过变量类型,来确定OP_SETTABLE或者OP_SETTABUP操作符,并调用luaK_codeABC函数进行操作码封装。
 * Generate code to store result of expression 'ex' into variable 'var'.
 */
 void luaK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
   switch (var->k) {
-    //局部变量，需要声明 local 标识
+    //局部变量,需要声明 local 标识
     case VLOCAL: {
       freeexp(fs, ex);
       //A=结果 B=变量
       exp2reg(fs, ex, var->u.info);  /* compute 'ex' into proper place */
       return;
     }
-     // Lua除了局部变量外，都是全局变量
+     // Lua除了局部变量外,都是全局变量
     case VUPVAL: {
-      int e = luaK_exp2anyreg(fs, ex); //底下也是调用exp2reg函数，主要用于将值设置到变量上
+      int e = luaK_exp2anyreg(fs, ex); //底下也是调用exp2reg函数,主要用于将值设置到变量上
       luaK_codeABC(fs, OP_SETUPVAL, e, var->u.info, 0);//全局变量设置一下
       break;
     }

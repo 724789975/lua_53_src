@@ -143,10 +143,10 @@ extern const char lua_ident[];
 */
 /**
  * 分配lua_State和global_State
- * 说明：global_State全局表会挂载在lua_State结构上，此方法分配的是主线程栈。如果实现协程，则通过lua_newthread分配新的lua_State栈
- * 通过LG结构方式，每个线程会独立维护自己的线程栈和函数栈
- * 对外通过lua_State结构暴露给用户，而global_State挂载在lua_State结构上
- * 主要管理管理全局数据，全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
+ * 说明：global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
+ * 通过LG结构方式,每个线程会独立维护自己的线程栈和函数栈
+ * 对外通过lua_State结构暴露给用户,而global_State挂载在lua_State结构上
+ * 主要管理管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
  * global_State：全局状态机
  * lua_State：主线程栈结构
  */
@@ -166,11 +166,11 @@ LUA_API const lua_Number *(lua_version) (lua_State *L);
 LUA_API int   (lua_absindex) (lua_State *L, int idx);
 /**
  * 返回LUA 栈的个数
- * 同时也是栈顶元素的索引，因为栈底是1
+ * 同时也是栈顶元素的索引,因为栈底是1
  */
 LUA_API int   (lua_gettop) (lua_State *L);
 /**
- * 设置栈的高度，如果之前的栈顶比新设置的更高，那么高出来的元素会被丢弃，反之压入nil来补足大小
+ * 设置栈的高度,如果之前的栈顶比新设置的更高,那么高出来的元素会被丢弃,反之压入nil来补足大小
  */
 LUA_API void  (lua_settop) (lua_State *L, int idx);
 LUA_API void  (lua_pushvalue) (lua_State *L, int idx);
@@ -229,14 +229,14 @@ LUA_API lua_Number      (lua_tonumberx) (lua_State *L, int idx, int *isnum);
  */
 LUA_API lua_Integer     (lua_tointegerx) (lua_State *L, int idx, int *isnum);
 /**
- * 把指定的索引处的的 Lua 值转换为一个 C 中的 boolean 值（ 0 或是 1 ）。 和 Lua 中做的所有测试一样，
+ * 把指定的索引处的的 Lua 值转换为一个 C 中的 boolean 值（ 0 或是 1 ）。 和 Lua 中做的所有测试一样,
  * lua_toboolean 会把任何 不同于 false 和 nil 的值当作 1 返回； 否则就返回 0 。 如果用一个无效索引去调用也会返回 0 。
  */
 LUA_API int             (lua_toboolean) (lua_State *L, int idx);
 /**
  * 给定索引处的 Lua 值转换为一个 C 字符串
- *  如果 len 不为 NULL ，它还把字符串长度设到 *len 中。 这个 Lua 值必须是一个字符串或是一个数字； 否则返回返回 NULL 。
- *  如果值是一个数字，lua_tolstring 还会把堆栈中的那个值的实际类型转换为一个字符串。
+ *  如果 len 不为 NULL ,它还把字符串长度设到 *len 中。 这个 Lua 值必须是一个字符串或是一个数字； 否则返回返回 NULL 。
+ *  如果值是一个数字,lua_tolstring 还会把堆栈中的那个值的实际类型转换为一个字符串。
  */
 LUA_API const char     *(lua_tolstring) (lua_State *L, int idx, size_t *len);
 LUA_API size_t          (lua_rawlen) (lua_State *L, int idx);
@@ -254,7 +254,7 @@ LUA_API void	       *(lua_touserdata) (lua_State *L, int idx);
 LUA_API lua_State      *(lua_tothread) (lua_State *L, int idx);
 /**
  * 把给定索引处的值转换为一般的 C 指针 (void*) 。
- * 这个值可以是一个 userdata ，table ，thread 或是一个 function
+ * 这个值可以是一个 userdata ,table ,thread 或是一个 function
  */
 LUA_API const void     *(lua_topointer) (lua_State *L, int idx);
 
@@ -286,7 +286,7 @@ LUA_API void  (lua_arith) (lua_State *L, int op);
 
 
 /**
- * 判断两个栈是否一样，如果一样返回1，否则返回0
+ * 判断两个栈是否一样,如果一样返回1,否则返回0
  */
 LUA_API int   (lua_rawequal) (lua_State *L, int idx1, int idx2);
 LUA_API int   (lua_compare) (lua_State *L, int idx1, int idx2, int op);
@@ -355,7 +355,7 @@ LUA_API int (lua_rawgeti) (lua_State *L, int idx, lua_Integer n);
 LUA_API int (lua_rawgetp) (lua_State *L, int idx, const void *p);
 
 /**
- * 创建一个table，固定长度，并将之放在栈顶.
+ * 创建一个table,固定长度,并将之放在栈顶.
  *
  * narray是该table数组部分的长度
  * nrec是该table hash部分的长度.

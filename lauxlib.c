@@ -729,7 +729,7 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   }
   if (c != EOF)
     lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
-  /* 加载文件，文件和解析文件；如果多个文件嵌套，则嵌套加载 */
+  /* 加载文件,文件和解析文件；如果多个文件嵌套,则嵌套加载 */
   status = lua_load(L, getF, &lf, lua_tostring(L, -1), mode);
   readstatus = ferror(lf.f);
   if (filename) fclose(lf.f);  /* close file (even in case of errors) */
@@ -979,11 +979,11 @@ LUALIB_API int luaL_getsubtable (lua_State *L, int idx, const char *fname) {
 */
 LUALIB_API void luaL_requiref (lua_State *L, const char *modname,
                                lua_CFunction openf, int glb) {
-  /* 获取注册表&G(L)->l_registry，如果不存在则创建注册表 */
+  /* 获取注册表&G(L)->l_registry,如果不存在则创建注册表 */
   luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
   lua_getfield(L, -1, modname);  /* LOADED[modname] */
 
-  /* 如果包没有加载，则重新加载 */
+  /* 如果包没有加载,则重新加载 */
   if (!lua_toboolean(L, -1)) {  /* package not already loaded? */
     lua_pop(L, 1);  /* 移除之前的 modname remove field */
     lua_pushcfunction(L, openf);/* 将openf设置到栈顶L->top->f的方法上 */
@@ -994,7 +994,7 @@ LUALIB_API void luaL_requiref (lua_State *L, const char *modname,
   }
   lua_remove(L, -2);  /* remove LOADED table */
 
-  /* glb=true 则注册到全局表；例如LUA标准库，则会注册到全局表 */
+  /* glb=true 则注册到全局表；例如LUA标准库,则会注册到全局表 */
   if (glb) {
     lua_pushvalue(L, -1);  /* copy of module */
     lua_setglobal(L, modname);  /* _G[modname] = module */
@@ -1020,18 +1020,18 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s, const char *p,
 
 /**
  * 内存分配基础函数
- * ud　 ：Lua默认内存管理器并未使用该参数。不过在用户自定义内存管理器中，可以让内存管理在不同的堆上进行。
- * ptr　：非NULL表示指向一个已分配的内存块指针，NULL表示将分配一块nsize大小的新内存块。
- * osize：原始内存块大小，默认内存管理器并未使用该参数
+ * ud　 ：Lua默认内存管理器并未使用该参数。不过在用户自定义内存管理器中,可以让内存管理在不同的堆上进行。
+ * ptr　：非NULL表示指向一个已分配的内存块指针,NULL表示将分配一块nsize大小的新内存块。
+ * osize：原始内存块大小,默认内存管理器并未使用该参数
  *    Lua的设计强制在调用内存管理器函数时候需要给出原始内存块的大小信息
- *    如果用户需要自定义一个高效的内存管理器，那么这个参数信息将十分重要
+ *    如果用户需要自定义一个高效的内存管理器,那么这个参数信息将十分重要
  *    这是因为大多数的内存管理算法都需要为所管理的内存块加上一个cookie
- *    里面存储了内存块尺寸的信息，以便在释放内存的时候能够获取到尺寸信息(譬如多级内存池回收内存操作)
- *    而Lua内存管理器刻意在调用内存管理器时提供了这个信息，这样就不必额外存储这些cookie信息
+ *    里面存储了内存块尺寸的信息,以便在释放内存的时候能够获取到尺寸信息(譬如多级内存池回收内存操作)
+ *    而Lua内存管理器刻意在调用内存管理器时提供了这个信息,这样就不必额外存储这些cookie信息
  *    这样在大量使用小内存块的环境中将可以节省不少的内存
- *    另外在ptr传入NULL时，osize表示Lua对象类型（LUA_TNIL、LUA_TBOOLEAN、LUA_TTHREAD等等）
- *    这样内存管理器就可以知道当前在分配的对象的类型，从而可以针对它做一些统计或优化的工作。
- * nsize：新的内存块大小，特别地，在nsize为0时需要提供内存释放的功能。
+ *    另外在ptr传入NULL时,osize表示Lua对象类型（LUA_TNIL、LUA_TBOOLEAN、LUA_TTHREAD等等）
+ *    这样内存管理器就可以知道当前在分配的对象的类型,从而可以针对它做一些统计或优化的工作。
+ * nsize：新的内存块大小,特别地,在nsize为0时需要提供内存释放的功能。
  */
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud; (void)osize;  /* not used */

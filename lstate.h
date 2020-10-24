@@ -109,13 +109,13 @@ typedef struct LuaCallInfo  {
 
   // Call Result
   lu_byte callstatus;//调用后的结果
-  short nresults;//描述返回结果的个数，便于在执行结束的时候调整top
+  short nresults;//描述返回结果的个数,便于在执行结束的时候调整top
 
   // Call link
   struct CallInfo *previous, *next; //串起动态增减的CallStack
 }
 
-C CallInfo并不需要DataStack的base，只需要记住数据栈栈顶即可。
+C CallInfo并不需要DataStack的base,只需要记住数据栈栈顶即可。
 func的里面就是
 
 
@@ -125,8 +125,8 @@ typdef struct CCallInfo  {
 
   // Closure
   
-  //一个CClosure(lua_CFunction+闭包的TValues数组，代码和数据都简单多了）
-  //执行的过程也别Lua CallInfo简单多了，直接调用CClosure里面的lua_CFunction即可
+  //一个CClosure(lua_CFunction+闭包的TValues数组,代码和数据都简单多了）
+  //执行的过程也别Lua CallInfo简单多了,直接调用CClosure里面的lua_CFunction即可
   StkId func;   
 
   ptrdiff_t extra;
@@ -136,7 +136,7 @@ typdef struct CCallInfo  {
   short nresults;
 
   // Error Recover
-  ptrdiff_t old_errfunc;//C函数的执行超出了Lua的控制范围，每一层执行都需要有一个old_errfunc，用以错误处理
+  ptrdiff_t old_errfunc;//C函数的执行超出了Lua的控制范围,每一层执行都需要有一个old_errfunc,用以错误处理
 
   // Continuation(or Callback)
   lua_KFunction k;
@@ -191,10 +191,10 @@ typedef struct CallInfo {
 /*
 ** 'global state', shared by all threads of this state
 ** lua 全局状态机
-** 作用：管理全局数据，全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
+** 作用：管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
 */
 typedef struct global_State {
-  lua_Alloc frealloc;  /* Lua的全局内存分配器，用户可以替换成自己的 function to reallocate memory */
+  lua_Alloc frealloc;  /* Lua的全局内存分配器,用户可以替换成自己的 function to reallocate memory */
   void *ud;         /*分配器的userdata auxiliary data to 'frealloc' */
   l_mem totalbytes;  /* 实际内存分配器所分配的内存与GCdebt的差值 number of bytes currently allocated - GCdebt */
   l_mem GCdebt;  /* 需要回收的内存数量 bytes allocated not yet compensated by the collector */
@@ -225,7 +225,7 @@ typedef struct global_State {
   struct lua_State *mainthread; /* 主线程 */
   const lua_Number *version;  /*  版本号 pointer to version number */
   TString *memerrmsg;  /* memory-error message */
-  TString *tmname[TM_N];  /*metatable的预定义方法名字数组，tm是tag method的缩写 array with tag-method names */
+  TString *tmname[TM_N];  /*metatable的预定义方法名字数组,tm是tag method的缩写 array with tag-method names */
   /*
   每个基本类型一个metatable
   注意table、userdata等则是每个实例一个metatable
@@ -240,18 +240,18 @@ typedef struct global_State {
 /*
 ** 'per thread' state
 ** Lua 主线程 栈 数据结构
-** 作用：管理整个栈和当前函数使用的栈的情况，最主要的功能就是函数调用以及和c的通信
+** 作用：管理整个栈和当前函数使用的栈的情况,最主要的功能就是函数调用以及和c的通信
 */
 struct lua_State {
   CommonHeader;
   unsigned short nci;  /* number of items in 'ci' list 存储一共多少个CallInfo */
   lu_byte status;/* 解析容器的用于记录中间状态*/
   StkId top;  /*线程栈的栈顶指针 当前械的下一个可用位置 first free slot in the stack */
-  global_State *l_G;/* 这个是Lua的全局对象，所有的lua_State共享一个global_State，global_State里塞进了各种全局字段 */
+  global_State *l_G;/* 这个是Lua的全局对象,所有的lua_State共享一个global_State,global_State里塞进了各种全局字段 */
   CallInfo *ci;  /*当前运行函数信息 call info for current function */
-  const Instruction *oldpc;  /*在当前thread 的解释执行指令的过程中，指向最后一次执行的指令的指针 last pc traced */
+  const Instruction *oldpc;  /*在当前thread 的解释执行指令的过程中,指向最后一次执行的指令的指针 last pc traced */
   StkId stack_last;  /* 线程栈的最后一个位置 last free slot in the stack */
-  StkId stack;  /* 栈的指针，当前执行的位置 stack base */
+  StkId stack;  /* 栈的指针,当前执行的位置 stack base */
   /*
   从CallStack的栈底到栈顶的所有open的UpVal也构成了一种Stack
   Lua把这些open状态的UpVal用链表串在一起

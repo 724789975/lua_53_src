@@ -77,15 +77,15 @@ typedef struct GCObject GCObject;
  * included in other objects)
  * marked是在垃圾回收过程中用以标记对象存活状态
  * 其中0和1位用来表示对象的white状态和垃圾状态。
- * 当垃圾回收的标识阶段结束后，剩下的white对象就是垃圾对象。
- * 由于lua并不是立即清除这些垃圾对象，而是一步步逐渐清除，所以这些对象还会在系统中存在一段时间。
- * 这就需要我们能够区分出同样为white状态的垃圾对象和非垃圾对象。Lua使用两个标志位来表示white，就是为了高效的解决这个问题。
- * 这个标志位会轮流被当作white状态标志，另一个表示垃圾状态。
- * 在global_State中保存着一个currentwhite，来表示当前是那个标志位用来标识white。
- * 每当GC标识阶段完成，系统会切换这个标志位，这样原来为white的所有对象不需要遍历就变成了垃圾对象，而真正的white对象则使用新的标志位标识。
+ * 当垃圾回收的标识阶段结束后,剩下的white对象就是垃圾对象。
+ * 由于lua并不是立即清除这些垃圾对象,而是一步步逐渐清除,所以这些对象还会在系统中存在一段时间。
+ * 这就需要我们能够区分出同样为white状态的垃圾对象和非垃圾对象。Lua使用两个标志位来表示white,就是为了高效的解决这个问题。
+ * 这个标志位会轮流被当作white状态标志,另一个表示垃圾状态。
+ * 在global_State中保存着一个currentwhite,来表示当前是那个标志位用来标识white。
+ * 每当GC标识阶段完成,系统会切换这个标志位,这样原来为white的所有对象不需要遍历就变成了垃圾对象,而真正的white对象则使用新的标志位标识。
  * 
- * 第2个标志位用来表示black状态，而既非white也非black就是gray状态。
- * 除了short string和open upvalue之外，所有的GCObject都通过next被串接到全局状态global_State中的allgc链表上。
+ * 第2个标志位用来表示black状态,而既非white也非black就是gray状态。
+ * 除了short string和open upvalue之外,所有的GCObject都通过next被串接到全局状态global_State中的allgc链表上。
  * 我们可以通过遍历allgc链表来访问系统中的所有GCObject。short string被字符串标单独管理。open upvalue会在被close时也连接到allgc上。
 */
 #define CommonHeader	GCObject *next; lu_byte tt; lu_byte marked
@@ -109,7 +109,7 @@ struct GCObject {
 /*
 ** Union of all Lua values
 ** lua 中的数据可以这样分为两类：值类型和引用类型
-** 值类型可以被任意复制，而引用类型共享一份数据，由 GC 负责维护生命期
+** 值类型可以被任意复制,而引用类型共享一份数据,由 GC 负责维护生命期
 ** lua 使用一个联合 union Value 来保存数据
 */
 typedef union Value {
@@ -123,12 +123,12 @@ typedef union Value {
 
 
 /*
-** 引用类型用一个指针 GCObject *gc 来间接引用，而其它值类型都直接保存在联合中
-** 为了区分联合中存放的数据类型，再额外绑定一个类型字段
-** tt_是一个8 bits 的类型标记字段，被分成3个部分：
-** 0-3位，表示大类型
-** 4-5位，表示子类型
-** 第6位，表示是否可以垃圾回收
+** 引用类型用一个指针 GCObject *gc 来间接引用,而其它值类型都直接保存在联合中
+** 为了区分联合中存放的数据类型,再额外绑定一个类型字段
+** tt_是一个8 bits 的类型标记字段,被分成3个部分：
+** 0-3位,表示大类型
+** 4-5位,表示子类型
+** 第6位,表示是否可以垃圾回收
 */
 #define TValuefields	Value value_; int tt_
 typedef struct lua_TValue {
@@ -315,7 +315,7 @@ typedef struct lua_TValue {
 */
 
 /*
-** lua_state 的数据栈，就是一个 TValue 的数组
+** lua_state 的数据栈,就是一个 TValue 的数组
 ** 代码中用 StkId 类型来指代对 TValue 的引用
 */
 typedef TValue *StkId;  /* index to stack elements */
@@ -327,8 +327,8 @@ typedef TValue *StkId;  /* index to stack elements */
 ** Header for string value; string bytes follow the end of this structure
 ** (aligned according to 'UTString'; see next).
 ** 字符串结构
-** 真正的字符串的内容，直接存储在结构体后面的内存里
-** 为了保证内存的对齐，对TString和基本类型合并做一个字节对齐
+** 真正的字符串的内容,直接存储在结构体后面的内存里
+** 为了保证内存的对齐,对TString和基本类型合并做一个字节对齐
 **
 ** Lua字符串对象 = TString结构 + 实际字符串数据
 ** TString结构 = GCObject *指针 + 字符串信息数据
@@ -337,18 +337,18 @@ typedef struct TString {
   CommonHeader;
   /**
    * 用于记录辅助信息
-   * 对于短字符串，该字段用来标记字符串是否为保留字，用于词法分析器中对保留字的快速判断；
-   * 对于长字符串，该字段将用于惰性求哈希值的策略（第一次用到才进行哈希）
+   * 对于短字符串,该字段用来标记字符串是否为保留字,用于词法分析器中对保留字的快速判断；
+   * 对于长字符串,该字段将用于惰性求哈希值的策略（第一次用到才进行哈希）
    * , reserved words for short strings; "has hash" for longs */
   lu_byte extra;  
   
-  lu_byte shrlen;  /* 由于Lua并不以'\0'字符结尾来识别字符串的长度，因此需要一个len域来记录其长度 length for short strings */
-  unsigned int hash; /*记录字符串的hash值，可以用来加快字符串的匹配和查找*/
+  lu_byte shrlen;  /* 由于Lua并不以'\0'字符结尾来识别字符串的长度,因此需要一个len域来记录其长度 length for short strings */
+  unsigned int hash; /*记录字符串的hash值,可以用来加快字符串的匹配和查找*/
   union {
     size_t lnglen;  /* 长字符串存储形式 length for long strings */
     /**
-     * hash table中相同hash值的字符串将串成一个列表，
-     * hnext域为指向下一个列表节点的指针，
+     * hash table中相同hash值的字符串将串成一个列表,
+     * hnext域为指向下一个列表节点的指针,
      * 短字符串用到 linked list for hash table
      */
     struct TString *hnext;
@@ -529,7 +529,7 @@ typedef union Closure {
 typedef union TKey {
   struct {
     TValuefields;
-    int next;  /* 链表 管理Hash Node，用于处理hash 冲突 for chaining (offset for next node) */
+    int next;  /* 链表 管理Hash Node,用于处理hash 冲突 for chaining (offset for next node) */
   } nk;
   TValue tvk;
 } TKey;
@@ -552,9 +552,9 @@ typedef struct Node {
 } Node;
 
 /**
- * Table数据结构，分两种存储类型：数组节点和hash节点
- * 数组节点：sizearray为数字长度，一般存储key值在长度范围内的结果集
- * hash节点：k=>v结构，能够存储各类复杂对象结构
+ * Table数据结构,分两种存储类型：数组节点和hash节点
+ * 数组节点：sizearray为数字长度,一般存储key值在长度范围内的结果集
+ * hash节点：k=>v结构,能够存储各类复杂对象结构
  *
  * LUA语言用法：
  * 数组节点：fruits = {"banana","orange","apple"}
@@ -567,9 +567,9 @@ typedef struct Table {
   lu_byte lsizenode;  /* 节点个数 log2 of size of 'node' array */
   unsigned int sizearray;  /* size of 'array' array */
   TValue *array;  /* 数组方式 array part */
-  Node *node; //hash节点，node指向hash表的起始位置
-  Node *lastfree;  /* hash节点，最后一个空闲节点 any free position is before this position */
-  struct Table *metatable;  //元表，重载操作需要用
+  Node *node; //hash节点,node指向hash表的起始位置
+  Node *lastfree;  /* hash节点,最后一个空闲节点 any free position is before this position */
+  struct Table *metatable;  //元表,重载操作需要用
   GCObject *gclist;//用以垃圾回收的
 } Table;
 

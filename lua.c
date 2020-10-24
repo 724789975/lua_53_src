@@ -551,9 +551,9 @@ static int handle_luainit (lua_State *L) {
 ** Main body of stand-alone interpreter (to be called in protected mode).
 ** Reads the options and handles them all.
 */
-/* idx=1 则获取操作栈从底部开始的第2个栈内容，第一个栈内容未ci->func 函数pmain的栈 */
+/* idx=1 则获取操作栈从底部开始的第2个栈内容,第一个栈内容未ci->func 函数pmain的栈 */
 static int pmain (lua_State *L) {
-  int argc = (int)lua_tointeger(L, 1);//从L->top结构上，获取argc参数  对应函数：lua_pushinteger
+  int argc = (int)lua_tointeger(L, 1);//从L->top结构上,获取argc参数  对应函数：lua_pushinteger
   char **argv = (char **)lua_touserdata(L, 2);
   int script;
   int args = collectargs(argv, &script);
@@ -595,7 +595,7 @@ static int pmain (lua_State *L) {
 
 /**
  * argc：行参数的个数
- * argv：每个参数的值，指针结构
+ * argv：每个参数的值,指针结构
  */
 int main (int argc, char **argv) {
   int status, result;
@@ -609,7 +609,7 @@ int main (int argc, char **argv) {
   lua_pushcfunction(L, &pmain);  /* 将pmain放入L结构上 L->top值&pmain //to call 'pmain' in protected mode */
   lua_pushinteger(L, argc);  /* 将argc 放入L结构上  L->top值argc //1st argument */
   lua_pushlightuserdata(L, argv); /* 将argv 放入L结构上 L->top值argv //2nd argument */
-  status = lua_pcall(L, 2, 1, 0);  /* 函数操作，执行pmain 函数 //do the call do the call */
+  status = lua_pcall(L, 2, 1, 0);  /* 函数操作,执行pmain 函数 //do the call do the call */
   result = lua_toboolean(L, -1);  /* 获取pmain函数lua_pushboolean(L, 1) 的信号值//get result */
   report(L, status);
   lua_close(L);

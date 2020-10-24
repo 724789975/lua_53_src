@@ -285,7 +285,7 @@ static int load_aux (lua_State *L, int status, int envidx) {
 
 /**
  * luaL_loadfilex函数底层调用lua_load方法
- * 只会加载文件，编译代码，不会运行文件里的代码
+ * 只会加载文件,编译代码,不会运行文件里的代码
  */
 static int luaB_loadfile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
@@ -456,10 +456,10 @@ static int luaB_tostring (lua_State *L) {
 }
 
 /*
-** loadfile：只会加载文件，编译代码，不会运行文件里的代码
-** dofile：会加载文件并执行文件，对于相同的文件每次都会执行
+** loadfile：只会加载文件,编译代码,不会运行文件里的代码
+** dofile：会加载文件并执行文件,对于相同的文件每次都会执行
 ** load：从字符串中读取代码
-** require：加载文件，如果已经加载过了，则不加载
+** require：加载文件,如果已经加载过了,则不加载
 */
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
@@ -495,7 +495,7 @@ static const luaL_Reg base_funcs[] = {
 
 //打开基础库
 LUAMOD_API int luaopen_base (lua_State *L) {
-  /* 打开全局环境变量数组LUA_RIDX_GLOBALS，放置到栈顶L->top open lib into global table */
+  /* 打开全局环境变量数组LUA_RIDX_GLOBALS,放置到栈顶L->top open lib into global table */
   lua_pushglobaltable(L);
   luaL_setfuncs(L, base_funcs, 0);
   /* set global _G */

@@ -150,7 +150,7 @@ static int iscleared (global_State *g, const TValue *o) {
  * being pointed by a black object. (If in sweep phase, clear the black
  * object to white [sweep it] to avoid other barrier calls for this
  * same object.)
- * luaC_barrier_函数用来实现“向前”的barrier。“向前”的意思就是当一个black对象需要引用一个white对象时，立即mark这个white对象。这样white对象就变为gray对象，等待下一步的扫描。这也就是帮助gc向前标识一步。luaC_barrier_函数被用在以下引用变化处：
+ * luaC_barrier_函数用来实现“向前”的barrier。“向前”的意思就是当一个black对象需要引用一个white对象时,立即mark这个white对象。这样white对象就变为gray对象,等待下一步的扫描。这也就是帮助gc向前标识一步。luaC_barrier_函数被用在以下引用变化处：
  * 虚拟机执行过程中或者通过api修改close upvalue对其他对象的引用
  * 通过api设置userdata或table的metatable引用
  * 通过api设置userdata的env table引用
@@ -172,13 +172,13 @@ void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
  * barrier that moves collector backward, that is, mark the black object
  * pointing to a white object as gray again.
  * luaC_barrierback_函数用来实现“向后”的barrier。
- * “向后”的意思就是当一个black对象需要引用一个white对象时，将已经扫描过的black对象再次变为gray对象，等待重新扫描。
+ * “向后”的意思就是当一个black对象需要引用一个white对象时,将已经扫描过的black对象再次变为gray对象,等待重新扫描。
  * 这也就是将gc的mark后退一步。luaC_barrierback_目前只用于监控table的key和value对象引用的变化。
- * Table是lua中最主要的数据结构，连全局变量都是被保存在一个table中，所以table的变化是比较频繁的，并且同一个引用可能被反复设置成不同的对象。
- * 对table的引用使用“向前”的barrier，逐个扫描每次引用变化的对象，会造成很多不必要的消耗。
+ * Table是lua中最主要的数据结构,连全局变量都是被保存在一个table中,所以table的变化是比较频繁的,并且同一个引用可能被反复设置成不同的对象。
+ * 对table的引用使用“向前”的barrier,逐个扫描每次引用变化的对象,会造成很多不必要的消耗。
  * 而使用“向后”的barrier就等于将table分成了“未变”和“已变”两种状态。
- * 只要一个table改变了一次，就将其变成gray，等待重新扫描。
- * 被变成gray的table在被重新扫描之前，无论引用再发生多少次变化也都无关紧要了。
+ * 只要一个table改变了一次,就将其变成gray,等待重新扫描。
+ * 被变成gray的table在被重新扫描之前,无论引用再发生多少次变化也都无关紧要了。
 */
 void luaC_barrierback_ (lua_State *L, Table *t) {
   global_State *g = G(L);
@@ -247,27 +247,27 @@ GCObject *luaC_newobj (lua_State *L, int tt, size_t sz) {
 /**
  * 它按 GCObject 的实际类型来 mark 它
  * reallymarkobject 的时间复杂度是 O(1) 的
- * 它不会递归标记相关对象，虽然大多数 GCObject 都关联有其它对象
- * 保证 O(1) 时间使得标记过程可以均匀分摊在逐个短小的时间片内，不至于停止世界太久
+ * 它不会递归标记相关对象,虽然大多数 GCObject 都关联有其它对象
+ * 保证 O(1) 时间使得标记过程可以均匀分摊在逐个短小的时间片内,不至于停止世界太久
  * 这里就需要用到三色标记法
- * reallymarkobject 进入时，先把对象设置为灰色（通过 white2gray 这个宏）
- * 然后再根据具体类型，当一个对象的所有关联对象都被标记后，再从灰色转为黑色
- * 因为 TSTRING 一定没有关联对象，而且所有的字符串都是统一独立处理的
- * 这里可以做一个小优化，不需要设置为黑色，只要不是白色就可以清理。所以此处不必染黑
- * 但 TUSERDATA 则不同，它是跟其它对象一起处理的。标记 userdata 就需要调用 gray2black 了
- * 另外，还需要标记 userdata 的元表和环境表
+ * reallymarkobject 进入时,先把对象设置为灰色（通过 white2gray 这个宏）
+ * 然后再根据具体类型,当一个对象的所有关联对象都被标记后,再从灰色转为黑色
+ * 因为 TSTRING 一定没有关联对象,而且所有的字符串都是统一独立处理的
+ * 这里可以做一个小优化,不需要设置为黑色,只要不是白色就可以清理。所以此处不必染黑
+ * 但 TUSERDATA 则不同,它是跟其它对象一起处理的。标记 userdata 就需要调用 gray2black 了
+ * 另外,还需要标记 userdata 的元表和环境表
  * TUPVAL 是一个特殊的东西
- * 在 lua 编程，以及写 C 代码和 lua 交互时，都看不到这种类型
+ * 在 lua 编程,以及写 C 代码和 lua 交互时,都看不到这种类型
  * 它用来解决多个 closure 共享同一个 upvalue 的情况
  * 实际上是对一个 upvalue 的引用
  * 问什么 TUPVAL 会有 open 和 closed 两种状态？应该这样理解
  * 当一个 lua 函数本执行的时候
- * 和 C 语言不一样，它不仅可以看到当前层次上的 local 变量
+ * 和 C 语言不一样,它不仅可以看到当前层次上的 local 变量
  * 还可以看到上面所有层次的 local 变量
- * 这个可见性是由 lua 解析器解析你的 lua 代码时定位的（换句话说，就是在“编译”期决定的）
- * 那些不属于你的函数当前层次上的 local 变量，就称之为 upvalue 
+ * 这个可见性是由 lua 解析器解析你的 lua 代码时定位的（换句话说,就是在“编译”期决定的）
+ * 那些不属于你的函数当前层次上的 local 变量,就称之为 upvalue 
  * upvalue 这个概念是由 parser 引入的
- * 在 Lua 中，任何一个 function 其实都是由 proto 和运行时绑定的 upvalue 构成的
+ * 在 Lua 中,任何一个 function 其实都是由 proto 和运行时绑定的 upvalue 构成的
  * proto 将如何绑定 upvalue 是在 parser 生成的 bytecode 里描述清楚了的
  */
 static void reallymarkobject (global_State *g, GCObject *o) {
@@ -1147,8 +1147,8 @@ void luaC_runtilstate (lua_State *L, int statesmask) {
 
 
 /**
- * 返回值和GCdebt，gcstepmul这两个字段有关
- * gcstepmul是对GCdebt的一个缩放，gcstepmul越大，返回的值越大
+ * 返回值和GCdebt,gcstepmul这两个字段有关
+ * gcstepmul是对GCdebt的一个缩放,gcstepmul越大,返回的值越大
  * 说明GC一步要做的工作量越多
  * get GC debt and convert it from Kb to 'work units' (avoid zero debt
  * and overflows)
@@ -1175,12 +1175,12 @@ void luaC_step (lua_State *L) {
     luaE_setdebt(g, -GCSTEPSIZE * 10);  /* avoid being called too often */
     return;
   }
-  // 2. 循环执行singlestep，直到GC周期完毕，或debt小于某个值
+  // 2. 循环执行singlestep,直到GC周期完毕,或debt小于某个值
   do {  /* repeat until pause or enough "credit" (negative debt) */
     lu_mem work = singlestep(L);  /* perform one single step */
     debt -= work;
   } while (debt > -GCSTEPSIZE && g->gcstate != GCSpause);
-  // 3. 如果GC结束，计算下一个阀值
+  // 3. 如果GC结束,计算下一个阀值
   if (g->gcstate == GCSpause)
     setpause(g);  /* pause until next cycle */
   else {

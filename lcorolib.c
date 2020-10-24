@@ -90,15 +90,15 @@ static int luaB_auxwrap (lua_State *L) {
 }
 
 /**
- * 协程创建函数，会独立创建一个Lua栈结构
+ * 协程创建函数,会独立创建一个Lua栈结构
  * Lua：newProductor = coroutine.create(productor)
- * Lua创建一个协程的时候，入参为协程回调的函数名
+ * Lua创建一个协程的时候,入参为协程回调的函数名
  */
 static int luaB_cocreate (lua_State *L) {
   lua_State *NL;
   luaL_checktype(L, 1, LUA_TFUNCTION);
   NL = lua_newthread(L);/* new一个新协程 */
-  lua_pushvalue(L, 1);  /* 将CallInfo操作栈上的协程回调函数，移动到L->top数据栈顶部 move function to top */
+  lua_pushvalue(L, 1);  /* 将CallInfo操作栈上的协程回调函数,移动到L->top数据栈顶部 move function to top */
   lua_xmove(L, NL, 1);  /* 拷贝回调函数到协程的数据栈上 move function from L to NL */
   return 1;
 }

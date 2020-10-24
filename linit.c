@@ -61,7 +61,7 @@ static const luaL_Reg loadedlibs[] = {
 };
 
 /**
- * 遍历Lua标准库，压入L->top栈
+ * 遍历Lua标准库,压入L->top栈
  */
 LUALIB_API void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib;

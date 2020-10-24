@@ -25,7 +25,7 @@ int luaZ_fill (ZIO *z) {
   lua_State *L = z->L;
   const char *buff;
   lua_unlock(L);
-  buff = z->reader(L, z->data, &size);//文件读取，返回size 大小 getF方法
+  buff = z->reader(L, z->data, &size);//文件读取,返回size 大小 getF方法
   lua_lock(L);
   if (buff == NULL || size == 0)
     return EOZ;

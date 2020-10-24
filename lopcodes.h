@@ -27,13 +27,13 @@
   represented by 2*max), which is half the maximum for the corresponding
   unsigned argument.
 
-  1)每条指令都会对一个对象做出影响，受影响的对象被称为 A。它由 8 bits 来表示。 A 通常是一个寄存器的索引，也可能是对 Upvalue 的操作。
-2)作用到 A 的参数一般有两个，每个参数 由 9 bits 表示，分别称为 B 和 C。
-3)一部分指令不需要两个操作参数，这时候可以把 B 和 C 合并为一个 18 bits 的整数 Bx 来适应更大的范围。
-4)当操作码涉及到跳转指令时，这个参数表示跳转偏移量。向前跳转需要设置偏移量为一个负数。这类指令需要带符号信息来区别，记作 sBx。 其中0被表示为 2^17 ;  1 则表示为 2^17 + 1  ;  -1 表示为 2^17 - 1 。
-5)Lua VM 在运行期，会将需要的常量加载到 寄存器中（Lua 栈），然后利用这些寄存器做相应的工作。 加载常量的操作码 为LOADK，它由两个参数 A ,Bx ,这个操作把Bx 所指的常量加载到 A 所指的寄存器中。 Bx 有 18 bit 长，所以 LOADK 这个操作只能索引到 2^18 个常量。 为了扩大索引常量的上限，提供了LOADKX，它将常量索引号放在了接下来的一条EXTRAARG 指令中。 OP_EXTRAARG 指令 把 opcode所占的 8bit 以外的26 bit 都用于参数表示， 称之为* Ax*。 
+  1)每条指令都会对一个对象做出影响,受影响的对象被称为 A。它由 8 bits 来表示。 A 通常是一个寄存器的索引,也可能是对 Upvalue 的操作。
+2)作用到 A 的参数一般有两个,每个参数 由 9 bits 表示,分别称为 B 和 C。
+3)一部分指令不需要两个操作参数,这时候可以把 B 和 C 合并为一个 18 bits 的整数 Bx 来适应更大的范围。
+4)当操作码涉及到跳转指令时,这个参数表示跳转偏移量。向前跳转需要设置偏移量为一个负数。这类指令需要带符号信息来区别,记作 sBx。 其中0被表示为 2^17 ;  1 则表示为 2^17 + 1  ;  -1 表示为 2^17 - 1 。
+5)Lua VM 在运行期,会将需要的常量加载到 寄存器中（Lua 栈）,然后利用这些寄存器做相应的工作。 加载常量的操作码 为LOADK,它由两个参数 A ,Bx ,这个操作把Bx 所指的常量加载到 A 所指的寄存器中。 Bx 有 18 bit 长,所以 LOADK 这个操作只能索引到 2^18 个常量。 为了扩大索引常量的上限,提供了LOADKX,它将常量索引号放在了接下来的一条EXTRAARG 指令中。 OP_EXTRAARG 指令 把 opcode所占的 8bit 以外的26 bit 都用于参数表示, 称之为* Ax*。 
 
-参数 A、B、C 一般用来存放指令操作数据的地址（索引），而地址（索引）有以下三种： 
+参数 A、B、C 一般用来存放指令操作数据的地址（索引）,而地址（索引）有以下三种： 
 1. 寄存器 idx 
 2. 常量表 idx 
 3. upvalue idx 
@@ -146,7 +146,7 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 
 /* test whether value is a constant */
 /**
- * 判断这个数据的第八位是不是l ，如果是，则认为 应该从K数组中获取数据，否则就是从函数战寄存器中获取数据。 
+ * 判断这个数据的第八位是不是l ,如果是,则认为 应该从K数组中获取数据,否则就是从函数战寄存器中获取数据。 
  */
 #define ISK(x)		((x) & BITRK)
 
@@ -170,8 +170,8 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 /**
  * R(x) - register 表示这一定是 寄存器索引（一定要操作Lua 栈） 
  * Kst(x) - constant (in constant table) 
- * RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x) 表示这有可能是 一个寄存器索引 或 是一个常量索引，RK 只能用 参数B 与 参数 C (SIZE_B = SIZE_C = 9)，其中参数的最高位区分 寄存器索引与常量索引。
- * pc 程序计数器（ program counter ），这个数据用于指示当前指令的地址 
+ * RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x) 表示这有可能是 一个寄存器索引 或 是一个常量索引,RK 只能用 参数B 与 参数 C (SIZE_B = SIZE_C = 9),其中参数的最高位区分 寄存器索引与常量索引。
+ * pc 程序计数器（ program counter ）,这个数据用于指示当前指令的地址 
  * Upvalue(n) upvalue数组中的第n个数据
  * Gbl[sym] 全局符号表中取名为sym的数据 
  * sBx 有符号整数 用于表示跳转偏移量
@@ -189,17 +189,17 @@ name		args	description
 OP_MOVE,/*	A B	R(A) := R(B)					从R(B）中取数据赋值给R(A) */
 OP_LOADK,/*	A Bx	R(A) := Kst(Bx)					从Kst(Bx）常盘数组中取数据赋值给R(A) */
 OP_LOADKX,/*	A 	R(A) := Kst(extra arg)				*/
-OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if (C) pc++			取B参数的布尔值赋值给R(A），如果满足C为真的条件，则将pc指 针递增，即执行下一条指令 */
+OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if (C) pc++			取B参数的布尔值赋值给R(A）,如果满足C为真的条件,则将pc指 针递增,即执行下一条指令 */
 OP_LOADNIL,/*	A B	R(A), R(A+1), ..., R(A+B) := nil		从寄存器R(A）到R(B）的数据赋值为nil*/
 OP_GETUPVAL,/*	A B	R(A) := UpValue[B]				从UpValue数组中取值赋值给R(A) */
 
 OP_GETTABUP,/*	A B C	R(A) := UpValue[B][RK(C)]			*/
 
 /**
- * 	A B C	R(A) := R(B)[RK(C)]				以RK(C）作为表索引，以R(B）的数据作为表，取出来的数据赋值 给R(A)
+ * 	A B C	R(A) := R(B)[RK(C)]				以RK(C）作为表索引,以R(B）的数据作为表,取出来的数据赋值 给R(A)
  * 参数A 存放结果的寄存器
  * 参数B 表所在的寄存器
- * 参数C key存放的位置，注意其中各式是以，也就是说这个值可能来向寄存器．也可能来自常量数组
+ * 参数C key存放的位置,注意其中各式是以,也就是说这个值可能来向寄存器．也可能来自常量数组
  */
 OP_GETTABLE,
 
@@ -209,18 +209,18 @@ OP_SETUPVAL,/*	A B	UpValue[B] := R(A)				将R(A）的值赋值给以B作为upval
 /**
  * 	A B C	R(A)[RK(B)] := RK(C)				将RK(C）的值赋值给R(A）表中索引为RK(B）的变量
  * 参数A 表所在的寄存器
- * 参数B key存放的位置，注意其格式是RK，也就是说这个值可能来自寄存器，也可能来自常量数组
- * 参数c value存放的位置， 注意其格式是RK，也就是说这个值可能来自寄存器，也可能来自常量数组
+ * 参数B key存放的位置,注意其格式是RK,也就是说这个值可能来自寄存器,也可能来自常量数组
+ * 参数c value存放的位置, 注意其格式是RK,也就是说这个值可能来自寄存器,也可能来自常量数组
  */
 OP_SETTABLE,
 
-OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				创建一个新的表，并将其赋值给R(A），其中数组部分的初始大小 是B，散列部分的大小是C */
+OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				创建一个新的表,并将其赋值给R(A）,其中数组部分的初始大小 是B,散列部分的大小是C */
 
 /**
  * A B C	R(A+1) := R(B); R(A) := R(B)[RK(C)]
- * 做好调用成员函数之前的准备，
- * 其中待调用模块赋值到R(A+l) 中，而待调用的成员函数存放在R(A）中，
- * 待调用的模块存放在 R(B）中，
+ * 做好调用成员函数之前的准备,
+ * 其中待调用模块赋值到R(A+l) 中,而待调用的成员函数存放在R(A）中,
+ * 待调用的模块存放在 R(B）中,
  * 待调用的函数名存放在RK(C）中
 */
 OP_SELF,
@@ -244,49 +244,53 @@ OP_LEN,/*	A B	R(A) := length of R(B)				取长度操作 */
 
 OP_CONCAT,/*	A B C	R(A) := R(B).. ... ..R(C)			连接操作 */
 
-OP_JMP,/*	A sBx	pc+=sBx; if (A) close all upvalues >= R(A - 1)	跳转操作 */
-OP_EQ,/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		比较相等操作，如果比较RK(B）和RK(C）所得的结果不等于A，那么 递增pc指令 */
-OP_LT,/*	A B C	if ((RK(B) <  RK(C)) ~= A) then pc++		比较小于操作，如果比较RK(B）小子RK(C）所得的结果不等于A，那 么递增pc指令 */
-OP_LE,/*	A B C	if ((RK(B) <= RK(C)) ~= A) then pc++		比较小于等于操作，如果比较RK(B）小于等于RK(C）所得的结果不 等于A，那么递增pc指令 */
+/**	A sBx	pc+=sBx; if (A) close all upvalues >= R(A - 1)	跳转操作
+ * sBx参数是作为跳转目的地址的偏移量存在的
+ * Lua在实现时,会将一系列跳转到同一个地址的OP_JMP指令的sBx参数链接在一起
+*/
+OP_JMP,
+OP_EQ,/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		比较相等操作,如果比较RK(B）和RK(C）所得的结果不等于A,那么 递增pc指令 */
+OP_LT,/*	A B C	if ((RK(B) <  RK(C)) ~= A) then pc++		比较小于操作,如果比较RK(B）小子RK(C）所得的结果不等于A,那 么递增pc指令 */
+OP_LE,/*	A B C	if ((RK(B) <= RK(C)) ~= A) then pc++		比较小于等于操作,如果比较RK(B）小于等于RK(C）所得的结果不 等于A,那么递增pc指令 */
 
-OP_TEST,/*	A C	if not (R(A) <=> C) then pc++			测试操作，如果R(A）参数的布尔值不等于C，将pc指针加一，直接跳过下一条指令的执行 */
-OP_TESTSET,/*	A B C	if (R(B) <=> C) then R(A) := R(B) else pc++	测试设置操作，与OP_TEST指令类似，所不同的是当比较的参数 不相等时，执行一个赋值操*/
+OP_TEST,/*	A C	if not (R(A) <=> C) then pc++			测试操作,如果R(A）参数的布尔值不等于C,将pc指针加一,直接跳过下一条指令的执行 */
+OP_TESTSET,/*	A B C	if (R(B) <=> C) then R(A) := R(B) else pc++	测试设置操作,与OP_TEST指令类似,所不同的是当比较的参数 不相等时,执行一个赋值操*/
 
 /**
- * A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) 调用函数指令，其中函数地址存放在R（时，函数参数数量存放在 B中，有两种情况： I ）为0表示参数从A+l的位置一直到函数梭的 top 位置，这表示函数参数中有另外的函数调用，因为在调用时 并不知道有多少参数，所以只好告诉虚拟机函数参数一直到函数栈的top位置了； 2 ）大于0时函数参数数量为B－1
+ * A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) 调用函数指令,其中函数地址存放在R（时,函数参数数量存放在 B中,有两种情况： I ）为0表示参数从A+l的位置一直到函数梭的 top 位置,这表示函数参数中有另外的函数调用,因为在调用时 并不知道有多少参数,所以只好告诉虚拟机函数参数一直到函数栈的top位置了； 2 ）大于0时函数参数数量为B－1
  * 参数A 被调用函数的地址
- * 参数B 函数参数的数量，有两种情况： 1 ）为0表示参数从A+1的位置一直到函数栈的top位置，这种情况下 用于处理在函数参数中有另外的函数调用时，因为在调用时并不知道有多少参数，所以只好告诉编译器该函数的参数从A+1的位置一直到函数栈的top位置； 2 ）大于0时，表示两数参数的数量为B-1
- * 参数C 函数返回值的数量，也有两种情况： 1 ）为0时，表示有可变数量的值返回； 2 ）为l时，表示返回值 数量为C-1
+ * 参数B 函数参数的数量,有两种情况： 1 ）为0表示参数从A+1的位置一直到函数栈的top位置,这种情况下 用于处理在函数参数中有另外的函数调用时,因为在调用时并不知道有多少参数,所以只好告诉编译器该函数的参数从A+1的位置一直到函数栈的top位置； 2 ）大于0时,表示两数参数的数量为B-1
+ * 参数C 函数返回值的数量,也有两种情况： 1 ）为0时,表示有可变数量的值返回； 2 ）为l时,表示返回值 数量为C-1
  */
 OP_CALL,
-OP_TAILCALL,/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		尾调用操作， R(A）存放函数地址，参数B表示函数参数数盐，意 义与前面OP CALL指令的B参数一样， C参数在这里恒为0表示有多个返回值*/
+OP_TAILCALL,/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		尾调用操作, R(A）存放函数地址,参数B表示函数参数数盐,意 义与前面OP CALL指令的B参数一样, C参数在这里恒为0表示有多个返回值*/
 
 /**
  * 	A B	return R(A), ... ,R(A+B-2)	(see note)	返回操作
  * 参数A 返回参数的起始地址
- * 参数B 返回参数数量，有两种情况： 1 ）为0表示参数从A+l的位置一直到函数栈top位置，这用于处理函数 参数中有另外的函数调用的情况，因为在调用时并不知道有多少参数，所以只好告诉编译器该函数的 参数从A+1的位置一直到函数栈的top位置； 2 ）大于0时，函数参数数量为B-1
+ * 参数B 返回参数数量,有两种情况： 1 ）为0表示参数从A+l的位置一直到函数栈top位置,这用于处理函数 参数中有另外的函数调用的情况,因为在调用时并不知道有多少参数,所以只好告诉编译器该函数的 参数从A+1的位置一直到函数栈的top位置； 2 ）大于0时,函数参数数量为B-1
  * 参数c 无
  */
 OP_RETURN,/**/
 
 OP_FORLOOP,/*	A sBx	R(A)+=R(A+2);
-			if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) } 数字for的循环操作，根据循环步长来更新循环变茧，判断循环 条件是存终止，如果没有，就跳转到循环体继续执行下一次循 环，否则退出循环。 R(A）存放循环变量的初始值， R(A+l）存放循 环终止值， R(A+2）存放循环步长值， R(A+3）存放循环变盐， sBx参 数存放循环体开始指令的偏移盘 */
-OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				数字for循环准备操作。 R(A）存放循环变量的初始值， R(A+l）存放 循环终止值， R(A+2）存放循环步长值， R(A+3）存放循环变盐， sBx 参数存放紧跟着的OP FORLOOP指令的偏移量*/
+			if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) } 数字for的循环操作,根据循环步长来更新循环变茧,判断循环 条件是存终止,如果没有,就跳转到循环体继续执行下一次循 环,否则退出循环。 R(A）存放循环变量的初始值, R(A+l）存放循 环终止值, R(A+2）存放循环步长值, R(A+3）存放循环变盐, sBx参 数存放循环体开始指令的偏移盘 */
+OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				数字for循环准备操作。 R(A）存放循环变量的初始值, R(A+l）存放 循环终止值, R(A+2）存放循环步长值, R(A+3）存放循环变盐, sBx 参数存放紧跟着的OP FORLOOP指令的偏移量*/
 
 OP_TFORCALL,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));	*/
 OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx } 泛型循环操作*/
 
 /**
  * 	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	对表的数组部分进行赋值
- * 参数A OP_NEWTABLE指令中创建好的表所在的寄存器，它后面紧跟着待写入的数据
+ * 参数A OP_NEWTABLE指令中创建好的表所在的寄存器,它后面紧跟着待写入的数据
  * 参数B 待写入数据的数量
- * 参数C FPF 索引，即每次写入最多的是LFIELDS_PER_FLUSH 
+ * 参数C FPF 索引,即每次写入最多的是LFIELDS_PER_FLUSH 
 */
 OP_SETLIST,
 
 /**
  * A Bx	R(A) := closure(KPROTO[Bx], R(A), ... ,R(A+n)) 
- * 创建一个函数对象，其中参数Proto信息存放在Bx中， 生成的函数R(A), . .. ,R(A+n))函数对象存放在 R(A）中，这个指令后面可能会跟着MOVE或者 GET_UPVAL指令，取决于引用到的外部参数的位置，这些外部参数的数量由n决定
+ * 创建一个函数对象,其中参数Proto信息存放在Bx中, 生成的函数R(A), . .. ,R(A+n))函数对象存放在 R(A）中,这个指令后面可能会跟着MOVE或者 GET_UPVAL指令,取决于引用到的外部参数的位置,这些外部参数的数量由n决定
  * 参数A 存放函数的寄存器
  * 参数B Proto数组的索引
  * 参数C 无
@@ -357,7 +361,7 @@ LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 
 /**
  * number of list items to accumulate before a SETLIST instruction
- * 当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP_SETLIST函数写入寄存器中
+ * 当前构造表时内部的数组部分的数据如果超过这个值,就首先调用 一次OP_SETLIST函数写入寄存器中
  */
 #define LFIELDS_PER_FLUSH	50
 

@@ -51,7 +51,7 @@ LUAI_FUNC TValue *luaH_set (lua_State *L, Table *t, const TValue *key);
 LUAI_FUNC Table *luaH_new (lua_State *L);
 /**
  * 重新设置Table的大小
- * 说明：luaH_new方法仅仅是初始化了一个Table，真正Table容器大小，需要调用此方法实现
+ * 说明：luaH_new方法仅仅是初始化了一个Table,真正Table容器大小,需要调用此方法实现
  *
  * nasize：数组节点的大小
  * nhsize：hash节点的大小

@@ -364,7 +364,7 @@ static void auxsetnode(lua_State *L, void *ud)
 
 /**
  * 重新设置Table的大小
- * 说明：luaH_new方法仅仅是初始化了一个Table，真正Table容器大小，需要调用此方法实现
+ * 说明：luaH_new方法仅仅是初始化了一个Table,真正Table容器大小,需要调用此方法实现
  *
  * nasize：数组节点的大小
  * nhsize：hash节点的大小
@@ -451,7 +451,7 @@ static void rehash(lua_State *L, Table *t, const TValue *ek)
 
 /**
  * 创建一个table
- * table内容由luaC_newobj创建分配，并且会挂载到global_State->frealloc上统一管理
+ * table内容由luaC_newobj创建分配,并且会挂载到global_State->frealloc上统一管理
  *
  * Table使用方式：
  * 数组结构：fruits = {"banana","orange","apple"}
@@ -461,7 +461,7 @@ static void rehash(lua_State *L, Table *t, const TValue *ek)
 Table *luaH_new(lua_State *L)
 {
   GCObject *o = luaC_newobj(L, LUA_TTABLE, sizeof(Table));
-  Table *t = gco2t(o);//分配一个Table类型的内容，对象在 global_State->frealloc 上管理
+  Table *t = gco2t(o);//分配一个Table类型的内容,对象在 global_State->frealloc 上管理
   t->metatable = NULL;
   t->flags = cast_byte(~0);
   t->array = NULL;
@@ -504,9 +504,9 @@ static Node *getfreepos(Table *t)
 ** position or not: if it is not, move colliding node to an empty place and
 ** put new key in its main position; otherwise (colliding node is in its main
 ** position), new key goes to an empty position.
-** 插入一个新key到hash 表中，首先，检查key对应的main position是否是空的，如果不是，
-** 则检查冲突的node是不是main position，如果不是，就应该将冲突的node移到一个新的空位置，
-** 将新key放到main position。如果冲突的点就已经是main position，则将新key放到一个空白点
+** 插入一个新key到hash 表中,首先,检查key对应的main position是否是空的,如果不是,
+** 则检查冲突的node是不是main position,如果不是,就应该将冲突的node移到一个新的空位置,
+** 将新key放到main position。如果冲突的点就已经是main position,则将新key放到一个空白点
 */
 TValue *luaH_newkey(lua_State *L, Table *t, const TValue *key)
 {
@@ -514,7 +514,7 @@ TValue *luaH_newkey(lua_State *L, Table *t, const TValue *key)
   TValue aux;
   if (ttisnil(key))
     luaG_runerror(L, "table index is nil");
-  else if (ttisfloat(key))//浮点类型，如果可以转int的话，强制转成int
+  else if (ttisfloat(key))//浮点类型,如果可以转int的话,强制转成int
   {
     lua_Integer k;
     if (luaV_tointeger(key, &k, 0))
@@ -680,11 +680,11 @@ const TValue *luaH_get(Table *t, const TValue *key)
 /*
 ** beware: when using this function you probably need to check a GC
 ** barrier and invalidate the TM cache.
-** 在Table上设置一个值，然后返回TValue对象
+** 在Table上设置一个值,然后返回TValue对象
 **
 ** 说明：
-** 优先在t->array数组上查询，是否有节点可以存储，如果key小于arraysize，则放置在array上
-** 调用luaH_newkey，在table上寻找可以设置key的node节点，设置成功后，返回Node->i_val
+** 优先在t->array数组上查询,是否有节点可以存储,如果key小于arraysize,则放置在array上
+** 调用luaH_newkey,在table上寻找可以设置key的node节点,设置成功后,返回Node->i_val
 ** node节点k=v形式
 */
 TValue *luaH_set(lua_State *L, Table *t, const TValue *key)
@@ -699,9 +699,9 @@ TValue *luaH_set(lua_State *L, Table *t, const TValue *key)
 /**
  * 在Table上设置key为数字类型的节点
  * 说明：
- * 1. 优先在t->array数组上查询，是否有节点可以存储，如果key小于arraysize，则放置在array上
- * 2. 如果数字大于arraysize，则在Node节点上处理
- * 3. 如果没有查询到p，则调用luaH_newkey创建一个新的Node节点用于存储value
+ * 1. 优先在t->array数组上查询,是否有节点可以存储,如果key小于arraysize,则放置在array上
+ * 2. 如果数字大于arraysize,则在Node节点上处理
+ * 3. 如果没有查询到p,则调用luaH_newkey创建一个新的Node节点用于存储value
  */
 void luaH_setint(lua_State *L, Table *t, lua_Integer key, TValue *value)
 {

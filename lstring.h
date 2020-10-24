@@ -52,9 +52,9 @@ LUAI_FUNC void luaS_remove (lua_State *L, TString *ts);
 LUAI_FUNC Udata *luaS_newudata (lua_State *L, size_t s);
 /*
  ** new string (with explicit length)
- ** 创建一个存新的字符串，不带缓存
+ ** 创建一个存新的字符串,不带缓存
  ** 字符串不能超过最大限制
- ** 新的字符串会memcpy拷贝一个副本，挂载到TString结构上
+ ** 新的字符串会memcpy拷贝一个副本,挂载到TString结构上
  */
 LUAI_FUNC TString *luaS_newlstr (lua_State *L, const char *str, size_t l);
 /*
@@ -62,14 +62,14 @@ LUAI_FUNC TString *luaS_newlstr (lua_State *L, const char *str, size_t l);
  ** cache (using the string address as a key). The cache can contain
  ** only zero-terminated strings, so it is safe to use 'strcmp' to
  ** check hits.
- ** 创建一个新的字符串，带缓存方式
+ ** 创建一个新的字符串,带缓存方式
  ** 会调用luaS_newlstr方法
- ** 1. 先通过字符串，获取字符串hash值
- ** 2. 通过hash值取字符串，如果相同的字符串已经存在，则复用
+ ** 1. 先通过字符串,获取字符串hash值
+ ** 2. 通过hash值取字符串,如果相同的字符串已经存在,则复用
  ** 3. 否则创建一个新的字符串
  **
- ** 字符串Table表，通过字符串的hash值找到list
- ** 但是list长度是STRCACHE_M=2，list比较小，估计作者认为hash冲突的概率会非常小
+ ** 字符串Table表,通过字符串的hash值找到list
+ ** 但是list长度是STRCACHE_M=2,list比较小,估计作者认为hash冲突的概率会非常小
  ** 同时每次都会将最早的元素element淘汰出去
  */
 LUAI_FUNC TString *luaS_new (lua_State *L, const char *str);

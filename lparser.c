@@ -158,8 +158,8 @@ static void checkname (LexState *ls, expdesc *e) {
 }
 
 /**
- * 新增一个局部变量，为该变量分配空间，并返回其在f->locvars数组中的下标
- * 注意: 数组f->locvars分配的空间大小为f->sizelocvars，但是数组长度却由fs->nlocavars来控制
+ * 新增一个局部变量,为该变量分配空间,并返回其在f->locvars数组中的下标
+ * 注意: 数组f->locvars分配的空间大小为f->sizelocvars,但是数组长度却由fs->nlocavars来控制
  */
 static int registerlocalvar (LexState *ls, TString *varname) {
   FuncState *fs = ls->fs;
@@ -277,7 +277,7 @@ static void markupval (FuncState *fs, int level) {
  *                      ↓yes									↓
  *                      在prev->level没找到？---------------->返回GLOBAL
  *                      ↓yes									|
- *                      new upvalue，并返回UPVALUE				|
+ *                      new upvalue,并返回UPVALUE				|
  *                      |										|
  *                      ↓										|
  *                      结束<------------------------------------
@@ -295,7 +295,7 @@ static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
         markupval(fs, v);  /* local will be used as an upval */
     }
     else {  /* not found as local at current level; try upvalues */
-    //查询全局变量，如果没有找到全局变量，则newupvalue重新生成
+    //查询全局变量,如果没有找到全局变量,则newupvalue重新生成
       int idx = searchupvalue(fs, n);  /* try existing upvalues */
       if (idx < 0) {  /* not found? */
         singlevaraux(fs->prev, n, var, 0);  /* try upper levels */
@@ -310,8 +310,8 @@ static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
 }
 
 //单个变量名称处理
-// * Lua 中的变量全是全局变量，无论语句块或是函数里，除非用 local 显式声明为局部变量，变量默认值均为nil
-// 使用local创建一个局部变量，与全局变量不同，局部变量只在被声明的那个代码块内有效。
+// * Lua 中的变量全是全局变量,无论语句块或是函数里,除非用 local 显式声明为局部变量,变量默认值均为nil
+// 使用local创建一个局部变量,与全局变量不同,局部变量只在被声明的那个代码块内有效。
 static void singlevar (LexState *ls, expdesc *var) {
   TString *varname = str_checkname(ls);//获取变量名称  获取的时候执行了：luaX_next
   FuncState *fs = ls->fs;
@@ -620,7 +620,7 @@ static int block_follow (LexState *ls, int withuntil) {
  */
 static void statlist (LexState *ls) {
   /* statlist -> { stat [';'] } */
-  /* 只要当前token不代表下一个block，则继续解析statement */
+  /* 只要当前token不代表下一个block,则继续解析statement */
   while (!block_follow(ls, 1)) {
     if (ls->t.token == TK_RETURN) {
       statement(ls);
@@ -660,10 +660,10 @@ static void yindex (LexState *ls, expdesc *v) {
 
 struct ConsControl {
   expdesc v;  /*存储表构造过程中最后一个表达式的信息。  last list item read */
-  expdesc *t;  /*构造表相关的表达式信息，与上一个字段的区别在于这里使用的是指针， 因为这个字段是由外部传入的。  table descriptor */
-  int nh;  /*初始化表时，散列部分数据的数量 total number of 'record' elements */
-  int na;  /*初始化表时，数组部分数据的数量 total number of array elements */
-  int tostore;  /*Lua解析器中定义了一个叫 LFIELDS_PER_FLUSH的常量，当前的值是50，这个值的意义在于，当前构造表时内部的数组部分的数据如果超过这个值，就首先调用 一次OP_SETLIST函数写人寄存器中 number of array elements pending to be stored */
+  expdesc *t;  /*构造表相关的表达式信息,与上一个字段的区别在于这里使用的是指针, 因为这个字段是由外部传入的。  table descriptor */
+  int nh;  /*初始化表时,散列部分数据的数量 total number of 'record' elements */
+  int na;  /*初始化表时,数组部分数据的数量 total number of array elements */
+  int tostore;  /*Lua解析器中定义了一个叫 LFIELDS_PER_FLUSH的常量,当前的值是50,这个值的意义在于,当前构造表时内部的数组部分的数据如果超过这个值,就首先调用 一次OP_SETLIST函数写人寄存器中 number of array elements pending to be stored */
 };
 
 
@@ -750,10 +750,10 @@ static void constructor (LexState *ls, expdesc *t) {
      sep -> ',' | ';' */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);//生成一条OP_NEWTABLE指令。 注意，这条指令创建的表最终会根据指令中的参数A存储的寄存器地址，赋值给本函数楼内的寄存器， 所以很显然这条指令是需要重定向的
+  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);//生成一条OP_NEWTABLE指令。 注意,这条指令创建的表最终会根据指令中的参数A存储的寄存器地址,赋值给本函数楼内的寄存器, 所以很显然这条指令是需要重定向的
   
   /**
-   * 初始化ConsControl结构体，
+   * 初始化ConsControl结构体,
   */
   struct ConsControl cc;
   cc.na = cc.nh = cc.tostore = 0;
@@ -789,12 +789,12 @@ static void parlist (LexState *ls) {
   if (ls->t.token != ')') {  /* is 'parlist' not empty? */
     do {
       switch (ls->t.token) {
-        case TK_NAME: {  /*ls->t.token为变量名的话，则新增一个局部变量 param -> NAME */
+        case TK_NAME: {  /*ls->t.token为变量名的话,则新增一个局部变量 param -> NAME */
           new_localvar(ls, str_checkname(ls));
           nparams++;
           break;
         }
-        case TK_DOTS: {  /* 如果为’…’，则说明使用了变参，那么设定f->is_vararg=1后break–由于…只能是函数形参列表里面的最后一个参数，所以读到’…’之后退出是有必要的 param -> '...' */
+        case TK_DOTS: {  /* 如果为’…’,则说明使用了变参,那么设定f->is_vararg=1后break–由于…只能是函数形参列表里面的最后一个参数,所以读到’…’之后退出是有必要的 param -> '...' */
           luaX_next(ls);
           f->is_vararg = 1;  /* declared vararg */
           break;
@@ -818,11 +818,11 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   /* body ->  '(' parlist ')' block END */
   FuncState new_fs;
   BlockCnt bl;
-  new_fs.f = addprototype(ls);//addprototype是为了new一个proto，并将其加入ls->fs->p数组中，和mainfunc类似，会先open_func；
+  new_fs.f = addprototype(ls);//addprototype是为了new一个proto,并将其加入ls->fs->p数组中,和mainfunc类似,会先open_func；
   new_fs.f->linedefined = line;
   open_func(ls, &new_fs, &bl);
   checknext(ls, '(');
-  if (ismethod) {//判定ismethod为true，则会添加一个self的局部变量
+  if (ismethod) {//判定ismethod为true,则会添加一个self的局部变量
     new_localvarliteral(ls, "self");  /* create 'self' parameter */
     adjustlocalvars(ls, 1);//adjustlocalvars函数仅仅是为了将设定一下新增的localvar的pc指针
   }
@@ -830,7 +830,7 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   checknext(ls, ')');
   statlist(ls);
   new_fs.f->lastlinedefined = ls->linenumber;
-  check_match(ls, TK_END, TK_FUNCTION, line);//check_match会校验函数结束标志符”end”，调用codeclosure，然后把OP_CLOSURE这条指令添加到父函数的code之中
+  check_match(ls, TK_END, TK_FUNCTION, line);//check_match会校验函数结束标志符”end”,调用codeclosure,然后把OP_CLOSURE这条指令添加到父函数的code之中
   codeclosure(ls, e);
   close_func(ls);
 }
@@ -838,7 +838,7 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
 /**
  * 调用函数expr解析表达式
  * 当解析的表达式列表中还存在其他表达式时
- * 即有逗号（，）分隔的式子时，针对每个表达式继续调用expr函数解析表达式
+ * 即有逗号（,）分隔的式子时,针对每个表达式继续调用expr函数解析表达式
  * 将结果缓存在expdesc结构体中
  * 然后调用函数 luaK_exp2nextreg将表达式存入当前函数的下一个可用寄存器中
 */
@@ -931,7 +931,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
 }
 
 /**
- * 主要用来处理赋值变量名称，判断变量的类型：局部变量、全局变量、Table格式、函数等。
+ * 主要用来处理赋值变量名称,判断变量的类型：局部变量、全局变量、Table格式、函数等。
 **/
 static void suffixedexp (LexState *ls, expdesc *v) {
   /* suffixedexp ->
@@ -1068,7 +1068,7 @@ static BinOpr getbinopr (int op) {
 
 /**
  * 优先级越高对应的数字就越大。
- * 需要说明的是，这里还区分了一个操作符的左右优先级
+ * 需要说明的是,这里还区分了一个操作符的左右优先级
  */
 static const struct {
   lu_byte left;  /* left priority for each binary operator */
@@ -1193,9 +1193,9 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
 
 
 /**
- * 主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数，生成32位的二进制操作码
+ * 主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数,生成32位的二进制操作码
  * ls：语法解析上下文状态
- * lh：变量名称存储在expdesc结构中，链表形式，可以存储多个变量名
+ * lh：变量名称存储在expdesc结构中,链表形式,可以存储多个变量名
  * nvars：值的个数
  */
 static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
@@ -1445,7 +1445,7 @@ static void test_then_block (LexState *ls, int *escapelist) {
   expdesc v;
   int jf;  /* instruction to skip 'then' code (if condition is false) */
   luaX_next(ls);  /* skip IF or ELSEIF */
-  expr(ls, &v);  /* 条件语句读取，返回结果值存储在v中 read condition */
+  expr(ls, &v);  /* 条件语句读取,返回结果值存储在v中 read condition */
   checknext(ls, TK_THEN);  //下一个Token
   if (ls->t.token == TK_GOTO || ls->t.token == TK_BREAK) {
     luaK_goiffalse(ls->fs, &v);  /* will jump to label if condition is true */
@@ -1531,7 +1531,7 @@ static void localstat (LexState *ls) {
 }
 
 /*
- * 解析函数名，保存结果到v
+ * 解析函数名,保存结果到v
  * 1. function A 或者 function A.a
  * 2. function A:a
  */
@@ -1555,10 +1555,10 @@ static int funcname (LexState *ls, expdesc *v) {
 static void funcstat (LexState *ls, int line) {
   /* funcstat -> FUNCTION funcname body */
   int ismethod;
-  expdesc v, b; //定义存放表达式信息的变量V和b，其中V用来保存函数名信息，b用来保存函数体信息
+  expdesc v, b; //定义存放表达式信息的变量V和b,其中V用来保存函数名信息,b用来保存函数体信息
   luaX_next(ls);  /* skip FUNCTION */
-  ismethod = funcname(ls, &v);//解析函数名，保存结果到v 
-  body(ls, &b, ismethod, line);//解析函数体，保存结果到b
+  ismethod = funcname(ls, &v);//解析函数名,保存结果到v 
+  body(ls, &b, ismethod, line);//解析函数体,保存结果到b
   luaK_storevar(ls->fs, &v, &b);//编码生成赋值语句
   luaK_fixline(ls->fs, line);  /* definition "happens" in the first line */
 }
@@ -1617,7 +1617,7 @@ static void retstat (LexState *ls) {
 }
 
 /**
- * 解析语法树，按照块状分割
+ * 解析语法树,按照块状分割
  *     stat ::=  ‘;’ | 
  *       varlist ‘=’ explist | 
  *       functioncall | 
@@ -1725,11 +1725,11 @@ static void mainfunc (LexState *ls, FuncState *fs) {
 /*
 ** 真正执行语法树解析的是luaY_parser函数。
 ** 该函数内部主要用于组装：语法状态结构：LexState和方法状态结构：FuncState
-** 该函数最后执行mainfunc方法，用于执行语法树的解析工作
+** 该函数最后执行mainfunc方法,用于执行语法树的解析工作
 */
 LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
                        Dyndata *dyd, const char *name, int firstchar) {
-  LexState lexstate;//LexState不仅用于保存当前的词法分析状态信息，而且也保存了整个编译系统的全局状态
+  LexState lexstate;//LexState不仅用于保存当前的词法分析状态信息,而且也保存了整个编译系统的全局状态
   FuncState funcstate;//FuncState结构体来保存当前函数编译的状态数据
   LClosure *cl = luaF_newLclosure(L, 1);  /* create main closure */
   setclLvalue(L, L->top, cl);  /* anchor it (to avoid being collected) */

@@ -69,7 +69,7 @@ unsigned int luaS_hashlongstr (TString *ts) {
  * resizes the string table
  * 当stringtable中的字符串数量（stringtable.muse域）
  * 超过预定容量（stringtable.size域）时
- * 说明stringtable太拥挤，许多字符串可能都哈希到同一个维度中去
+ * 说明stringtable太拥挤,许多字符串可能都哈希到同一个维度中去
  * 这将会降低stringtable的遍历效率
  * 这个时候需要调用luaS_resize方法将stringtable的哈希链表数组扩大
  * 重新排列所有字符串的位置
@@ -77,7 +77,7 @@ unsigned int luaS_hashlongstr (TString *ts) {
 void luaS_resize (lua_State *L, int newsize) {
   int i;
   stringtable *tb = &G(L)->strt;// 取得全局stringtable
-  if (newsize > tb->size) {  /* grow table if needed */ // 如果stringtable的新容量大于旧容量，重新分配
+  if (newsize > tb->size) {  /* grow table if needed */ // 如果stringtable的新容量大于旧容量,重新分配
     luaM_reallocvector(L, tb->hash, tb->size, newsize, TString *);
     for (i = tb->size; i < newsize; i++)
       tb->hash[i] = NULL;
@@ -95,7 +95,7 @@ void luaS_resize (lua_State *L, int newsize) {
       p = hnext;
     }
   }
-  // 如果stringtable的新容量小于旧容量，那么要减小表的长度
+  // 如果stringtable的新容量小于旧容量,那么要减小表的长度
   if (newsize < tb->size) {  /* shrink table if needed */
     /* vanishing slice should be empty */
     lua_assert(tb->hash[newsize] == NULL && tb->hash[tb->size - 1] == NULL);
@@ -210,9 +210,9 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
 
 /*
  ** new string (with explicit length)
- ** 创建一个存新的字符串，不带缓存
+ ** 创建一个存新的字符串,不带缓存
  ** 字符串不能超过最大限制
- ** 新的字符串会memcpy拷贝一个副本，挂载到TString结构上
+ ** 新的字符串会memcpy拷贝一个副本,挂载到TString结构上
  */
 TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
   if (l <= LUAI_MAXSHORTLEN)  /* short string? */
@@ -233,14 +233,14 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
  ** cache (using the string address as a key). The cache can contain
  ** only zero-terminated strings, so it is safe to use 'strcmp' to
  ** check hits.
- ** 创建一个新的字符串，带缓存方式
+ ** 创建一个新的字符串,带缓存方式
  ** 会调用luaS_newlstr方法
- ** 1. 先通过字符串，获取字符串hash值
- ** 2. 通过hash值取字符串，如果相同的字符串已经存在，则复用
+ ** 1. 先通过字符串,获取字符串hash值
+ ** 2. 通过hash值取字符串,如果相同的字符串已经存在,则复用
  ** 3. 否则创建一个新的字符串
  **
- ** 字符串Table表，通过字符串的hash值找到list
- ** 但是list长度是STRCACHE_M=2，list比较小，估计作者认为hash冲突的概率会非常小
+ ** 字符串Table表,通过字符串的hash值找到list
+ ** 但是list长度是STRCACHE_M=2,list比较小,估计作者认为hash冲突的概率会非常小
  ** 同时每次都会将最早的元素element淘汰出去
  */
 TString *luaS_new (lua_State *L, const char *str) {

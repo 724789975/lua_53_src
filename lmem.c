@@ -47,7 +47,7 @@
 
 /**
  * 内存扩容
- * 1. 扩容不能超过limit限制，如果超过了，则扩容到limit
+ * 1. 扩容不能超过limit限制,如果超过了,则扩容到limit
  * 2. 一般扩容按照*2系数去扩
  */ 
 void *luaM_growaux_ (lua_State *L, void *block, int *size, size_t size_elems,
@@ -83,7 +83,7 @@ l_noret luaM_toobig (lua_State *L) {
 **
 ** osize = 老的内存块大小  这参数没用上
 **
-** luaM_realloc_函数并不会被直接调用，它将调用保存在global_State.frealloc中的内存分配器进行内存管理工作
+** luaM_realloc_函数并不会被直接调用,它将调用保存在global_State.frealloc中的内存分配器进行内存管理工作
 ** luaM_realloc_会根据传入的osize和nsize调整内部感知的内存大小（设置GCdebt）
 ** 并在内存不够用的时候会主动尝试做GC操作。
 **

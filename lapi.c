@@ -58,11 +58,11 @@ const char lua_ident[] =
 
 
 /**
- * 通过指定索引值idx，寻找调用栈上L->top的栈分片TValue值
+ * 通过指定索引值idx,寻找调用栈上L->top的栈分片TValue值
  * 栈顶=idx=-1
  * 栈底=idx=1
- * idx > 0，则从操作栈底部开始寻找值
- * idx < 0，则从操作栈栈顶开始寻找值
+ * idx > 0,则从操作栈底部开始寻找值
+ * idx < 0,则从操作栈栈顶开始寻找值
  */
 static TValue *index2addr (lua_State *L, int idx) {
   CallInfo *ci = L->ci;
@@ -108,8 +108,8 @@ static void growstack (lua_State *L, void *ud) {
 }
 
 /**
- * 检查lua_State的大小，如果栈小了，则扩容（默认栈大小：栈的默认尺寸是35）
- * 说明：只会不断扩容，不会缩小
+ * 检查lua_State的大小,如果栈小了,则扩容（默认栈大小：栈的默认尺寸是35）
+ * 说明：只会不断扩容,不会缩小
  * 32/64位机器栈最大：1000000
  * 16位机器栈最大：15000
  */
@@ -610,7 +610,7 @@ LUA_API int lua_pushthread (lua_State *L) {
 static int auxgetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
   TString *str = luaS_new(L, k);
-  /* 如果能找到值，则压入堆栈 */
+  /* 如果能找到值,则压入堆栈 */
   if (luaV_fastget(L, t, str, slot, luaH_getstr)) {
     setobj2s(L, L->top, slot);
     api_incr_top(L);
@@ -627,7 +627,7 @@ static int auxgetstr (lua_State *L, const TValue *t, const char *k) {
 
 
 /**
- * 从全局注册表中，获取一个T[name]的值，放入L->top
+ * 从全局注册表中,获取一个T[name]的值,放入L->top
  * L->top=LUA_RIDX_GLOBALS[name]
  */
 LUA_API int lua_getglobal (lua_State *L, const char *name) {
@@ -637,7 +637,7 @@ LUA_API int lua_getglobal (lua_State *L, const char *name) {
 }
 
 /**
- * 从Table表中，获取一个T[name]的值，放入L->top
+ * 从Table表中,获取一个T[name]的值,放入L->top
  *  L->top-2 为k
  *  L->top-1 为v
  */
@@ -651,12 +651,12 @@ LUA_API int lua_gettable (lua_State *L, int idx) {
 }
 
 /**
- * 把 t[k] 值压入堆栈顶部， 这里的 t 是指有效索引 index 指向的值
+ * 把 t[k] 值压入堆栈顶部, 这里的 t 是指有效索引 index 指向的值
  * L->top=LUA_LOADED_TABLE[k]
  * L->top=Table[k]
  *
- * lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE) //从全局注册表上找LUA_LOADED_TABLE，放置到L->top
- * lua_getfield(L, 1, 'k') //从栈上找对对应Table，并将T[k]的值取出，压入堆栈L->top
+ * lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE) //从全局注册表上找LUA_LOADED_TABLE,放置到L->top
+ * lua_getfield(L, 1, 'k') //从栈上找对对应Table,并将T[k]的值取出,压入堆栈L->top
  */
 LUA_API int lua_getfield (lua_State *L, int idx, const char *k) {
   lua_lock(L);
@@ -664,7 +664,7 @@ LUA_API int lua_getfield (lua_State *L, int idx, const char *k) {
 }
 
 /**
- * 通过数组下标获取T[i]的值，并将值放入堆栈顶部L->top
+ * 通过数组下标获取T[i]的值,并将值放入堆栈顶部L->top
  * L->top=Table[n]
  */
 LUA_API int lua_geti (lua_State *L, int idx, lua_Integer n) {
@@ -723,7 +723,7 @@ LUA_API int lua_rawgetp (lua_State *L, int idx, const void *p) {
 }
 
 /**
- * 创建一个table，固定长度，并将之放在栈顶.
+ * 创建一个table,固定长度,并将之放在栈顶.
  *
  * narray是该table数组部分的长度
  * nrec是该table hash部分的长度.
@@ -803,7 +803,7 @@ static void auxsetstr (lua_State *L, const TValue *t, const char *k) {
 }
 
 /**
- * 将栈顶的值，设置到全局变量中去，以LUA_RIDX_GLOBALS[name]=L->top，并调整L->top指针L->top--,pop弹出栈顶值
+ * 将栈顶的值,设置到全局变量中去,以LUA_RIDX_GLOBALS[name]=L->top,并调整L->top指针L->top--,pop弹出栈顶值
  */
 LUA_API void lua_setglobal (lua_State *L, const char *name) {
   Table *reg = hvalue(&G(L)->l_registry);
@@ -813,7 +813,7 @@ LUA_API void lua_setglobal (lua_State *L, const char *name) {
 
 
 /**
- * 将栈顶的值，设置到Table中去，并调整L->top指针L->top-2,pop弹出栈顶值
+ * 将栈顶的值,设置到Table中去,并调整L->top指针L->top-2,pop弹出栈顶值
  * L->top-2 为Key
  * L->top-1 为Value
  */
@@ -828,7 +828,7 @@ LUA_API void lua_settable (lua_State *L, int idx) {
 }
 
 /**
- * 将栈顶的值L->top，赋值到T[k]上，并调整L->top指针L->top--,pop弹出栈顶值
+ * 将栈顶的值L->top,赋值到T[k]上,并调整L->top指针L->top--,pop弹出栈顶值
  * idx索引（栈地址 or 全局注册表）
  * LUA_REGISTRYINDEX[c]=L->top-1
  * Table[x]=L->top-1
@@ -1000,7 +1000,7 @@ struct CallS {  /* data to 'f_call' */
 };
 
 /**
- * 该方法包了很多层，最终调用luaD_call方法
+ * 该方法包了很多层,最终调用luaD_call方法
  */
 static void f_call (lua_State *L, void *ud) {
   struct CallS *c = cast(struct CallS *, ud);

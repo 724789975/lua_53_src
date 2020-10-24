@@ -49,7 +49,7 @@ typedef union {
 //语义分割最小单位Token
 typedef struct Token {
   int token;//Token类型
-  SemInfo seminfo;//语义信息，例如token为字符串/数字等都需要存储具体的值
+  SemInfo seminfo;//语义信息,例如token为字符串/数字等都需要存储具体的值
 } Token;
 
 

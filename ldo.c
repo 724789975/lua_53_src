@@ -118,7 +118,7 @@ l_noret luaD_throw (lua_State *L, int errcode) {
     L->errorJmp->status = errcode;  /* set status */
     LUAI_THROW(L, L->errorJmp);  /* jump to it */
   }
-  else {  /* 没有error句柄，则直接中断处理 thread has no error handler */
+  else {  /* 没有error句柄,则直接中断处理 thread has no error handler */
     global_State *g = G(L);
     L->status = cast_byte(errcode);  /* mark it as dead */
     if (g->mainthread->errorJmp) {  /* main thread has a handler? */
@@ -142,7 +142,7 @@ l_noret luaD_throw (lua_State *L, int errcode) {
  * 保护性调用（最终回调luaD_callnoyield方法）
  * f=luaD_callnoyield方法
  * ud=CallS *c   （ c->func, c->nresults）
- * 通过回调Pfunc f，并用setjmp和longjpm方式，实现代码的中断并回到setjmp处
+ * 通过回调Pfunc f,并用setjmp和longjpm方式,实现代码的中断并回到setjmp处
  * #define LUAI_THROW(L,c)		longjmp((c)->b, 1)
  * #define LUAI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
  */
@@ -153,7 +153,7 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
   lj.previous = L->errorJmp;  /* chain new error handler */
   L->errorJmp = &lj;
   /* if (setjmp((c)->b) == 0) { a } */
-   /* 当函数内部调用处理，遇到异常情况下，*/
+   /* 当函数内部调用处理,遇到异常情况下,*/
   LUAI_TRY(L, &lj,
     (*f)(L, ud);
   );
@@ -191,7 +191,7 @@ static void correctstack (lua_State *L, TValue *oldstack) {
 
 
 /**
- * 重新分配一块statck内容，并且进行拷贝
+ * 重新分配一块statck内容,并且进行拷贝
  */
 void luaD_reallocstack (lua_State *L, int newsize) {
   TValue *oldstack = L->stack;
@@ -270,7 +270,7 @@ void luaD_inctop (lua_State *L) {
 ** Call a hook for the given event. Make sure there is a hook to be
 ** called. (Both 'L->hook' and 'L->hookmask', which triggers this
 ** function, can be changed asynchronously by signals.)
-** 如果设置了debug hook，那执行指令的时候就会检测一下是否需要调用hook函数
+** 如果设置了debug hook,那执行指令的时候就会检测一下是否需要调用hook函数
 ** 若需要LUA_MASKLINE或LUA_MASKCOUNT的hook则调用lvm.c中的traceexec函数
 ** 而traceexec函数通过调用ldo.c中的luaD_hook函数完成
 ** 若需要LUA_MASKCALL或LUA_MASKRET的hook则ldo.c中的luaD_precall和luaD_poscall会对hook进行检测
@@ -400,7 +400,7 @@ static int moveresults (lua_State *L, const TValue *firstResult, StkId res,
  * wanted multiple (variable number of) results.
  * 调用函数完毕之后的恢复工作
  * 1 将虚拟机的base地址和savedpc恢复到上一个调用环境CallInfo保存下来的值
- * 2 根据函数需要返回的值将这些值写入函数战中相应的地址，返回参数不足的用nil补全
+ * 2 根据函数需要返回的值将这些值写入函数战中相应的地址,返回参数不足的用nil补全
  * 3 最后更新虚拟机的top地址
 */
 int luaD_poscall (lua_State *L, CallInfo *ci, StkId firstResult, int nres) {
@@ -443,7 +443,7 @@ int luaD_poscall (lua_State *L, CallInfo *ci, StkId firstResult, int nres) {
 ** 1. 检查栈信息
 ** 2. 创建一个新的CallInfo 容器
 ** 3. 填充相关的信息
-** 4. 如果需要，回调钩子函数
+** 4. 如果需要,回调钩子函数
 */
 int luaD_precall (lua_State *L, StkId func, int nresults) {
   lua_CFunction f;
@@ -495,7 +495,7 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
       ci->callstatus = CIST_LUA;
       if (L->hookmask & LUA_MASKCALL)
         callhook(L, ci);
-      return 0;//返回0，Lua函数
+      return 0;//返回0,Lua函数
     }
     default: {  /* not a function */
       checkstackp(L, 1, func);  /* ensure space for metamethod */
@@ -532,7 +532,7 @@ void luaD_call (lua_State *L, StkId func, int nResults) {
   if (++L->nCcalls >= LUAI_MAXCCALLS)
     stackerror(L);
   if (!luaD_precall(L, func, nResults))  /* is a Lua function? */
-    luaV_execute(L);  /* Lua方法，则执行字节码方式 call it */
+    luaV_execute(L);  /* Lua方法,则执行字节码方式 call it */
   L->nCcalls--;
 }
 
@@ -648,9 +648,9 @@ static int resume_error (lua_State *L, const char *msg, int narg) {
 
 /*
 ** resume函数通过L->status去判断执行状态。
-** 当L->status=LUA_OK，则正常启动一个函数调用流程
-** 当L->status=LUA_YIELD，则恢复中断的协程调用，并将状态设置为LUA_OK恢复调用
-** 中断恢复，我们需要调用luaD_poscall进行yield函数执行的时候的堆栈调整，然后调用unroll，执行恢复动作。
+** 当L->status=LUA_OK,则正常启动一个函数调用流程
+** 当L->status=LUA_YIELD,则恢复中断的协程调用,并将状态设置为LUA_OK恢复调用
+** 中断恢复,我们需要调用luaD_poscall进行yield函数执行的时候的堆栈调整,然后调用unroll,执行恢复动作。
 ** Do the work for 'lua_resume' in protected mode. Most of the work
 ** depends on the status of the coroutine: initial state, suspended
 ** inside a hook, or regularly suspended (optionally with a continuation
@@ -681,7 +681,7 @@ static void resume (lua_State *L, void *ud) {
         api_checknelems(L, n);
         firstArg = L->top - n;  /* yield results come from continuation */
       }
-      //中断方法yield 为一个c语言lib方法，调整整体堆栈情况
+      //中断方法yield 为一个c语言lib方法,调整整体堆栈情况
       /* 中断处理逻辑：*/
       luaD_poscall(L, ci, firstArg, n);  /* 调整堆栈 finish 'luaD_precall' */
     }
@@ -690,12 +690,12 @@ static void resume (lua_State *L, void *ud) {
 }
 
 /**
- * 启动一个协程程序，启动方式和lua_pcall相似，但是有3个区别
- * 1. lua_resume没有参数用于指出期望的结果数量，它总是返回被调用函数的所有结果；
- * 2. 它没有用于指定错误处理函数的参数，发生错误时不会展开栈，这就可以在发生错误后检查栈中的情况；
- * 3. 如果正在运行的函数交出（yield）了控制权，lua_resume就会返回一个特殊的代码LUA_YIELD，并将线程置于一个可以被再次恢复执行的状态。
+ * 启动一个协程程序,启动方式和lua_pcall相似,但是有3个区别
+ * 1. lua_resume没有参数用于指出期望的结果数量,它总是返回被调用函数的所有结果；
+ * 2. 它没有用于指定错误处理函数的参数,发生错误时不会展开栈,这就可以在发生错误后检查栈中的情况；
+ * 3. 如果正在运行的函数交出（yield）了控制权,lua_resume就会返回一个特殊的代码LUA_YIELD,并将线程置于一个可以被再次恢复执行的状态。
  *
- * L->nny = 0 设置允许挂起状态，协程栈上的操作，都会走luaD_call模式，而不会走luaD_callnoyield模式
+ * L->nny = 0 设置允许挂起状态,协程栈上的操作,都会走luaD_call模式,而不会走luaD_callnoyield模式
  *
  * L：协程栈
  * from：原始线程栈
@@ -723,7 +723,7 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs) {
   else {  /* continue running after recoverable errors */
     while (errorstatus(status) && recover(L, status)) {
       /* unroll continuation */
-      status = luaD_rawrunprotected(L, unroll, &status); //回调函数resume，入参L为协程栈
+      status = luaD_rawrunprotected(L, unroll, &status); //回调函数resume,入参L为协程栈
     }
     if (errorstatus(status)) {  /* unrecoverable error? */
       L->status = cast_byte(status);  /* mark thread as 'dead' */
@@ -755,7 +755,7 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
   luai_userstateyield(L, nresults);
   lua_lock(L);
   api_checknelems(L, nresults);
-  if (L->nny > 0) {//如果L->nny>0的话，是不允许中断挂起
+  if (L->nny > 0) {//如果L->nny>0的话,是不允许中断挂起
     if (L != G(L)->mainthread)
       luaG_runerror(L, "attempt to yield across a C-call boundary");
     else
@@ -794,7 +794,7 @@ int luaD_pcall (lua_State *L, Pfunc func, void *u,
   L->errfunc = ef;
   status = luaD_rawrunprotected(L, func, u);//异常保护调用主函数
 
-  /* 处理失败，栈状态回滚？ */
+  /* 处理失败,栈状态回滚？ */
   if (status != LUA_OK) {  /* an error occurred? */
     StkId oldtop = restorestack(L, old_top);
     luaF_close(L, oldtop);  /* close possible pending closures */
@@ -840,7 +840,7 @@ static void f_parser (lua_State *L, void *ud) {
     cl = luaU_undump(L, p->z, p->name);
   }
   else {
-    //文本类型，使用luaY_parser调用
+    //文本类型,使用luaY_parser调用
     checkmode(L, p->mode, "text");
     cl = luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
   }
