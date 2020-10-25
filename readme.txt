@@ -12,6 +12,9 @@
 ** ltablib.c	表处理库
 */
 
+术语：
+Instruction Pointer :指令指针 来保存下一个将执行的指令地址。 在Lua 代码中， IP对应的是PC指针 pc指针存放的是虚拟机OpCode代码
+
 Tvaluefield             ----------> Value                ---------> GCObject              ------------> GCheader              ------------> CommonHeader
 Value value ------------|           GCObject *gc --------|          GCheader gch ---------|             CommonHeader ---------|             GCObject *next
 int tt                              void *p                         union TString ts                                                        lu_byte tt

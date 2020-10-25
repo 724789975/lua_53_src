@@ -141,18 +141,19 @@ void luaK_concat (FuncState *fs, int *l1, int l2) {
 }
 
 
-/*
-** Create a jump instruction and return its position, so its destination
-** can be fixed later (with 'fixjump'). If there are jumps to
-** this position (kept in 'jpc'), link them all together so that
-** 'patchlistaux' will fix all them directly to the final destination.
+/**
+ * Create a jump instruction and return its position, so its destination
+ * can be fixed later (with 'fixjump'). If there are jumps to
+ * this position (kept in 'jpc'), link them all together so that
+ * 'patchlistaux' will fix all them directly to the final destination.
+ * 生成JMP指令时调用的函数
 */
 int luaK_jump (FuncState *fs) {
-  int jpc = fs->jpc;  /* save list of jumps to here */
+  int jpc = fs->jpc;  /* 预存了当前的 jpc  save list of jumps to here */
   int j;
-  fs->jpc = NO_JUMP;  /* no more jumps to here */
-  j = luaK_codeAsBx(fs, OP_JMP, 0, NO_JUMP);
-  luaK_concat(fs, &j, jpc);  /* keep them on hold */
+  fs->jpc = NO_JUMP;  /* 将当前 FuncState的jpc指针置为 NO_JUMP  no more jumps to here */
+  j = luaK_codeAsBx(fs, OP_JMP, 0, NO_JUMP); //调用luaK_codeAsBx生成OP_JMP指令
+  luaK_concat(fs, &j, jpc);  /* 将前面预存的jpc指针加入到新生成的OP_JMP指令的跳转位置中 keep them on hold */
   return j;
 }
 
@@ -175,9 +176,10 @@ static int condjump (FuncState *fs, OpCode op, int A, int B, int C) {
 }
 
 
-/*
-** returns current 'pc' and marks it as a jump target (to avoid wrong
-** optimizations with consecutive instructions not in the same basic block).
+/**
+ * returns current 'pc' and marks it as a jump target (to avoid wrong
+ * optimizations with consecutive instructions not in the same basic block).
+ * 跳转到当前指令
 */
 int luaK_getlabel (FuncState *fs) {
   fs->lasttarget = fs->pc;
@@ -249,10 +251,13 @@ static void patchlistaux (FuncState *fs, int list, int vtarget, int reg,
 }
 
 
-/*
-** Ensure all pending jumps to current position are fixed (jumping
-** to current position with no values) and reset list of pending
-** jumps
+/**
+ * Ensure all pending jumps to current position are fixed (jumping
+ * to current position with no values) and reset list of pending
+ * jumps
+ * FuncState结构体有一个名为jpc的成员，
+ * 它将需要回填为下一个待生成指令地址的跳转指令 链接到一起。
+ * 这个操作是在luaK_patchtohere函数中进行的 
 */
 static void dischargejpc (FuncState *fs) {
   patchlistaux(fs, fs->jpc, fs->pc, NO_REG, fs->pc);
@@ -305,6 +310,9 @@ void luaK_patchclose (FuncState *fs, int list, int level) {
  * Emit instruction 'i', checking for array sizes and saving also its
  * line information. Return 'i' position.
  * 每次新生成一个指令最终会调用的函数
+ * 将调用函数dischargejpc遍历jpc链表，
+ * 使用当前的pc指针进行回填操作
+ * 
  * Opcode存放在Proto结构上
  * 其中f->code数组用于存放code
  * fs->pc主要是计数器,标记code的个数及数组下标
@@ -320,6 +328,12 @@ static int luaK_code (FuncState *fs, Instruction i) {
   luaM_growvector(fs->ls->L, f->lineinfo, fs->pc, f->sizelineinfo, int,
                   MAX_INT, "opcodes");
   f->lineinfo[fs->pc] = fs->ls->lastline;
+  /**
+   * 返回新生成指令的pc指针时，
+   * 会将pc指针做一个＋＋操作，
+   * 这样下一次再调用luaK_code函数走到dischargejpc函数时，
+   * pc指针自然都是指向下一个待生成的指令
+   */
   return fs->pc++;
 }
 
