@@ -208,12 +208,15 @@ static Instruction *getjumpcontrol(FuncState *fs, int pc)
 		return pi;
 }
 
-/*
-** Patch destination register for a TESTSET instruction.
-** If instruction in position 'node' is not a TESTSET, return 0 ("fails").
-** Otherwise, if 'reg' is not 'NO_REG', set it as the destination
-** register. Otherwise, change instruction to a simple 'TEST' (produces
-** no register value)
+/**
+ * Patch destination register for a TESTSET instruction.
+ * If instruction in position 'node' is not a TESTSET, return 0 ("fails").
+ * Otherwise, if 'reg' is not 'NO_REG', set it as the destination
+ * register. Otherwise, change instruction to a simple 'TEST' (produces
+ * no register value)
+ * 跳转指令不是紧跟在OP_TESTSET指令后面的情况下， patchtestreg返回0，在 patchlistaux 函数中使用 dtarget进行回填操作
+ * reg : 需要赋值的目的寄存器地址，也就是OP_TESTSET指令中的参数A，当这个值有效 并且不等于参数B时，直接使用这个值赋值给OP_TESTSET指令的参数A
+ * 否则，就是没有寄存器进行赋值，或者寄存器中已经存在值（参数A与参数B相等的情况下）， 此时将原先的OP_TESTSET指令修改为OP_TEST指令
 */
 static int patchtestreg(FuncState *fs, int node, int reg)
 {
@@ -245,6 +248,8 @@ static void removevalues(FuncState *fs, int list)
  * registers: tests producing values jump to 'vtarget' (and put their
  * values in 'reg'), other tests jump to 'dtarget'.
  * 遍历一个跳转链表的所有元素，调用于fix_jump函数将跳转地址回填到链表中的每个指令中
+ * vtarget ：value target
+ * dtarget : default target
 */
 static void patchlistaux(FuncState *fs, int list, int vtarget, int reg,
 						 int dtarget)
