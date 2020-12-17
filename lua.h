@@ -229,7 +229,7 @@ LUA_API lua_Number      (lua_tonumberx) (lua_State *L, int idx, int *isnum);
  */
 LUA_API lua_Integer     (lua_tointegerx) (lua_State *L, int idx, int *isnum);
 /**
- * 把指定的索引处的的 Lua 值转换为一个 C 中的 boolean 值（ 0 或是 1 ）。 和 Lua 中做的所有测试一样,
+ * 把指定的索引处的的 Lua 值转换为一个 C 中的 boolean 值( 0 或是 1 )。 和 Lua 中做的所有测试一样,
  * lua_toboolean 会把任何 不同于 false 和 nil 的值当作 1 返回； 否则就返回 0 。 如果用一个无效索引去调用也会返回 0 。
  */
 LUA_API int             (lua_toboolean) (lua_State *L, int idx);
@@ -249,7 +249,7 @@ LUA_API lua_CFunction   (lua_tocfunction) (lua_State *L, int idx);
  */
 LUA_API void	       *(lua_touserdata) (lua_State *L, int idx);
 /**
- * 把给定索引处的值转换为一个 Lua 线程（由 lua_State* 代表）。 这个值必须是一个线程；否则函数返回 NULL 。
+ * 把给定索引处的值转换为一个 Lua 线程(由 lua_State* 代表)。 这个值必须是一个线程；否则函数返回 NULL 。
  */
 LUA_API lua_State      *(lua_tothread) (lua_State *L, int idx);
 /**

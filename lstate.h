@@ -77,8 +77,8 @@ typedef struct stringtable {
   /**
    * 字符串开散列算法哈希表
    * hash是一维数组指针
-   * 其中数组元素类型为TString *（指向TString类型对象指针）
-   * 它并不是一个二维数组（数组元素类型为TString）指针
+   * 其中数组元素类型为TString *(指向TString类型对象指针)
+   * 它并不是一个二维数组(数组元素类型为TString)指针
    */
   TString **hash;
   int nuse;  /* 字符串表当前字符串数量 number of elements */
@@ -125,7 +125,7 @@ typdef struct CCallInfo  {
 
   // Closure
   
-  //一个CClosure(lua_CFunction+闭包的TValues数组,代码和数据都简单多了）
+  //一个CClosure(lua_CFunction+闭包的TValues数组,代码和数据都简单多了)
   //执行的过程也别Lua CallInfo简单多了,直接调用CClosure里面的lua_CFunction即可
   StkId func;   
 

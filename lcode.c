@@ -216,7 +216,7 @@ static Instruction *getjumpcontrol(FuncState *fs, int pc)
  * no register value)
  * 跳转指令不是紧跟在OP_TESTSET指令后面的情况下， patchtestreg返回0，在 patchlistaux 函数中使用 dtarget进行回填操作
  * reg : 需要赋值的目的寄存器地址，也就是OP_TESTSET指令中的参数A，当这个值有效 并且不等于参数B时，直接使用这个值赋值给OP_TESTSET指令的参数A
- * 否则，就是没有寄存器进行赋值，或者寄存器中已经存在值（参数A与参数B相等的情况下）， 此时将原先的OP_TESTSET指令修改为OP_TEST指令
+ * 否则，就是没有寄存器进行赋值，或者寄存器中已经存在值(参数A与参数B相等的情况下)， 此时将原先的OP_TESTSET指令修改为OP_TEST指令
 */
 static int patchtestreg(FuncState *fs, int node, int reg)
 {
@@ -663,7 +663,7 @@ void luaK_dischargevars(FuncState *fs, expdesc *e)
  * discharge2reg函数是底层赋值的操作函数。针对值的不同类型进行不同的封装操作码。
  * 布尔类型：则通过luaK_codeABC函数,封装OP_LOADBOOL操作符,参数A为变量名称,参数B为布尔值
  * 对象赋值：如果是两个对象变量之间的赋值,则会封装OP_MOVE操作符,参数A为变量名称,参数B为赋值变量对象地址
- * 全局变量操作：全局变量OP_SETUPVAL操作符,参数A为值,B为变量名称值（这里不太一样）
+ * 全局变量操作：全局变量OP_SETUPVAL操作符,参数A为值,B为变量名称值(这里不太一样)
  * Ensures expression value is in register 'reg' (and therefore
  * 'e' will become a non-relocatable expression).
 **/
@@ -827,10 +827,10 @@ static void exp2reg(FuncState *fs, expdesc *e, int reg)
 */
 void luaK_exp2nextreg(FuncState *fs, expdesc *e)
 {
-	luaK_dischargevars(fs, e); //根据变量所在的不同作用域（ local, global, upvalue ) 来决定这个变量是否需要重定向。
+	luaK_dischargevars(fs, e); //根据变量所在的不同作用域( local, global, upvalue ) 来决定这个变量是否需要重定向。
 	freeexp(fs, e);
 	luaK_reserveregs(fs, 1);		 //分配可用的函数寄存器空间,得到这个空间对应的寄存器索引。 有了空间,才能存储变量
-	exp2reg(fs, e, fs->freereg - 1); //真正完成把表达式的数据放入寄存器空间的工作。 在这个函数中,最终又会调用discharge2reg函数,这个函数式根据不同的表达式类型（ NIL,布尔表达式, 数字等）来生成存取表达式的值到寄存器的字节码。
+	exp2reg(fs, e, fs->freereg - 1); //真正完成把表达式的数据放入寄存器空间的工作。 在这个函数中,最终又会调用discharge2reg函数,这个函数式根据不同的表达式类型( NIL,布尔表达式, 数字等)来生成存取表达式的值到寄存器的字节码。
 }
 
 /**
@@ -1032,7 +1032,7 @@ void luaK_goiftrue(FuncState *fs, expdesc *e)
 		pc = e->u.info;			/* save jump position */
 		break;
 	}
-		//当表达式是常量（VK）、 VKFLT,VKINT（数字）以及VTRUE布尔类型的true)时，并不需要增加一个跳转指令跳过下一条指令
+		//当表达式是常量(VK)、 VKFLT,VKINT(数字)以及VTRUE布尔类型的true)时，并不需要增加一个跳转指令跳过下一条指令
 	case VK:
 	case VKFLT:
 	case VKINT:

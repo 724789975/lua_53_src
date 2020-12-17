@@ -1029,7 +1029,7 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s, const char *p,
  *    里面存储了内存块尺寸的信息,以便在释放内存的时候能够获取到尺寸信息(譬如多级内存池回收内存操作)
  *    而Lua内存管理器刻意在调用内存管理器时提供了这个信息,这样就不必额外存储这些cookie信息
  *    这样在大量使用小内存块的环境中将可以节省不少的内存
- *    另外在ptr传入NULL时,osize表示Lua对象类型（LUA_TNIL、LUA_TBOOLEAN、LUA_TTHREAD等等）
+ *    另外在ptr传入NULL时,osize表示Lua对象类型(LUA_TNIL、LUA_TBOOLEAN、LUA_TTHREAD等等)
  *    这样内存管理器就可以知道当前在分配的对象的类型,从而可以针对它做一些统计或优化的工作。
  * nsize：新的内存块大小,特别地,在nsize为0时需要提供内存释放的功能。
  */

@@ -72,7 +72,7 @@ LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
 #define opmode(t,a,b,c,m) (((t)<<7) | ((a)<<6) | ((b)<<4) | ((c)<<2) | (m))
 
 //T::表示这是不是一条逻辑测试相关的指令,这种指令可能会将pc指针自增l。 
-// A： 表示这个指令会不会赋值给R(A）。 
+// A： 表示这个指令会不会赋值给R(A)。 
 // B/C: B、 E参数的格式
 //mode： 这个OpCode的格式。
 LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
@@ -128,9 +128,9 @@ LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
 
 /**
  * 这里用一个宏opmode封装了每个OpCode的具体格式,其中:  
- * 1. T:     (第 7 bit)  表示这是不是一条逻辑测试相关的指令,这种指令可能会涉及一次条件跳转,将PC指针自增1。（之所以需要这个标记,是因为Lua 中所有涉及条件分支的地方,实际上都在分支指令后紧随着一条 JMP 指令。Lua 没有 为布尔运算单独设计opcode,它让所有的布尔运算都以分支执行流的形式出现。Lua 的 And 与 Or  关键字 支持短路求值,所以在VM 中以分支跳转的形式实现）。分支指令和之后的 JMP 跳转指令是一体的,是因为32bit 的 Instruction   无法全部描述才分拆为两条指令。这个指令可以用来检测是不是分支指令。 当遇到 JMP 指令时,可以回溯到前面的一条指令来分辨是否是一次条件跳转。 这对 生成Lua 的bytecode 模块有帮助。 
- * 2. A:  （第 6 bit）表示这个指令是否会修改 register A,这个标记在 debug模块被用于跟踪最后改变register 内容的指令位置,帮助生成debug info。 
+ * 1. T:     (第 7 bit)  表示这是不是一条逻辑测试相关的指令,这种指令可能会涉及一次条件跳转,将PC指针自增1。(之所以需要这个标记,是因为Lua 中所有涉及条件分支的地方,实际上都在分支指令后紧随着一条 JMP 指令。Lua 没有 为布尔运算单独设计opcode,它让所有的布尔运算都以分支执行流的形式出现。Lua 的 And 与 Or  关键字 支持短路求值,所以在VM 中以分支跳转的形式实现)。分支指令和之后的 JMP 跳转指令是一体的,是因为32bit 的 Instruction   无法全部描述才分拆为两条指令。这个指令可以用来检测是不是分支指令。 当遇到 JMP 指令时,可以回溯到前面的一条指令来分辨是否是一次条件跳转。 这对 生成Lua 的bytecode 模块有帮助。 
+ * 2. A:  (第 6 bit)表示这个指令是否会修改 register A,这个标记在 debug模块被用于跟踪最后改变register 内容的指令位置,帮助生成debug info。 
  * 3. B :   (第 4-5 bit) B arg mode。 
  * 4. C :  (第 2-3 bit) C arg mode。 
- * 5. mode:（第 0-1 bit）OpCode的格式,这些分类信息,用于luac 反编译字节码时的输出,对于Lua 的运行时没有实际意义。
+ * 5. mode:(第 0-1 bit)OpCode的格式,这些分类信息,用于luac 反编译字节码时的输出,对于Lua 的运行时没有实际意义。
 **/

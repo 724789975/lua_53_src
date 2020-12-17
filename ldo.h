@@ -43,7 +43,7 @@ LUAI_FUNC int luaD_precall (lua_State *L, StkId func, int nresults);
 LUAI_FUNC void luaD_call (lua_State *L, StkId func, int nResults);
 LUAI_FUNC void luaD_callnoyield (lua_State *L, StkId func, int nResults);
 /**
- * 函数调用主方法（异常保护方式）
+ * 函数调用主方法(异常保护方式)
  * func：f_call方法
  * u：CallS 调用的方法等信息
  * old_top：函数调用前的栈顶 L->top
@@ -60,9 +60,9 @@ LUAI_FUNC void luaD_inctop (lua_State *L);
 
 LUAI_FUNC l_noret luaD_throw (lua_State *L, int errcode);
 /**
- * 保护性调用（最终回调luaD_callnoyield方法）
+ * 保护性调用(最终回调luaD_callnoyield方法)
  * f=luaD_callnoyield方法
- * ud=CallS *c   （ c->func, c->nresults）
+ * ud=CallS *c   ( c->func, c->nresults)
  */
 LUAI_FUNC int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud);
 

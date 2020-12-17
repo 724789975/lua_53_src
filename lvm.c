@@ -436,7 +436,7 @@ int luaV_lessequal(lua_State *L, const TValue *l, const TValue *r)
 int luaV_equalobj(lua_State *L, const TValue *t1, const TValue *t2)
 {
 	const TValue *tm;
-	/* 如果类型（含子类型）不同*/
+	/* 如果类型(含子类型)不同*/
 	if (ttype(t1) != ttype(t2))
 	{															/* not the same variant? */
 		if (ttnov(t1) != ttnov(t2) || ttnov(t1) != LUA_TNUMBER) // 如果大类型不同或大类型不是数字类型

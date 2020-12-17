@@ -151,7 +151,7 @@ void luaE_shrinkCI (lua_State *L) {
 }
 
 /**
- * 栈初始化（栈分为数据栈 + 调用栈）
+ * 栈初始化(栈分为数据栈 + 调用栈)
  */
 static void stack_init (lua_State *L1, lua_State *L) {
   int i; CallInfo *ci;
@@ -264,8 +264,8 @@ static void close_state (lua_State *L) {
 
 /**
  * 创建一个新的线程栈
- * LUA在main函数中,调用luaL_newstate()方法,创建了主线程（既：lua_State *L）
- * 主要用于实现Lua的协程实现（Lua没有多线程实现）
+ * LUA在main函数中,调用luaL_newstate()方法,创建了主线程(既：lua_State *L)
+ * 主要用于实现Lua的协程实现(Lua没有多线程实现)
  */
 LUA_API lua_State *lua_newthread (lua_State *L) {
   global_State *g = G(L);

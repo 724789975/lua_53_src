@@ -27,10 +27,10 @@
 ** false due to limited range of data type"; the +1 tricks the compiler,
 ** avoiding this warning but also this optimization.)
 **
-** 将使数组b的长度（最大容纳元素个数）从on重新分配为n,其中每个数组元素大小为e
+** 将使数组b的长度(最大容纳元素个数)从on重新分配为n,其中每个数组元素大小为e
 ** b　　：数组指针
-** on　 ：数组重新分配前的长度（最大容纳元素个数）
-** n  　 ：数组重新分配后的长度（最大容纳元素个数）
+** on　 ：数组重新分配前的长度(最大容纳元素个数)
+** n  　 ：数组重新分配后的长度(最大容纳元素个数)
 ** e　　：数组元素大小
 */
 #define luaM_reallocv(L,b,on,n,e) \
@@ -40,10 +40,10 @@
 
 /**
  * Arrays of chars do not need any test
- * luaM_reallocvchar将使字符数组b的长度（最大容纳元素个数）从on重新分配为n,其中每个数组元素大小为sizeof(char)
+ * luaM_reallocvchar将使字符数组b的长度(最大容纳元素个数)从on重新分配为n,其中每个数组元素大小为sizeof(char)
  * b　　：数组指针
- * on　 ：数组重新分配前的长度（最大容纳元素个数）
- * n　　：数组重新分配后的长度（最大容纳元素个数）
+ * on　 ：数组重新分配前的长度(最大容纳元素个数)
+ * n　　：数组重新分配后的长度(最大容纳元素个数)
 */
 #define luaM_reallocvchar(L,b,on,n)  \
     cast(char *, luaM_realloc_(L, (b), (on)*sizeof(char), (n)*sizeof(char)))
@@ -55,14 +55,14 @@
 */
 #define luaM_freemem(L, b, s)	luaM_realloc_(L, (b), (s), 0)
 /**
- * luaM_free将释放b指向的内存块空间（b表示某种对象类型指针）
+ * luaM_free将释放b指向的内存块空间(b表示某种对象类型指针)
  * b　　：内存指针,同时表示某种对象类型指针
 */
 #define luaM_free(L, b)		luaM_realloc_(L, (b), sizeof(*(b)), 0)
 /**
- * luaM_freearray将释放b指向的内存块空间（b表示某种类型对象的数组指针）
+ * luaM_freearray将释放b指向的内存块空间(b表示某种类型对象的数组指针)
  * b　　：内存指针,同时表示某种类型对象的数组指针
- * n　　：数组长度（最大容纳元素个数）
+ * n　　：数组长度(最大容纳元素个数)
  */
 #define luaM_freearray(L, b, n)   luaM_realloc_(L, (b), (n)*sizeof(*(b)), 0)
 
@@ -78,7 +78,7 @@
 #define luaM_new(L,t)		cast(t *, luaM_malloc(L, sizeof(t)))
 /**
  * luaM_newvector将分配一个长度为n的数组空间,数组元素为类型t
- * n　　：数组长度（最大容纳元素个数）
+ * n　　：数组长度(最大容纳元素个数)
  * t　　：数组元素类型
  */
 #define luaM_newvector(L,n,t) \
@@ -92,11 +92,11 @@
 #define luaM_newobject(L,tag,s)	luaM_realloc_(L, NULL, tag, (s))
 
 /**
- * luaM_growvector将在数组空间不足以容纳下一个元素的情况下增长空间大小（原空间大小 * 2）
+ * luaM_growvector将在数组空间不足以容纳下一个元素的情况下增长空间大小(原空间大小 * 2)
  * v        ：数组指针
  * nelems   ：正在使用的元素个数
  * size  　　：数组元素个数,传入表示原始数组大小,传出表示重新分配后数组大小
- *  t       　　：（数组元素的）数据类型
+ *  t       　　：(数组元素的)数据类型
  * limit 　　：数组元素最大个数限制
  * e　　　　：提示信息字符串
  */
@@ -119,7 +119,7 @@ LUAI_FUNC l_noret luaM_toobig (lua_State *L);
 /*
 ** generic allocation routine.
 ** 内存分配函数
-** 内容快最终会调用*g->frealloc（*l_alloc）函数处理
+** 内容快最终会调用*g->frealloc(*l_alloc)函数处理
 **
 ** osize = 老的内存块大小  这参数没用上
 **

@@ -110,7 +110,7 @@ static void growstack(lua_State *L, void *ud)
 }
 
 /**
- * 检查lua_State的大小,如果栈小了,则扩容（默认栈大小：栈的默认尺寸是35）
+ * 检查lua_State的大小,如果栈小了,则扩容(默认栈大小：栈的默认尺寸是35)
  * 说明：只会不断扩容,不会缩小
  * 32/64位机器栈最大：1000000
  * 16位机器栈最大：15000
@@ -885,7 +885,7 @@ LUA_API void lua_settable(lua_State *L, int idx)
 
 /**
  * 将栈顶的值L->top,赋值到T[k]上,并调整L->top指针L->top--,pop弹出栈顶值
- * idx索引（栈地址 or 全局注册表）
+ * idx索引(栈地址 or 全局注册表)
  * LUA_REGISTRYINDEX[c]=L->top-1
  * Table[x]=L->top-1
  *

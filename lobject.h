@@ -338,7 +338,7 @@ typedef struct TString {
   /**
    * 用于记录辅助信息
    * 对于短字符串,该字段用来标记字符串是否为保留字,用于词法分析器中对保留字的快速判断；
-   * 对于长字符串,该字段将用于惰性求哈希值的策略（第一次用到才进行哈希）
+   * 对于长字符串,该字段将用于惰性求哈希值的策略(第一次用到才进行哈希)
    * , reserved words for short strings; "has hash" for longs */
   lu_byte extra;  
   

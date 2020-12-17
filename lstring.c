@@ -67,8 +67,8 @@ unsigned int luaS_hashlongstr (TString *ts) {
 
 /**
  * resizes the string table
- * 当stringtable中的字符串数量（stringtable.muse域）
- * 超过预定容量（stringtable.size域）时
+ * 当stringtable中的字符串数量(stringtable.muse域)
+ * 超过预定容量(stringtable.size域)时
  * 说明stringtable太拥挤,许多字符串可能都哈希到同一个维度中去
  * 这将会降低stringtable的遍历效率
  * 这个时候需要调用luaS_resize方法将stringtable的哈希链表数组扩大
@@ -86,7 +86,7 @@ void luaS_resize (lua_State *L, int newsize) {
   for (i = 0; i < tb->size; i++) {  /* rehash */
     TString *p = tb->hash[i];
     tb->hash[i] = NULL;
-    // 将每个哈希链表中的元素哈希到新的位置（头插法）
+    // 将每个哈希链表中的元素哈希到新的位置(头插法)
     while (p) {  /* for each node in the list */
       TString *hnext = p->u.hnext;  /* save next */
       unsigned int h = lmod(p->hash, newsize);  /* new position */

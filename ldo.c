@@ -139,9 +139,9 @@ l_noret luaD_throw (lua_State *L, int errcode) {
 }
 
 /**
- * 保护性调用（最终回调luaD_callnoyield方法）
+ * 保护性调用(最终回调luaD_callnoyield方法)
  * f=luaD_callnoyield方法
- * ud=CallS *c   （ c->func, c->nresults）
+ * ud=CallS *c   ( c->func, c->nresults)
  * 通过回调Pfunc f,并用setjmp和longjpm方式,实现代码的中断并回到setjmp处
  * #define LUAI_THROW(L,c)		longjmp((c)->b, 1)
  * #define LUAI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
@@ -181,7 +181,7 @@ static void correctstack (lua_State *L, TValue *oldstack) {
     ci->top = (ci->top - oldstack) + L->stack;
     ci->func = (ci->func - oldstack) + L->stack;
     if (isLua(ci))
-      ci->u.l.base = (ci->u.l.base - oldstack) + L->stack;//拷贝当前函数（修正当前函数）
+      ci->u.l.base = (ci->u.l.base - oldstack) + L->stack;//拷贝当前函数(修正当前函数)
   }
 }
 
@@ -661,7 +661,7 @@ static void resume (lua_State *L, void *ud) {
   int n = *(cast(int*, ud));  /* number of arguments */
   StkId firstArg = L->top - n;  /* first argument */
   CallInfo *ci = L->ci;
-  /* 如果L->status 不为中断状态（Lua中用法：coroutine.resume(co2)） */
+  /* 如果L->status 不为中断状态(Lua中用法：coroutine.resume(co2)) */
   if (L->status == LUA_OK) {  /* starting a coroutine? */
     if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  /* Lua function? */
       luaV_execute(L);  /* call it */
@@ -693,7 +693,7 @@ static void resume (lua_State *L, void *ud) {
  * 启动一个协程程序,启动方式和lua_pcall相似,但是有3个区别
  * 1. lua_resume没有参数用于指出期望的结果数量,它总是返回被调用函数的所有结果；
  * 2. 它没有用于指定错误处理函数的参数,发生错误时不会展开栈,这就可以在发生错误后检查栈中的情况；
- * 3. 如果正在运行的函数交出（yield）了控制权,lua_resume就会返回一个特殊的代码LUA_YIELD,并将线程置于一个可以被再次恢复执行的状态。
+ * 3. 如果正在运行的函数交出(yield)了控制权,lua_resume就会返回一个特殊的代码LUA_YIELD,并将线程置于一个可以被再次恢复执行的状态。
  *
  * L->nny = 0 设置允许挂起状态,协程栈上的操作,都会走luaD_call模式,而不会走luaD_callnoyield模式
  *
@@ -778,7 +778,7 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
 }
 
 /**
- * 函数调用主方法（异常保护方式）
+ * 函数调用主方法(异常保护方式)
  * func：f_call方法
  * u：CallS 调用的方法等信息
  * old_top：函数调用前的栈顶 L->top
@@ -849,7 +849,7 @@ static void f_parser (lua_State *L, void *ud) {
 }
 
 /**
- * 文件解析函数（保护方式调用）
+ * 文件解析函数(保护方式调用)
  * 调用：luaD_pcall方法
  */
 int luaD_protectedparser (lua_State *L, ZIO *z, const char *name,
