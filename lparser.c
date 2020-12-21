@@ -1423,6 +1423,9 @@ static void forlist (LexState *ls, TString *indexname) {
 }
 
 
+/**
+ * 处理for循环的入口函数，只要程序解析到关键字for就会进入这个函数，
+ */
 static void forstat (LexState *ls, int line) {
   /* forstat -> FOR (fornum | forlist) END */
   FuncState *fs = ls->fs;

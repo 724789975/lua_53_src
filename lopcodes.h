@@ -299,7 +299,12 @@ OP_FORLOOP,
 OP_FORPREP,
 
 OP_TFORCALL,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));	*/
-OP_TFORLOOP,/*	A sBx	if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx } 泛型循环操作*/
+/**
+ * A C R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));if R(A+3)~= nil then R(A+2) = R(A+3) else pc++  泛型循环操作
+ * R(A)存放迭代函数(iterator) , R(A+l)存放当前循环的状态， R(A+2)存放循环遍历，调用后的返回值存放的位置以R(A+3)为起始位置，数量由参数C指定
+ * R(A+l)是每次循环时都不会变化的值，也就是循环变量的table; 而R(A+2)则是每次循环时都会发生变化的值，也就是这次遍历到的table的索引值
+ */
+OP_TFORLOOP,
 
 /**
  * 	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	对表的数组部分进行赋值
@@ -382,7 +387,7 @@ LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 
 /**
  * number of list items to accumulate before a SETLIST instruction
- * 当前构造表时内部的数组部分的数据如果超过这个值,就首先调用 一次OP_SETLIST函数写入寄存器中
+ * 当前构造表时内部的数组部分的数据如果超过这个值,就首先调用一次OP_SETLIST函数写入寄存器中
  */
 #define LFIELDS_PER_FLUSH	50
 
