@@ -97,7 +97,13 @@
 #define WHITE0BIT	0  /* object is white (type 0) */
 #define WHITE1BIT	1  /* object is white (type 1) */
 #define BLACKBIT	2  /* object is black */
-#define FINALIZEDBIT	3  /* object has been marked for finalization */
+/**
+ * object has been marked for finalization
+ * 于标记没有被引用需要回收的udata
+ * udata的处理与其他数据类型不同，
+ * 由于它是用户传人的数据，它的回收可能会调用用户注册的GC函数，所以统一来处理
+*/
+#define FINALIZEDBIT	3
 /* bit 7 is currently used by tests (luaL_checkmemory) */
 
 #define WHITEBITS	bit2mask(WHITE0BIT, WHITE1BIT)
