@@ -234,4 +234,19 @@ ldo.c f_parser luaC_objbarrier initialize upvalue
 lparser.c luaC_objbarrier
 lapi.c lua_setmetatable luaC_objbarrierback
 
+lua 中所有可能产生引用的地方
+----------------------------
+thread 的 stack
+table 的域
+table 的 mt
+userdata 的 mt
+userdata 的 uservalue
+global mt
+closure 的 upvalue
+proto 的 constant
+proto 的 localvars 的 varname
+proto 的 upvalues 的 name
+proto 的子 prototypes
+lua 里所有 thread 都不会变成黑色, 而总是灰色
+
 

@@ -38,17 +38,53 @@
 */
 
 /**
+ * propagate 和各个 sweep 阶段都是可以每次执行一点，多次执行直到完成的，所以是增量式 gc 增量式过程中依靠 write barrier 来保证一致性
+ */
+
+/**
  * 这一步主要就是将所有gray对象变成black,并将其引用到的white对象变成gray,直到没有gray对象存在为止。
  * 在GCSpropagate状态下,barrier会起作用。
  * Lua并不监控所有的引用变化,否则会非常影响效率。
  * 一些我们认为经常会发生变化的地方,比如stack的引用变化,就不用barrier。
+ * 从当前 gray 对象出发, 去搜索所有被它们引用的对象,
+ * 再从所有被找到的对象出发, 再找所有被它们引用的对象.
+ * 这样持续下去直到所有被直接或间接引用到的对象都被找到. 所以叫 propagate (传播)
+ * 可以分多次执行，直到 gray 链表处理完，进入 GCSatomic
 */
 #define GCSpropagate	0
+/**
+ * 一次性的处理所有需要回顾一遍的地方, 保证一致性, 然后进入清理阶段
+ * 这个阶段是原子性的, 需要一次从头到尾执行一遍, 而不能增量式的每次执行一点
+ * 这个阶段感觉主要是进行一些查漏补缺的工作,
+ * 把之前 propagate 阶段因为增量式执行引入的问题都解决掉
+ * 以一个一致的状态进入接下来的 sweep 阶段
+ */
 #define GCSatomic	1
+/**
+ * 清理 allgc 链表, 可以分多次执行, 清理完后进入 GCSswpfinobj
+ */
 #define GCSswpallgc	2
+/**
+ * 清理 finobj 链表, 可以分多次执行, 清理完 后进入 GCSswptobefnz
+ */
 #define GCSswpfinobj	3
+/**
+ *  清理 tobefnz 链表, 可以分多次执行, 清理完 后进入 GCSswpend
+ */
 #define GCSswptobefnz	4
+/**
+ * sweep main thread 然后进入 GCScallfin
+ */
 #define GCSswpend	5
+/**
+ *  执行一些 finalizer (__gc) 然后进入 GCSpause, 完成循环
+ * setmetatable 时检查 mt 是否有 __gc
+ * 如果有则把对象从 allgc 链表转移到 finobj 链表
+ * 对象是什么时候被移到 tobefnz 链表的呢?
+ * atomic 阶段会调用 separatetobefnz 函数将所有不再存活的对象从 finobj 链表移到 tobefnz 链表等待调用
+ * ( 此时会遍历整个 finobj 链表, 因此如果系统中存在太多带有 finalizer 的对象可能在这里会有效率问题 )
+ * tobefnz 链表也会被算进 root set, 因此可以保证 __gc 方法调用时所有相关对象都还是存活可以访问的
+ */
 #define GCScallfin	6
 /**
  * GCSpause状态标志着当前没有开始gc。
@@ -97,7 +133,13 @@
 #define WHITE0BIT	0  /* object is white (type 0) */
 #define WHITE1BIT	1  /* object is white (type 1) */
 #define BLACKBIT	2  /* object is black */
-#define FINALIZEDBIT	3  /* object has been marked for finalization */
+/**
+ * object has been marked for finalization
+ * 于标记没有被引用需要回收的udata
+ * udata的处理与其他数据类型不同，
+ * 由于它是用户传人的数据，它的回收可能会调用用户注册的GC函数，所以统一来处理
+*/
+#define FINALIZEDBIT	3
 /* bit 7 is currently used by tests (luaL_checkmemory) */
 
 #define WHITEBITS	bit2mask(WHITE0BIT, WHITE1BIT)
