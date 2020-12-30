@@ -266,6 +266,7 @@ typedef struct global_State {
 	lu_byte gcrunning;
 	/**
 	 * list of all collectable objects
+	 * 存放待GC对象的链表，所有对象创建之后都会放入该链表中
 	 */
 	GCObject *allgc;
 	/**
