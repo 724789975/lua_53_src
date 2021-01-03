@@ -379,13 +379,13 @@ struct lua_State {
 	const Instruction *oldpc;  /*在当前thread 的解释执行指令的过程中,指向最后一次执行的指令的指针 last pc traced */
 	StkId stack_last;  /* 线程栈的最后一个位置 last free slot in the stack */
 	StkId stack;  /* 栈的指针,当前执行的位置 stack base */
-	/*
-	   从CallStack的栈底到栈顶的所有open的UpVal也构成了一种Stack
-	   Lua把这些open状态的UpVal用链表串在一起
-	   我们可以认为是一个open upvalue stack
-	   这个stack的栈底就是UpVal* openval
-	   list of open upvalues in this stack
-	   */
+	/**
+	 * 从CallStack的栈底到栈顶的所有open的UpVal也构成了一种Stack
+	 * Lua把这些open状态的UpVal用链表串在一起
+	 * 我们可以认为是一个open upvalue stack
+	 * 这个stack的栈底就是UpVal* openval
+	 * list of open upvalues in this stack
+	 */
 	UpVal *openupval;
 	GCObject *gclist;/* GC列表 */
 	struct lua_State *twups;  /* 那些闭包了当前lua_State的变量的其他协程 list of threads with open upvalues */
