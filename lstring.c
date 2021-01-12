@@ -260,6 +260,14 @@ TString *luaS_new (lua_State *L, const char *str) {
 }
 
 
+/**
+ * 任何时候创建的udata，在GC链表中都会放在mainthread之后。
+ * 除此之外，这类型的数据与其他数据并无差别
+ * 之所以这么做，是因为udata是用户注册的C数据
+ * 在回收时，我们可能会调用用户注册的函数，
+ * 此时就需要把这些udata统一放在一个地方来处理，
+ * 这样做是为了方便编写代码
+ */
 Udata *luaS_newudata (lua_State *L, size_t s) {
   Udata *u;
   GCObject *o;
