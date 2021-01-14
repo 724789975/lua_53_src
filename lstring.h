@@ -1,7 +1,7 @@
-/*
-** $Id: lstring.h,v 1.61.1.1 2017/04/19 17:20:42 roberto Exp $
-** String table (keep all strings handled by Lua)
-** See Copyright Notice in lua.h
+/**
+ * $Id: lstring.h,v 1.61.1.1 2017/04/19 17:20:42 roberto Exp $
+ * String table (keep all strings handled by Lua)
+ * See Copyright Notice in lua.h
 */
 
 #ifndef lstring_h
@@ -37,24 +37,24 @@ LUAI_FUNC unsigned int luaS_hash (const char *str, size_t l, unsigned int seed);
 LUAI_FUNC unsigned int luaS_hashlongstr (TString *ts);
 LUAI_FUNC int luaS_eqlngstr (TString *a, TString *b);
 LUAI_FUNC void luaS_resize (lua_State *L, int newsize);
-/*
-** Clear API string cache. (Entries cannot be empty, so fill them with
-** a non-collectable string.)
-** 清楚缓存
+/**
+ * Clear API string cache. (Entries cannot be empty, so fill them with
+ * a non-collectable string.)
+ * 清楚缓存
 */
 LUAI_FUNC void luaS_clearcache (global_State *g);
-/*
- ** Initialize the string table and the string cache
- ** 初始化字符串链表和字符串缓存
+/**
+  * Initialize the string table and the string cache
+  * 初始化字符串链表和字符串缓存
  */
 LUAI_FUNC void luaS_init (lua_State *L);
 LUAI_FUNC void luaS_remove (lua_State *L, TString *ts);
 LUAI_FUNC Udata *luaS_newudata (lua_State *L, size_t s);
-/*
- ** new string (with explicit length)
- ** 创建一个存新的字符串,不带缓存
- ** 字符串不能超过最大限制
- ** 新的字符串会memcpy拷贝一个副本,挂载到TString结构上
+/**
+  * new string (with explicit length)
+  * 创建一个存新的字符串,不带缓存
+  * 字符串不能超过最大限制
+  * 新的字符串会memcpy拷贝一个副本,挂载到TString结构上
  */
 LUAI_FUNC TString *luaS_newlstr (lua_State *L, const char *str, size_t l);
 /**
