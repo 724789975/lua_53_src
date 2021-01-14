@@ -76,17 +76,17 @@ l_noret luaM_toobig (lua_State *L) {
 
 
 
-/*
-** generic allocation routine.
-** 内存分配函数
-** 内容快最终会调用*g->frealloc(*l_alloc)函数处理
-**
-** osize = 老的内存块大小  这参数没用上
-**
-** luaM_realloc_函数并不会被直接调用,它将调用保存在global_State.frealloc中的内存分配器进行内存管理工作
-** luaM_realloc_会根据传入的osize和nsize调整内部感知的内存大小(设置GCdebt)
-** 并在内存不够用的时候会主动尝试做GC操作。
-**
+/**
+ * generic allocation routine.
+ * 内存分配函数
+ * 内容快最终会调用*g->frealloc(*l_alloc)函数处理
+ *
+ * osize = 老的内存块大小  这参数没用上
+ *
+ * luaM_realloc_函数并不会被直接调用,它将调用保存在global_State.frealloc中的内存分配器进行内存管理工作
+ * luaM_realloc_会根据传入的osize和nsize调整内部感知的内存大小(设置GCdebt)
+ * 并在内存不够用的时候会主动尝试做GC操作。
+ *
 */
 void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
   void *newblock;
