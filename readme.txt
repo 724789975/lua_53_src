@@ -32,114 +32,114 @@ int tt                              void *p                         union TStrin
 (3)在luaV_execute函数中, pc指针指向第2步中的savedpc指针,紧眼着就是一个大的循环体, 依次取出其中的OpCode执行。
 执行完毕后,调用luaD_poscall函数恢复到上一个函数的环境
 
-                            ┌───────────────────────┐  
-                            │                       │
-                            │         Parser        │
-                            │                       │
-                            └───────────────────────┘
-                                        |
-                                        |      f_parser
-                                        ↓
-                            ┌───────────────────────┐  
-                            │                       │
-                            │         Proto         │
-                            │                       │
-                            └───────────────────────┘
-                                        |
-                                        |      luaD_precall: L->savedpc = p->code
-                                        ↓
-                            ┌───────────────────────┐  
-                            │                       │
-                            │         savedpc       │
-                            │                       │
-                            └───────────────────────┘
-                                        |
-                                        |      luaV_execute: pc = L->savedpc
-                                        ↓
-                            ┌───────────────────────┐  
-                            │                       │
-                            │         pc            │
-                            │                       │
-                            └───────────────────────┘
-                                        |
-                                        |      luaV_execute 中循环处理OpCode
-                                        ↓
-                            ┌───────────────────────┐  
-                    ┌------>│                       │
-                    |       │   循环处理 OpCode      │
-                    └-------│                       │
-                            └───────────────────────┘
+							┌───────────────────────┐  
+							│						│
+							│		 Parser			│
+							│						│
+							└───────────────────────┘
+										|
+										|	  f_parser
+										↓
+							┌───────────────────────┐  
+							│					  	│
+							│		 Proto			│
+							│						│
+							└───────────────────────┘
+										|
+										|	  luaD_precall: L->savedpc = p->code
+										↓
+							┌───────────────────────┐  
+							│						│
+							│		 savedpc		│
+							│						│
+							└───────────────────────┘
+										|
+										|	  luaV_execute: pc = L->savedpc
+										↓
+							┌───────────────────────┐  
+							│						│
+							│		 pc				│
+							│						│
+							└───────────────────────┘
+										|
+										|	  luaV_execute 中循环处理OpCode
+										↓
+							┌───────────────────────┐  
+					┌------>│						│
+					|		│	循环处理 OpCode		│
+					└-------│						│
+							└───────────────────────┘
 
 =========================================================
-符号                            含义
-::=                             推导
-{}                              一个或者多个
-[]                              出现0次或者1次
-|                               或者
+符号							含义
+::=								推导
+{}								一个或者多个
+[]								出现0次或者1次
+|								或者
 =========================================================
 chunk ::= block
 
-    block ::= {stat} [retstat]
+	block ::= {stat} [retstat]
 
-    stat ::=  ‘;’ | 
-         varlist ‘=’ explist | 
-         functioncall | 
-         label | 
-         break | 
-         goto Name | 
-         do block end | 
-         while exp do block end | 
-         repeat block until exp | 
-         if exp then block {elseif exp then block} [else block] end | 
-         for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-         for namelist in explist do block end | 
-         function funcname funcbody | 
-         local function Name funcbody | 
-         local namelist [‘=’ explist] 
+	stat ::=  ‘;’ | 
+		varlist ‘=’ explist | 
+		functioncall | 
+		label | 
+		break | 
+		goto Name | 
+		do block end | 
+		while exp do block end | 
+		repeat block until exp | 
+		if exp then block {elseif exp then block} [else block] end | 
+		for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+		for namelist in explist do block end | 
+		function funcname funcbody | 
+		local function Name funcbody | 
+		local namelist [‘=’ explist] 
 
-    retstat ::= return [explist] [‘;’]
+	retstat ::= return [explist] [‘;’]
 
-    label ::= ‘::’ Name ‘::’
+	label ::= ‘::’ Name ‘::’
 
-    funcname ::= Name {‘.’ Name} [‘:’ Name]
+	funcname ::= Name {‘.’ Name} [‘:’ Name]
 
-    varlist ::= var {‘,’ var}
+	varlist ::= var {‘,’ var}
 
-    var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name 
+	var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name 
 
-    namelist ::= Name {‘,’ Name}
+	namelist ::= Name {‘,’ Name}
 
-    explist ::= exp {‘,’ exp}
+	explist ::= exp {‘,’ exp}
 
-    exp ::=  nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | 
-         prefixexp | tableconstructor | exp binop exp | unop exp 
+	exp ::=  nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | 
+		 prefixexp | tableconstructor | exp binop exp | unop exp 
 
-    prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
 
-    functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
+	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
 
-    args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
+	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
 
-    functiondef ::= function funcbody
+	functiondef ::= function funcbody
 
-    funcbody ::= ‘(’ [parlist] ‘)’ block end
+	funcbody ::= ‘(’ [parlist] ‘)’ block end
 
-    parlist ::= namelist [‘,’ ‘...’] | ‘...’
+	parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
-    tableconstructor ::= ‘{’ [fieldlist] ‘}’
+	tableconstructor ::= ‘{’ [fieldlist] ‘}’
 
-    fieldlist ::= field {fieldsep field} [fieldsep]
+	fieldlist ::= field {fieldsep field} [fieldsep]
 
-    field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
 
-    fieldsep ::= ‘,’ | ‘;’
+	fieldsep ::= ‘,’ | ‘;’
 
-    binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ | 
-         ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ | 
-         ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | 
-         and | or
+	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ | 
+		‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ | 
+		‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | 
+		and | or
 
-    unop ::= ‘-’ | not | ‘#’ | ‘~’
+	unop ::= ‘-’ | not | ‘#’ | ‘~’
 =================================================================
 
 基本算法
@@ -154,23 +154,24 @@ Gray状态,也就是待扫描状态。表示对象已经被垃圾回收访问到
 Black状态,也就是已扫描状态。表示对象已经被访问到了,并且也已经遍历了对象本身对其他对象的引用。
 基本的算法可以描述如下：
 
- 当前所有对象都是White状态;  
-  将root集合引用到的对象从White设置成Gray,并放到Gray集合中;  
-  while(Gray集合不为空)  
-  {  
-      从Gray集合中移除一个对象O,并将O设置成Black状态;  
-      for(O中每一个引用到的对象O1) {  
-          if(O1在White状态) {  
-              将O1从White设置成Gray,并放到到Gray集合中；  
-          }  
-      }  
- }  
-  for(任意一个对象O){  
-      if(O在White状态)  
-          销毁对象O;  
-      else  
-          将O设置成White状态;  
-  }  
+当前所有对象都是White状态;	
+	将root集合引用到的对象从White设置成Gray,并放到Gray集合中;	
+	while(Gray集合不为空)	
+	{	
+		从Gray集合中移除一个对象O,并将O设置成Black状态;	
+		for(O中每一个引用到的对象O1) {	
+			if(O1在White状态) {	
+				将O1从White设置成Gray,并放到到Gray集合中；	
+			}	
+		}	
+	}	
+	for(任意一个对象O)
+	{	
+		if(O在White状态)	
+			销毁对象O;
+		else	
+			将O设置成White状态;	
+	}
 Incremental Garbage Collection
 上面的算法如果一次性执行,在对象很多的情况下,会执行很长时间,严重影响程序本身的响应速度。其中一个解决办法就是,可以将上面的算法分步执行,这样每个步骤所耗费的时间就比较小了。我们可以将上述算法改为以下下几个步骤。
 
@@ -182,20 +183,20 @@ Incremental Garbage Collection
 
 
   while(Gray集合不为空,并且没有超过本次计算量的上限){  
-      从Gray集合中移除一个对象O,并将O设置成Black状态;  
-      for(O中每一个引用到的对象O1) {  
-          if(O1在White状态) {  
-              将O1从White设置成Gray,并放到到Gray集合中；  
-          }  
-      }  
+	  从Gray集合中移除一个对象O,并将O设置成Black状态;  
+	  for(O中每一个引用到的对象O1) {  
+		  if(O1在White状态) {  
+			  将O1从White设置成Gray,并放到到Gray集合中；  
+		  }  
+	  }  
   }  
 销毁垃圾对象：
 
   for(任意一个对象O){  
-      if(O在White状态)  
-          销毁对象O;  
-      else  
-          将O设置成White状态;  
+	  if(O在White状态)  
+		  销毁对象O;  
+	  else  
+		  将O设置成White状态;  
  }  
 
 在每个步骤之间,由于程序可以正常执行,所以会破坏当前对象之间的引用关系。black对象表示已经被扫描的对象,所以他应该不可能引用到一个white对象。当程序的改变使得一个black对象引用到一个white对象时,就会造成错误。解决这个问题的办法就是设置barrier。barrier在程序正常运行过程中,监控所有的引用改变。如果一个black对象需要引用一个white对象,存在两种处理办法：

@@ -106,11 +106,11 @@ struct GCObject {
 ** an actual value plus a tag with its type.
 */
 
-/*
-** Union of all Lua values
-** lua 中的数据可以这样分为两类：值类型和引用类型
-** 值类型可以被任意复制,而引用类型共享一份数据,由 GC 负责维护生命期
-** lua 使用一个联合 union Value 来保存数据
+/**
+ * Union of all Lua values
+ * lua 中的数据可以这样分为两类：值类型和引用类型
+ * 值类型可以被任意复制,而引用类型共享一份数据,由 GC 负责维护生命期
+ * lua 使用一个联合 union Value 来保存数据
 */
 typedef union Value {
   GCObject *gc;    /* 存放所有需要垃圾回收的类型的对象 closure(lua closure+C closure), string, userdata, table, thread, collectable objects */
