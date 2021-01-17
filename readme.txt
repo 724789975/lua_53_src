@@ -182,22 +182,22 @@ Incremental Garbage Collection
 遍历访问所有的gray对象。如果超出了本次计算量上限,退出等待下一次遍历:
 
 
-  while(Gray集合不为空,并且没有超过本次计算量的上限){  
-	  从Gray集合中移除一个对象O,并将O设置成Black状态;  
-	  for(O中每一个引用到的对象O1) {  
-		  if(O1在White状态) {  
-			  将O1从White设置成Gray,并放到到Gray集合中；  
-		  }  
-	  }  
-  }  
+	while(Gray集合不为空,并且没有超过本次计算量的上限){	
+		从Gray集合中移除一个对象O,并将O设置成Black状态;	
+		for(O中每一个引用到的对象O1) {	
+			if(O1在White状态) {	
+				将O1从White设置成Gray,并放到到Gray集合中；	
+			}	
+		}	
+	}	
 销毁垃圾对象：
 
-  for(任意一个对象O){  
-	  if(O在White状态)  
-		  销毁对象O;  
-	  else  
-		  将O设置成White状态;  
- }  
+	for(任意一个对象O){	
+		if(O在White状态)	
+			销毁对象O;	
+		else	
+			将O设置成White状态;	
+ }	
 
 在每个步骤之间,由于程序可以正常执行,所以会破坏当前对象之间的引用关系。black对象表示已经被扫描的对象,所以他应该不可能引用到一个white对象。当程序的改变使得一个black对象引用到一个white对象时,就会造成错误。解决这个问题的办法就是设置barrier。barrier在程序正常运行过程中,监控所有的引用改变。如果一个black对象需要引用一个white对象,存在两种处理办法：
 
