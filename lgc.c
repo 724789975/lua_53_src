@@ -281,18 +281,34 @@ reentry:
 	{
 		case LUA_TSHRSTR:
 			{
+				/**
+				 * 对于字符串类型的数据，
+				 * 由于这种类型没有引用其他数据，
+				 * 所以直接标记为黑色
+				 */
 				gray2black(o);
 				g->GCmemtrav += sizelstring(gco2ts(o)->shrlen);
 				break;
 			}
 		case LUA_TLNGSTR:
 			{
+				/**
+				 * 对于字符串类型的数据，
+				 * 由于这种类型没有引用其他数据，
+				 * 所以直接标记为黑色
+				 */
 				gray2black(o);
 				g->GCmemtrav += sizelstring(gco2ts(o)->u.lnglen);
 				break;
 			}
 		case LUA_TUSERDATA:
 			{
+				/**
+				 * 对于udata类型的数据，
+				 * 因为这种类型永远不会引用其他数据，
+				 * 所以这里一步到位，直接将其标记为黑色。
+				 * 另外，对于这种类型，还需要标记对应的metatable和env表。
+				 */
 				TValue uvalue;
 				markobjectN(g, gco2u(o)->metatable);	/* mark its metatable */
 				gray2black(o);
@@ -616,39 +632,45 @@ static void propagatemark (global_State *g) {
 	GCObject *o = g->gray;
 	lua_assert(isgray(o));
 	gray2black(o);
-	switch (o->tt) {
-		case LUA_TTABLE: {
-							 Table *h = gco2t(o);
-							 g->gray = h->gclist;  /* remove from 'gray' list */
-							 size = traversetable(g, h);
-							 break;
-						 }
-		case LUA_TLCL: {
-						   LClosure *cl = gco2lcl(o);
-						   g->gray = cl->gclist;  /* remove from 'gray' list */
-						   size = traverseLclosure(g, cl);
-						   break;
-					   }
-		case LUA_TCCL: {
-						   CClosure *cl = gco2ccl(o);
-						   g->gray = cl->gclist;  /* remove from 'gray' list */
-						   size = traverseCclosure(g, cl);
-						   break;
-					   }
-		case LUA_TTHREAD: {
-							  lua_State *th = gco2th(o);
-							  g->gray = th->gclist;  /* remove from 'gray' list */
-							  linkgclist(th, g->grayagain);  /* insert into 'grayagain' list */
-							  black2gray(o);
-							  size = traversethread(g, th);
-							  break;
-						  }
-		case LUA_TPROTO: {
-							 Proto *p = gco2p(o);
-							 g->gray = p->gclist;  /* remove from 'gray' list */
-							 size = traverseproto(g, p);
-							 break;
-						 }
+	switch (o->tt)
+	{
+		case LUA_TTABLE:
+			{
+				Table *h = gco2t(o);
+				g->gray = h->gclist;  /* remove from 'gray' list */
+				size = traversetable(g, h);
+				break;
+			}
+		case LUA_TLCL:
+			{
+				LClosure *cl = gco2lcl(o);
+				g->gray = cl->gclist;  /* remove from 'gray' list */
+				size = traverseLclosure(g, cl);
+				break;
+			}
+		case LUA_TCCL:
+			{
+				CClosure *cl = gco2ccl(o);
+				g->gray = cl->gclist;  /* remove from 'gray' list */
+				size = traverseCclosure(g, cl);
+				break;
+			}
+		case LUA_TTHREAD:
+			{
+				lua_State *th = gco2th(o);
+				g->gray = th->gclist;  /* remove from 'gray' list */
+				linkgclist(th, g->grayagain);  /* insert into 'grayagain' list */
+				black2gray(o);
+				size = traversethread(g, th);
+				break;
+			}
+		case LUA_TPROTO:
+			{
+				Proto *p = gco2p(o);
+				g->gray = p->gclist;  /* remove from 'gray' list */
+				size = traverseproto(g, p);
+				break;
+			}
 		default: lua_assert(0); return;
 	}
 	g->GCmemtrav += size;
@@ -1100,19 +1122,19 @@ static lu_mem sweepstep (lua_State *L, global_State *g,
 static lu_mem singlestep (lua_State *L) {
 	global_State *g = G(L);
 	switch (g->gcstate) {
-		case GCSpause:
+		case GCSpause:		// 一段GC循环的开始
 			{
 				g->GCmemtrav = g->strt.size * sizeof(GCObject*);
-				restartcollection(g);
+				restartcollection(g);		//标记为灰色
 				g->gcstate = GCSpropagate;
 				return g->GCmemtrav;
 			}
-		case GCSpropagate:
+		case GCSpropagate:	// 传播阶段
 			{
 				g->GCmemtrav = 0;
 				lua_assert(g->gray);
-				propagatemark(g);
-				if (g->gray == NULL)  /* no more gray objects? */
+				propagatemark(g);		// 转换灰成黑（除了线程，一直是灰）
+				if (g->gray == NULL)	// 如果没有灰对象了，就执行下一个阶段 /* no more gray objects? */
 					g->gcstate = GCSatomic;  /* finish propagate phase */
 				return g->GCmemtrav;  /* memory traversed in this step */
 			}
@@ -1121,11 +1143,11 @@ static lu_mem singlestep (lua_State *L) {
 				lu_mem work;
 				propagateall(g);  /* make sure gray list is empty */
 				work = atomic(L);  /* work is what was traversed by 'atomic' */
-				entersweep(L);
+				entersweep(L);		// 进入回收阶段
 				g->GCestimate = gettotalbytes(g);  /* first estimate */;
 				return work;
 			}
-		case GCSswpallgc:
+		case GCSswpallgc:		//回收阶段
 			{  /* sweep "regular" objects */
 				return sweepstep(L, g, GCSswpfinobj, &g->finobj);
 			}
