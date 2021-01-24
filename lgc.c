@@ -519,14 +519,30 @@ static void traversestrongtable (global_State *g, Table *h) {
 }
 
 
+/**
+ * 在traversetable函数中，
+ * 如果扫描到该表是弱表，那么将会把该对象加入weak链表中，
+ * 这个链表将在扫描阶段的最后一步进行一次不能中断的处理。
+ * 同时，如果该表是弱表，那么将该对象回退到灰色状态，重新进行扫描。
+ * 在不是弱表的情况下，将遍历标记表的散列部分及数组部分的所有元素
+ */
 static lu_mem traversetable (global_State *g, Table *h) {
 	const char *weakkey, *weakvalue;
 	const TValue *mode = gfasttm(g, h->metatable, TM_MODE);
 	markobjectN(g, h->metatable);
 	if (mode && ttisstring(mode) &&  /* is there a weak mode? */
 			((weakkey = strchr(svalue(mode), 'k')),
-			 (weakvalue = strchr(svalue(mode), 'v')),
-			 (weakkey || weakvalue))) {  /* is really weak? */
+				(weakvalue = strchr(svalue(mode), 'v')),
+				(weakkey || weakvalue)
+			)
+		)
+	{
+		/**
+		 * is really weak?
+		 * 到该表是弱表，那么将会把该对象加入weak链表中，
+		 * 这个链表将在扫描阶段的最后一步进行一次不能中断的处理。
+		 * 同时，如果该表是弱表，那么将该对象回退到灰色状态，重新进行扫描
+		 */
 		black2gray(h);  /* keep table gray */
 		if (!weakkey)  /* strong keys? */
 			traverseweakvalue(g, h);
@@ -535,8 +551,14 @@ static lu_mem traversetable (global_State *g, Table *h) {
 		else  /* all weak */
 			linkgclist(h, g->allweak);  /* nothing to traverse now */
 	}
-	else  /* not weak */
+	else
+	{
+		/**
+		 * not weak
+		 * 在不是弱表的情况下，将遍历标记表的散列部分及数组部分的所有元素。
+		 */
 		traversestrongtable(g, h);
+	}
 	return sizeof(Table) + sizeof(TValue) * h->sizearray +
 		sizeof(Node) * cast(size_t, allocsizenode(h));
 }
@@ -569,6 +591,9 @@ static int traverseproto (global_State *g, Proto *f) {
 }
 
 
+/**
+ * 数主要是对C函数中的所有UpValue进行标记
+ */
 static lu_mem traverseCclosure (global_State *g, CClosure *cl) {
 	int i;
 	for (i = 0; i < cl->nupvalues; i++)  /* mark its upvalues */
@@ -576,11 +601,12 @@ static lu_mem traverseCclosure (global_State *g, CClosure *cl) {
 	return sizeCclosure(cl->nupvalues);
 }
 
-/*
- ** open upvalues point to values in a thread, so those values should
- ** be marked when the thread is traversed except in the atomic phase
- ** (because then the value cannot be changed by the thread and the
- ** thread may not be traversed again)
+/**
+ * open upvalues point to values in a thread, so those values should
+ * be marked when the thread is traversed except in the atomic phase
+ * (because then the value cannot be changed by the thread and the
+ * thread may not be traversed again)
+ * 数主要是对Lua函数中的所有UpValue进行标记
  */
 static lu_mem traverseLclosure (global_State *g, LClosure *cl) {
 	int i;
@@ -597,7 +623,8 @@ static lu_mem traverseLclosure (global_State *g, LClosure *cl) {
 	return sizeLclosure(cl->nupvalues);
 }
 
-
+/**
+ */
 static lu_mem traversethread (global_State *g, lua_State *th) {
 	StkId o = th->stack;
 	if (o == NULL)
@@ -623,9 +650,11 @@ static lu_mem traversethread (global_State *g, lua_State *th) {
 }
 
 
-/*
- ** traverse one gray object, turning it to black (except for threads,
- ** which are always gray).
+/**
+ * traverse one gray object, turning it to black (except for threads,
+ * which are always gray).
+ * 里将对象从灰色标记成黑色，表示这个对象及其所引用的对象都已经标记过
+ * 会根据不同的类型调用对应的traverse*函数进行标记（会递归调用）
  */
 static void propagatemark (global_State *g) {
 	lu_mem size;
