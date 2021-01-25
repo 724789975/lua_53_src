@@ -164,8 +164,18 @@ void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
 	global_State *g = G(L);
 	lua_assert(isblack(o) && iswhite(v) && !isdead(g, v) && !isdead(g, o));
 	if (keepinvariant(g))  /* must keep invariant? */
+	{
+		/**
+		 * 只要当前的GC没有在扫描标记阶段，就标记这个对象
+		 */
 		reallymarkobject(g, v);  /* restore invariant */
-	else {  /* sweep phase */
+	}
+	else
+	{
+		/**
+		 * sweep phase
+		 * 否则将对象标记为白色，等待下一次的GC
+		 */
 		lua_assert(issweepphase(g));
 		makewhite(g, o);  /* mark main obj. as white to avoid other barriers */
 	}
@@ -188,6 +198,13 @@ void luaC_barrierback_ (lua_State *L, Table *t) {
 	global_State *g = G(L);
 	lua_assert(isblack(t) && !isdead(g, t));
 	black2gray(t);  /* make table gray (again) */
+	/**
+	 * 需要进行barrierback操作的对象，
+	 * 最后并没有如新建对象那样加入gray链表中，
+	 * 而是加入grayagain列表中，
+	 * 避免一个对象频繁地进行“被回退－扫描－回退－扫描”过程。
+	 * 既然需要重新扫描，那么一次性地放在grayagain链表中就可以了
+	 */
 	linkgclist(t, g->grayagain);
 }
 
@@ -564,10 +581,11 @@ static lu_mem traversetable (global_State *g, Table *h) {
 }
 
 
-/*
- ** Traverse a prototype. (While a prototype is being build, its
- ** arrays can be larger than needed; the extra slots are filled with
- ** NULL, so the use of 'markobjectN')
+/**
+ * Traverse a prototype. (While a prototype is being build, its
+ * arrays can be larger than needed; the extra slots are filled with
+ * NULL, so the use of 'markobjectN')
+ * 函数标记一个Proto数据中的文件 名、字符串、upvalue、局部变量等所有被引用的对象。 
  */
 static int traverseproto (global_State *g, Proto *f) {
 	int i;
