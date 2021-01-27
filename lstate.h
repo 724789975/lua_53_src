@@ -296,6 +296,7 @@ typedef struct global_State {
 	GCObject *weak;
 	/**
 	 * list of ephemeron tables (weak keys)
+	 * 弱键表
 	 */
 	GCObject *ephemeron;
 	/**
