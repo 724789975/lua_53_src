@@ -377,8 +377,9 @@ static void markmt (global_State *g) {
 }
 
 
-/*
- ** mark all objects in list of being-finalized
+/**
+ * mark all objects in list of being-finalized
+ * 标记上次GC循环中剩余的finalize中的对象，并将其加入对应的辅助标记链中
  */
 static void markbeingfnz (global_State *g) {
 	GCObject *o;
@@ -549,10 +550,10 @@ static lu_mem traversetable (global_State *g, Table *h) {
 	markobjectN(g, h->metatable);
 	if (mode && ttisstring(mode) &&  /* is there a weak mode? */
 			((weakkey = strchr(svalue(mode), 'k')),
-				(weakvalue = strchr(svalue(mode), 'v')),
-				(weakkey || weakvalue)
+			 (weakvalue = strchr(svalue(mode), 'v')),
+			 (weakkey || weakvalue)
 			)
-		)
+	   )
 	{
 		/**
 		 * is really weak?
@@ -642,7 +643,7 @@ static lu_mem traverseLclosure (global_State *g, LClosure *cl) {
 }
 
 /**
- */
+*/
 static lu_mem traversethread (global_State *g, lua_State *th) {
 	StkId o = th->stack;
 	if (o == NULL)
@@ -729,8 +730,10 @@ static void propagateall (global_State *g) {
 }
 
 
+/**
+*/
 static void convergeephemerons (global_State *g) {
-	int changed;
+	int changed;	// 关键值，指示对 g->ephemeron 的一次遍历中是否有对象被重新mark
 	do {
 		GCObject *w;
 		GCObject *next = g->ephemeron;  /* get ephemeron list */
@@ -743,7 +746,7 @@ static void convergeephemerons (global_State *g) {
 				changed = 1;  /* will have to revisit all ephemeron tables */
 			}
 		}
-	} while (changed);
+	} while (changed);	// 无对象可 mark 时，退出
 }
 
 /* }====================================================== */
@@ -819,16 +822,19 @@ static void freeLclosure (lua_State *L, LClosure *cl) {
 
 
 static void freeobj (lua_State *L, GCObject *o) {
-	switch (o->tt) {
+	switch (o->tt)
+	{
 		case LUA_TPROTO: luaF_freeproto(L, gco2p(o)); break;
-		case LUA_TLCL: {
-						   freeLclosure(L, gco2lcl(o));
-						   break;
-					   }
-		case LUA_TCCL: {
-						   luaM_freemem(L, o, sizeCclosure(gco2ccl(o)->nupvalues));
-						   break;
-					   }
+		case LUA_TLCL:
+						 {
+							 freeLclosure(L, gco2lcl(o));
+							 break;
+						 }
+		case LUA_TCCL:
+						 {
+							 luaM_freemem(L, o, sizeCclosure(gco2ccl(o)->nupvalues));
+							 break;
+						 }
 		case LUA_TTABLE: luaH_free(L, gco2t(o)); break;
 		case LUA_TTHREAD: luaE_freethread(L, gco2th(o)); break;
 		case LUA_TUSERDATA: luaM_freemem(L, o, sizeudata(gco2u(o))); break;
@@ -836,10 +842,11 @@ static void freeobj (lua_State *L, GCObject *o) {
 							luaS_remove(L, gco2ts(o));  /* remove it from hash table */
 							luaM_freemem(L, o, sizelstring(gco2ts(o)->shrlen));
 							break;
-		case LUA_TLNGSTR: {
-							  luaM_freemem(L, o, sizelstring(gco2ts(o)->u.lnglen));
-							  break;
-						  }
+		case LUA_TLNGSTR:
+							{
+								luaM_freemem(L, o, sizelstring(gco2ts(o)->u.lnglen));
+								break;
+							}
 		default: lua_assert(0);
 	}
 }
@@ -858,8 +865,12 @@ static GCObject **sweeplist (lua_State *L, GCObject **p, lu_mem count);
  */
 static GCObject **sweeplist (lua_State *L, GCObject **p, lu_mem count) {
 	global_State *g = G(L);
-	int ow = otherwhite(g);
+	int ow = otherwhite(g);		//本次GC操作不可以被回收的白色类型。
 	int white = luaC_white(g);  /* current white */
+
+	/**
+	 * 依次遍历链表中的数据，判断每个对象的白色是否满足被回收的颜色条件
+	 */
 	while (*p != NULL && count-- > 0) {
 		GCObject *curr = *p;
 		int marked = curr->marked;
@@ -997,9 +1008,11 @@ static GCObject **findlast (GCObject **p) {
 }
 
 
-/*
- ** move all unreachable objects (or 'all' objects) that need
- ** finalization from list 'finobj' to list 'tobefnz' (to be finalized)
+/**
+ * move all unreachable objects (or 'all' objects) that need
+ * finalization from list 'finobj' to list 'tobefnz' (to be finalized)
+ * 将所有不再存活的对象从finobj链表移到tobefnz链表等待调用
+ * 此时会遍历整个 finobj 链表, 因此如果系统中存在太多带有 finalizer 的对象可能在这里会有效率问题
  */
 static void separatetobefnz (global_State *g, int all) {
 	GCObject *curr;
@@ -1087,7 +1100,9 @@ static void entersweep (lua_State *L) {
 	g->sweepgc = sweeplist(L, &g->allgc, 1);
 }
 
-
+/**
+ * 释放全部对象
+ */
 void luaC_freeallobjects (lua_State *L) {
 	global_State *g = G(L);
 	separatetobefnz(g, 1);  /* separate all objects with finalizers */
@@ -1116,25 +1131,52 @@ static l_mem atomic (lua_State *L) {
 	/* registry and global metatables may be changed by API */
 	markvalue(g, &g->l_registry);
 	markmt(g);  /* mark global metatables */
-	/* remark occasional upvalues of (maybe) dead threads */
+	/**
+	 * remark occasional upvalues of (maybe) dead threads
+	 * 用remarkupvals函数去标记open状态的UpValue，
+	 * 这一步完毕之后， gray链表又会有新的对象，
+	 * 于是需要调用propagateall再次将gray链表中的对象标记一下
+	 */
 	remarkupvals(g);
 	propagateall(g);  /* propagate changes */
+
+	/**
+	 * 修改gray链表指针指向grayagain指针，同样是调用propagateall函数进行遍历扫描操作
+	 */
 	work = g->GCmemtrav;  /* stop counting (do not recount 'grayagain') */
 	g->gray = grayagain;
 	propagateall(g);  /* traverse 'grayagain' list */
+
 	g->GCmemtrav = 0;  /* restart counting */
+	/**
+	 * 键是否可达已最终确定，mark 掉其可达键所关联的值
+	 */
 	convergeephemerons(g);
 	/* at this point, all strongly accessible objects are marked. */
 	/* Clear values from weak tables, before checking finalizers */
 	clearvalues(g, g->weak, NULL);
 	clearvalues(g, g->allweak, NULL);
 	origweak = g->weak; origall = g->allweak;
+
 	work += g->GCmemtrav;  /* stop counting (objects being finalized) */
-	separatetobefnz(g, 0);  /* separate objects to be finalized */
+	/**
+	 * separate objects to be finalized
+	 * 将所有不再存活的对象从finobj链表移到tobefnz链表等待调用
+	 * 此时会遍历整个 finobj 链表, 因此如果系统中存在太多带有 finalizer 的对象可能在这里会有效率问题
+	 */
+	separatetobefnz(g, 0);
+
 	g->gcfinnum = 1;  /* there may be objects to be finalized */
+	/**
+	 * 标记上次GC循环中剩余的finalize中的对象，并将其加入对应的辅助标记链中
+	 */
 	markbeingfnz(g);  /* mark objects that will be finalized */
 	propagateall(g);  /* remark, to propagate 'resurrection' */
+
 	g->GCmemtrav = 0;  /* restart counting */
+	/**
+	 * 复活需 finalizer 的对象及这些对象所关联的对象后，重新mark ephemeron
+	 */
 	convergeephemerons(g);
 	/* at this point, all resurrected objects are marked. */
 	/* remove dead objects from weak tables */
@@ -1144,7 +1186,13 @@ static l_mem atomic (lua_State *L) {
 	clearvalues(g, g->weak, origweak);
 	clearvalues(g, g->allweak, origall);
 	luaS_clearcache(g);
-	g->currentwhite = cast_byte(otherwhite(g));  /* flip current white */
+
+	/**
+	 * flip current white
+	 * 将当前白色类型切换到了下一次GC操作的白色类型。 
+	 */
+	g->currentwhite = cast_byte(otherwhite(g));
+
 	work += g->GCmemtrav;  /* complete counting */
 	return work;  /* estimate of memory marked by 'atomic' */
 }
