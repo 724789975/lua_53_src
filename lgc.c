@@ -856,12 +856,12 @@ static void freeobj (lua_State *L, GCObject *o) {
 static GCObject **sweeplist (lua_State *L, GCObject **p, lu_mem count);
 
 
-/*
- ** sweep at most 'count' elements from a list of GCObjects erasing dead
- ** objects, where a dead object is one marked with the old (non current)
- ** white; change all non-dead objects back to white, preparing for next
- ** collection cycle. Return where to continue the traversal or NULL if
- ** list is finished.
+/**
+ * sweep at most 'count' elements from a list of GCObjects erasing dead
+ * objects, where a dead object is one marked with the old (non current)
+ * white; change all non-dead objects back to white, preparing for next
+ * collection cycle. Return where to continue the traversal or NULL if
+ * list is finished.
  */
 static GCObject **sweeplist (lua_State *L, GCObject **p, lu_mem count) {
 	global_State *g = G(L);
