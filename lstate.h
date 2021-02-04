@@ -327,7 +327,7 @@ typedef struct global_State {
 	int gcpause;
 	/**
 	 * GC 'granularity'
-	 * 控制GC的回收速度。
+	 * 将影响每次手动GC时调用singlestep函数的次数，从而影响到GC回收的速度
 	 */
 	int gcstepmul;
 	/**
