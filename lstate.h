@@ -173,8 +173,11 @@ typedef struct CallInfo {
 #define CIST_OAH	(1<<0)	/* original value of 'allowhook' */
 #define CIST_LUA	(1<<1)	/* call is running a Lua function */
 #define CIST_HOOKED	(1<<2)	/* call is running a debug hook */
-#define CIST_FRESH	(1<<3)	/* call is running on a fresh invocation
-							   of luaV_execute */
+/**
+ * call is running on a fresh invocation
+ * of luaV_execute
+ */
+#define CIST_FRESH	(1<<3)
 #define CIST_YPCALL	(1<<4)	/* call is a yieldable protected call */
 #define CIST_TAIL	(1<<5)	/* call was tail called */
 #define CIST_HOOKYIELD	(1<<6)	/* last hook called yielded */

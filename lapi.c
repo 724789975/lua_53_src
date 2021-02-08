@@ -63,8 +63,8 @@ static TValue *index2addr(lua_State *L, int idx)
 {
 	CallInfo *ci = L->ci;
 	/**
-   * idx>0 则通过栈底到栈尾寻地址方法
-   */
+	 * idx>0 则通过栈底到栈尾寻地址方法
+	 */
 	if (idx > 0)
 	{
 		TValue *o = ci->func + idx;
@@ -82,8 +82,8 @@ static TValue *index2addr(lua_State *L, int idx)
 	else if (idx == LUA_REGISTRYINDEX)
 		return &G(L)->l_registry;
 	/**
-   * idx<0 则通过顶到栈底寻地址方法
-   */
+	 * idx<0 则通过顶到栈底寻地址方法
+	 */
 	else
 	{ /* upvalues */
 		idx = LUA_REGISTRYINDEX - idx;

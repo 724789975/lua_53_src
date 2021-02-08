@@ -939,6 +939,9 @@ static void dothecall (lua_State *L, void *ud) {
 }
 
 
+/**
+ * 循环遍历tmudata链表中的对象，针对每个对象调用fasttm函数，其中会使用GC元方法来进行对象的回收
+ */
 static void GCTM (lua_State *L, int propagateerrors) {
 	global_State *g = G(L);
 	const TValue *tm;
