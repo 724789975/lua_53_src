@@ -74,6 +74,7 @@ static TValue *index2addr(lua_State *L, int idx)
 		else
 			return o;
 	}
+	// else if (idx > LUA_REGISTRYINDEX)
 	else if (!ispseudo(idx))
 	{ /* negative index */
 		api_check(L, idx != 0 && -idx <= L->top - (ci->func + 1), "invalid index");
@@ -82,7 +83,7 @@ static TValue *index2addr(lua_State *L, int idx)
 	else if (idx == LUA_REGISTRYINDEX)
 		return &G(L)->l_registry;
 	/**
-	 * idx<0 则通过顶到栈底寻地址方法
+	 * idx<0 则通过顶到栈底寻地址方法 返回当前函数的叩value数组中的值。
 	 */
 	else
 	{ /* upvalues */
@@ -673,6 +674,7 @@ static int auxgetstr(lua_State *L, const TValue *t, const char *k)
 
 /**
  * 从全局注册表中,获取一个T[name]的值,放入L->top
+ * 使用这个函数时，需要注意恢复栈结构
  * L->top=LUA_RIDX_GLOBALS[name]
  */
 LUA_API int lua_getglobal(lua_State *L, const char *name)

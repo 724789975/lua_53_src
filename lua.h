@@ -1,9 +1,9 @@
 /*
-** $Id: lua.h,v 1.332.1.2 2018/06/13 16:58:17 roberto Exp $
-** Lua - A Scripting Language
-** Lua.org, PUC-Rio, Brazil (http://www.lua.org)
-** See Copyright Notice at the end of this file
-*/
+ ** $Id: lua.h,v 1.332.1.2 2018/06/13 16:58:17 roberto Exp $
+ ** Lua - A Scripting Language
+ ** Lua.org, PUC-Rio, Brazil (http://www.lua.org)
+ ** See Copyright Notice at the end of this file
+ */
 
 #ifndef lua_h
 #define lua_h
@@ -34,10 +34,10 @@
 
 
 /*
-** Pseudo-indices
-** (-LUAI_MAXSTACK is the minimum valid index; we keep some free empty
-** space after that to help overflow detection)
-*/
+ ** Pseudo-indices
+ ** (-LUAI_MAXSTACK is the minimum valid index; we keep some free empty
+ ** space after that to help overflow detection)
+ */
 #define LUA_REGISTRYINDEX	(-LUAI_MAXSTACK - 1000)
 #define lua_upvalueindex(i)	(LUA_REGISTRYINDEX - (i))
 
@@ -56,8 +56,8 @@ typedef struct lua_State lua_State;
 
 
 /*
-** basic types
-*/
+ ** basic types
+ */
 #define LUA_TNONE		(-1)
 
 #define LUA_TNIL		0
@@ -99,48 +99,48 @@ typedef LUA_KCONTEXT lua_KContext;
 
 
 /*
-** Type for C functions registered with Lua
-*/
+ ** Type for C functions registered with Lua
+ */
 typedef int (*lua_CFunction) (lua_State *L);
 
 /*
-** Type for continuation functions
-*/
+ ** Type for continuation functions
+ */
 typedef int (*lua_KFunction) (lua_State *L, int status, lua_KContext ctx);
 
 
 /*
-** Type for functions that read/write blocks when loading/dumping Lua chunks
-*/
+ ** Type for functions that read/write blocks when loading/dumping Lua chunks
+ */
 typedef const char * (*lua_Reader) (lua_State *L, void *ud, size_t *sz);
 
 typedef int (*lua_Writer) (lua_State *L, const void *p, size_t sz, void *ud);
 
 
 /*
-** Type for memory-allocation functions
-*/
+ ** Type for memory-allocation functions
+ */
 typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 
 
 /*
-** generic extra include file
-*/
+ ** generic extra include file
+ */
 #if defined(LUA_USER_H)
 #include LUA_USER_H
 #endif
 
 
 /*
-** RCS ident string
-*/
+ ** RCS ident string
+ */
 extern const char lua_ident[];
 
 
 /*
-** state manipulation
-*/
+ ** state manipulation
+ */
 /**
  * 分配lua_State和global_State
  * 说明：global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
@@ -161,8 +161,8 @@ LUA_API const lua_Number *(lua_version) (lua_State *L);
 
 
 /*
-** basic stack manipulation
-*/
+ ** basic stack manipulation
+ */
 LUA_API int   (lua_absindex) (lua_State *L, int idx);
 /**
  * 返回LUA 栈的个数
@@ -186,15 +186,15 @@ LUA_API void  (lua_xmove) (lua_State *from, lua_State *to, int n);
 
 
 /*
-** access functions (stack -> C)
-*/
+ ** access functions (stack -> C)
+ */
 
 /**
  * 判断是否为数字类型
  */
 LUA_API int             (lua_isnumber) (lua_State *L, int idx);/**
- * 判断是否为字符串类型栈
- */
+																* 判断是否为字符串类型栈
+																*/
 LUA_API int             (lua_isstring) (lua_State *L, int idx);
 /**
  * 判断是否为function栈
@@ -260,8 +260,8 @@ LUA_API const void     *(lua_topointer) (lua_State *L, int idx);
 
 
 /*
-** Comparison and arithmetic functions
-*/
+ ** Comparison and arithmetic functions
+ */
 
 #define LUA_OPADD	0	/* ORDER TM, ORDER OP */
 #define LUA_OPSUB	1
@@ -293,8 +293,8 @@ LUA_API int   (lua_compare) (lua_State *L, int idx1, int idx2, int op);
 
 
 /*
-** push functions (C -> stack)
-*/
+ ** push functions (C -> stack)
+ */
 /**
  * 压入一个nil类型的栈到L->top上
  */
@@ -344,8 +344,8 @@ LUA_API int   (lua_pushthread) (lua_State *L);
 
 
 /*
-** get functions (Lua -> stack)
-*/
+ ** get functions (Lua -> stack)
+ */
 LUA_API int (lua_getglobal) (lua_State *L, const char *name);
 LUA_API int (lua_gettable) (lua_State *L, int idx);
 LUA_API int (lua_getfield) (lua_State *L, int idx, const char *k);
@@ -367,8 +367,8 @@ LUA_API int  (lua_getuservalue) (lua_State *L, int idx);
 
 
 /*
-** set functions (stack -> Lua)
-*/
+ ** set functions (stack -> Lua)
+ */
 LUA_API void  (lua_setglobal) (lua_State *L, const char *name);
 LUA_API void  (lua_settable) (lua_State *L, int idx);
 LUA_API void  (lua_setfield) (lua_State *L, int idx, const char *k);
@@ -381,27 +381,27 @@ LUA_API void  (lua_setuservalue) (lua_State *L, int idx);
 
 
 /*
-** 'load' and 'call' functions (load and run Lua code)
-*/
+ ** 'load' and 'call' functions (load and run Lua code)
+ */
 LUA_API void  (lua_callk) (lua_State *L, int nargs, int nresults,
-                           lua_KContext ctx, lua_KFunction k);
+		lua_KContext ctx, lua_KFunction k);
 #define lua_call(L,n,r)		lua_callk(L, (n), (r), 0, NULL)
 
 LUA_API int   (lua_pcallk) (lua_State *L, int nargs, int nresults, int errfunc,
-                            lua_KContext ctx, lua_KFunction k);
+		lua_KContext ctx, lua_KFunction k);
 #define lua_pcall(L,n,r,f)	lua_pcallk(L, (n), (r), (f), 0, NULL)
 
 LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
-                          const char *chunkname, const char *mode);
+		const char *chunkname, const char *mode);
 
 LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data, int strip);
 
 
 /*
-** coroutine functions
-*/
+ ** coroutine functions
+ */
 LUA_API int  (lua_yieldk)     (lua_State *L, int nresults, lua_KContext ctx,
-                               lua_KFunction k);
+		lua_KFunction k);
 LUA_API int  (lua_resume)     (lua_State *L, lua_State *from, int narg);
 LUA_API int  (lua_status)     (lua_State *L);
 LUA_API int (lua_isyieldable) (lua_State *L);
@@ -410,8 +410,8 @@ LUA_API int (lua_isyieldable) (lua_State *L);
 
 
 /*
-** garbage-collection function and options
-*/
+ ** garbage-collection function and options
+ */
 
 #define LUA_GCSTOP		0
 #define LUA_GCRESTART		1
@@ -427,8 +427,8 @@ LUA_API int (lua_gc) (lua_State *L, int what, int data);
 
 
 /*
-** miscellaneous functions
-*/
+ ** miscellaneous functions
+ */
 
 LUA_API int   (lua_error) (lua_State *L);
 
@@ -445,10 +445,10 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** {==============================================================
-** some useful macros
-** ===============================================================
-*/
+ ** {==============================================================
+ ** some useful macros
+ ** ===============================================================
+ */
 
 #define lua_getextraspace(L)	((void *)((char *)(L) - LUA_EXTRASPACE))
 
@@ -491,10 +491,10 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** {==============================================================
-** compatibility macros for unsigned conversions
-** ===============================================================
-*/
+ ** {==============================================================
+ ** compatibility macros for unsigned conversions
+ ** ===============================================================
+ */
 #if defined(LUA_COMPAT_APIINTCASTS)
 
 #define lua_pushunsigned(L,n)	lua_pushinteger(L, (lua_Integer)(n))
@@ -505,15 +505,15 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 /* }============================================================== */
 
 /*
-** {======================================================================
-** Debug API
-** =======================================================================
-*/
+ ** {======================================================================
+ ** Debug API
+ ** =======================================================================
+ */
 
 
 /*
-** Event codes
-*/
+ ** Event codes
+ */
 #define LUA_HOOKCALL	0
 #define LUA_HOOKRET	1
 #define LUA_HOOKLINE	2
@@ -522,8 +522,8 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** Event masks
-*/
+ ** Event masks
+ */
 #define LUA_MASKCALL	(1 << LUA_HOOKCALL)//表示每次调用函数的时候hook
 #define LUA_MASKRET	(1 << LUA_HOOKRET)//表示每次函数返回的时候hook
 #define LUA_MASKLINE	(1 << LUA_HOOKLINE)//表示每行执行的时候hook
@@ -545,7 +545,7 @@ LUA_API const char *(lua_setupvalue) (lua_State *L, int funcindex, int n);
 
 LUA_API void *(lua_upvalueid) (lua_State *L, int fidx, int n);
 LUA_API void  (lua_upvaluejoin) (lua_State *L, int fidx1, int n1,
-                                               int fidx2, int n2);
+		int fidx2, int n2);
 
 LUA_API void (lua_sethook) (lua_State *L, lua_Hook func, int mask, int count);
 LUA_API lua_Hook (lua_gethook) (lua_State *L);
@@ -554,48 +554,92 @@ LUA_API int (lua_gethookcount) (lua_State *L);
 
 
 struct lua_Debug {
-  int event;
-  const char *name;	/* (n) */
-  const char *namewhat;	/* (n) 'global', 'local', 'field', 'method' */
-  const char *what;	/* (S) 'Lua', 'C', 'main', 'tail' */
-  const char *source;	/* (S) */
-  int currentline;	/* (l) */
-  int linedefined;	/* (S) */
-  int lastlinedefined;	/* (S) */
-  unsigned char nups;	/* (u) number of upvalues */
-  unsigned char nparams;/* (u) number of parameters */
-  char isvararg;        /* (u) */
-  char istailcall;	/* (t) */
-  char short_src[LUA_IDSIZE]; /* (S) */
-  /* private part */
-  struct CallInfo *i_ci;  /* active function */
+	/**
+	 * 用于表示触发hook的事件
+	 * LUA_MASKCALL
+	 * LUA_MASKRET
+	 * LUA_MASKLINE
+	 * LUA_MASKCOUNT
+	 */
+	int event;
+	/**
+	 * (n) 当前所在函数的名称
+	 */
+	const char *name;
+	/**
+	 * (n) name域的含义。 可能的取值为： global、 local、 method、 field或者空字符串。空字符串意味着Lua无法找到这个函数名
+	 * 'global', 'local', 'field', 'method'
+	 */
+	const char *namewhat;
+	/**
+	 * (S) 函数类型。 如果是普通的Lua函数，结果为Lua ；如果是C函数，结果为C；如 果是Lua的主代码段，结果为main。 
+	 * 'Lua', 'C', 'main', 'tail'
+	 */
+	const char *what;
+	/**
+	 * (S) 函数的定义位置。
+	 * 如果函数在字符串内被定义（通过loadstring函数）, source 就是该字符串，
+	 * 如果函数在文件中被定义， source就是带＠前缀的文件名。 
+	 */
+	const char *source;
+	/**
+	 * (l) 当前所在行号。
+	 */
+	int currentline;
+	/**
+	 * (S) source中函数被定义处的行号。
+	 */
+	int linedefined;
+	/**
+	 * (S) 该函数最后一行代码在源代码中的行号
+	 */
+	int lastlinedefined;
+	/**
+	 * (u)该函数的UpValue的数量。
+	 * number of upvalues
+	 */
+	unsigned char nups;
+	unsigned char nparams;/* (u) number of parameters */
+	char isvararg;        /* (u) */
+	char istailcall;	/* (t) */
+	/**
+	 * (S) source的简短版本（ 60个字符以内），对错误信息很有用。 
+	 */
+	char short_src[LUA_IDSIZE];
+ 	/**
+	 * private part
+	 * 存放当前函数在lua_State结构体的CallInfo数组中的索引。
+	 * 通过这个变量，就能 在lua_State结构体中拿到对应的CallInfo数据
+	 * active function
+	 */
+	struct CallInfo *i_ci;
 };
 
 /* }====================================================================== */
 
 
 /******************************************************************************
-* Copyright (C) 1994-2018 Lua.org, PUC-Rio.
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-******************************************************************************/
+ * Copyright (C) 1994-2018 Lua.org, PUC-Rio.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ******************************************************************************/
 
 
 #endif

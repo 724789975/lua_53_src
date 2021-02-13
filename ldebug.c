@@ -167,7 +167,11 @@ static const char *findlocal (lua_State *L, CallInfo *ci, int n,
   return name;
 }
 
-
+/**
+ * 在当前函数的locvars数组中依次查找变量，传入的n为数组索引，
+ * 从l开始，当该索引找不到对应的数组元素时，会返回NULL。
+ * 另外，需要注意的是，这个API会将查找 结果压入栈中，如果查找不成功，那么需要从找中弹出前面压入的值恢复栈的结构
+ */
 LUA_API const char *lua_getlocal (lua_State *L, const lua_Debug *ar, int n) {
   const char *name;
   lua_lock(L);
@@ -305,7 +309,13 @@ static int auxgetinfo (lua_State *L, const char *what, lua_Debug *ar,
   return status;
 }
 
-
+/**
+ * L :
+ * shat : 字符串，支持传入多个字母。
+ * 这些传入的字符，取自lua_Debug 结构体定义中每个成员变量的注释中那些写在括号里面的字符。
+ * 比如，如果要得到name和what信息，需要传入”nS”，依次类推。
+ * ar :
+ */
 LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
   int status;
   Closure *cl;
