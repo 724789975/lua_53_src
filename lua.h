@@ -524,10 +524,10 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 /*
  ** Event masks
  */
-#define LUA_MASKCALL	(1 << LUA_HOOKCALL)//表示每次调用函数的时候hook
-#define LUA_MASKRET	(1 << LUA_HOOKRET)//表示每次函数返回的时候hook
-#define LUA_MASKLINE	(1 << LUA_HOOKLINE)//表示每行执行的时候hook
-#define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)//表示每执行count条lua指令hook一次 这里的count是debug.sethook ([thread,] hook, mask [, count])中传递的
+#define LUA_MASKCALL	(1 << LUA_HOOKCALL)		//表示每次调用函数的时候hook
+#define LUA_MASKRET		(1 << LUA_HOOKRET)		//表示每次函数返回的时候hook
+#define LUA_MASKLINE	(1 << LUA_HOOKLINE)		//表示每行执行的时候hook
+#define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)	//表示每执行count条lua指令hook一次 这里的count是debug.sethook ([thread,] hook, mask [, count])中传递的
 
 typedef struct lua_Debug lua_Debug;  /* activation record */
 
