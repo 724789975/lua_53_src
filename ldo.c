@@ -661,7 +661,7 @@ static void resume (lua_State *L, void *ud) {
 	int n = *(cast(int*, ud));  /* number of arguments */
 	StkId firstArg = L->top - n;  /* first argument */
 	CallInfo *ci = L->ci;
-	/* 如果L->status 不为中断状态(Lua中用法：coroutine.resume(co2)) */
+	/* 如果L->status 不为中断状态(Lua中用法:coroutine.resume(co2)) */
 	if (L->status == LUA_OK) {  /* starting a coroutine? */
 		if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  /* Lua function? */
 			luaV_execute(L);  /* call it */
@@ -682,7 +682,7 @@ static void resume (lua_State *L, void *ud) {
 				firstArg = L->top - n;  /* yield results come from continuation */
 			}
 			//中断方法yield 为一个c语言lib方法,调整整体堆栈情况
-			/* 中断处理逻辑：*/
+			/* 中断处理逻辑:*/
 			luaD_poscall(L, ci, firstArg, n);  /* 调整堆栈 finish 'luaD_precall' */
 		}
 		unroll(L, NULL);  /* 执行先前中断的协程 run continuation */
@@ -697,9 +697,9 @@ static void resume (lua_State *L, void *ud) {
  *
  * L->nny = 0 设置允许挂起状态,协程栈上的操作,都会走luaD_call模式,而不会走luaD_callnoyield模式
  *
- * L：协程栈
- * from：原始线程栈
- * nargs：参数个数
+ * L:协程栈
+ * from:原始线程栈
+ * nargs:参数个数
  */
 LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs) {
 	int status;
@@ -781,10 +781,10 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
 
 /**
  * 函数调用主方法(异常保护方式)
- * func：f_call方法
- * u：CallS 调用的方法等信息
- * old_top：函数调用前的栈顶 L->top
- * ef：错误状态
+ * func:f_call方法
+ * u:CallS 调用的方法等信息
+ * old_top:函数调用前的栈顶 L->top
+ * ef:错误状态
  */
 int luaD_pcall (lua_State *L, Pfunc func, void *u,
 		ptrdiff_t old_top, ptrdiff_t ef) {
@@ -852,7 +852,7 @@ static void f_parser (lua_State *L, void *ud) {
 
 /**
  * 文件解析函数(保护方式调用)
- * 调用：luaD_pcall方法
+ * 调用:luaD_pcall方法
  */
 int luaD_protectedparser (lua_State *L, ZIO *z, const char *name,
 		const char *mode) {

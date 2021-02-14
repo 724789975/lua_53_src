@@ -108,7 +108,7 @@ struct GCObject {
 
 /**
  * Union of all Lua values
- * lua 中的数据可以这样分为两类：值类型和引用类型
+ * lua 中的数据可以这样分为两类:值类型和引用类型
  * 值类型可以被任意复制,而引用类型共享一份数据,由 GC 负责维护生命期
  * lua 使用一个联合 union Value 来保存数据
 */
@@ -125,7 +125,7 @@ typedef union Value {
 /*
 ** 引用类型用一个指针 GCObject *gc 来间接引用,而其它值类型都直接保存在联合中
 ** 为了区分联合中存放的数据类型,再额外绑定一个类型字段
-** tt_是一个8 bits 的类型标记字段,被分成3个部分：
+** tt_是一个8 bits 的类型标记字段,被分成3个部分:
 ** 0-3位,表示大类型
 ** 4-5位,表示子类型
 ** 第6位,表示是否可以垃圾回收
@@ -544,7 +544,7 @@ typedef union TKey {
 
 /**
  * 节点格式 k=>v
- * 节点结构：a = {x=12,mutou=99,[3]="hello"}
+ * 节点结构:a = {x=12,mutou=99,[3]="hello"}
  */
 typedef struct Node {
   TValue i_val;
@@ -552,14 +552,14 @@ typedef struct Node {
 } Node;
 
 /**
- * Table数据结构,分两种存储类型：数组节点和hash节点
- * 数组节点：sizearray为数字长度,一般存储key值在长度范围内的结果集
- * hash节点：k=>v结构,能够存储各类复杂对象结构
+ * Table数据结构,分两种存储类型:数组节点和hash节点
+ * 数组节点:sizearray为数字长度,一般存储key值在长度范围内的结果集
+ * hash节点:k=>v结构,能够存储各类复杂对象结构
  *
- * LUA语言用法：
- * 数组节点：fruits = {"banana","orange","apple"}
- * hash节点：a = {x=12,mutou=99,[3]="hello"}
- * table中带table结构：local a = {{x = 1,y=2},{x = 3,y = 10}}
+ * LUA语言用法:
+ * 数组节点:fruits = {"banana","orange","apple"}
+ * hash节点:a = {x=12,mutou=99,[3]="hello"}
+ * table中带table结构:local a = {{x = 1,y=2},{x = 3,y = 10}}
  */
 typedef struct Table {
   CommonHeader;

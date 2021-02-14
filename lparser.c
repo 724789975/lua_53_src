@@ -313,7 +313,7 @@ static void singlevaraux (FuncState *fs, TString *n, expdesc *var, int base) {
 // * Lua 中的变量全是全局变量,无论语句块或是函数里,除非用 local 显式声明为局部变量,变量默认值均为nil
 // 使用local创建一个局部变量,与全局变量不同,局部变量只在被声明的那个代码块内有效。
 static void singlevar (LexState *ls, expdesc *var) {
-  TString *varname = str_checkname(ls);//获取变量名称  获取的时候执行了：luaX_next
+  TString *varname = str_checkname(ls);//获取变量名称  获取的时候执行了:luaX_next
   FuncState *fs = ls->fs;
   singlevaraux(fs, varname, var, 1);//判断变量类型 是local、upvalue
   if (var->k == VVOID) {  /* global name? */
@@ -939,7 +939,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
 }
 
 /**
- * 主要用来处理赋值变量名称,判断变量的类型：局部变量、全局变量、Table格式、函数等。
+ * 主要用来处理赋值变量名称,判断变量的类型:局部变量、全局变量、Table格式、函数等。
 **/
 static void suffixedexp (LexState *ls, expdesc *v) {
   /* suffixedexp ->
@@ -1202,9 +1202,9 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
 
 /**
  * 主要用于变量的赋值操作。例如局部变量、全局变量等通过luaK_codeAB*函数,生成32位的二进制操作码
- * ls：语法解析上下文状态
- * lh：变量名称存储在expdesc结构中,链表形式,可以存储多个变量名
- * nvars：值的个数
+ * ls:语法解析上下文状态
+ * lh:变量名称存储在expdesc结构中,链表形式,可以存储多个变量名
+ * nvars:值的个数
  */
 static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   expdesc e;
@@ -1445,7 +1445,7 @@ static void forstat (LexState *ls, int line) {
 
 
 /**
- * 解析：
+ * 解析:
  * if (条件) then 逻辑块 end
  * elseif (条件) then 逻辑块 end
  */
@@ -1735,7 +1735,7 @@ static void mainfunc (LexState *ls, FuncState *fs) {
 
 /*
 ** 真正执行语法树解析的是luaY_parser函数。
-** 该函数内部主要用于组装：语法状态结构：LexState和方法状态结构：FuncState
+** 该函数内部主要用于组装:语法状态结构:LexState和方法状态结构:FuncState
 ** 该函数最后执行mainfunc方法,用于执行语法树的解析工作
 */
 LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,

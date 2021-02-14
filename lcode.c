@@ -248,7 +248,7 @@ static void removevalues(FuncState *fs, int list)
  * registers: tests producing values jump to 'vtarget' (and put their
  * values in 'reg'), other tests jump to 'dtarget'.
  * 遍历一个跳转链表的所有元素，调用于fix_jump函数将跳转地址回填到链表中的每个指令中
- * vtarget ：value target
+ * vtarget :value target
  * dtarget : default target
 */
 static void patchlistaux(FuncState *fs, int list, int vtarget, int reg,
@@ -661,9 +661,9 @@ void luaK_dischargevars(FuncState *fs, expdesc *e)
 
 /**
  * discharge2reg函数是底层赋值的操作函数。针对值的不同类型进行不同的封装操作码。
- * 布尔类型：则通过luaK_codeABC函数,封装OP_LOADBOOL操作符,参数A为变量名称,参数B为布尔值
- * 对象赋值：如果是两个对象变量之间的赋值,则会封装OP_MOVE操作符,参数A为变量名称,参数B为赋值变量对象地址
- * 全局变量操作：全局变量OP_SETUPVAL操作符,参数A为值,B为变量名称值(这里不太一样)
+ * 布尔类型:则通过luaK_codeABC函数,封装OP_LOADBOOL操作符,参数A为变量名称,参数B为布尔值
+ * 对象赋值:如果是两个对象变量之间的赋值,则会封装OP_MOVE操作符,参数A为变量名称,参数B为赋值变量对象地址
+ * 全局变量操作:全局变量OP_SETUPVAL操作符,参数A为值,B为变量名称值(这里不太一样)
  * Ensures expression value is in register 'reg' (and therefore
  * 'e' will become a non-relocatable expression).
 **/
@@ -918,10 +918,10 @@ int luaK_exp2RK(FuncState *fs, expdesc *e)
 }
 
 /**
- * uaK_storevar函数中,通过变量的类型,来区分不同的操作。主要分为：局部变量、全局变量、下标类型
- * 局部变量：主要调用exp2reg函数,该函数底层调用discharge2reg函数,通过值的不同类型,来实现不同的操作码生成操作
- * 全局变量：全局变量首先会调用luaK_exp2anyreg函数,实际底层也是调用了exp2reg函数,针对不同值类型进行不同的操作码封装操作。然后调用luaK_codeABC函数,进行OP_SETUPVAL全局变量的设置操作。
- * 下标类型：通过变量类型,来确定OP_SETTABLE或者OP_SETTABUP操作符,并调用luaK_codeABC函数进行操作码封装。
+ * uaK_storevar函数中,通过变量的类型,来区分不同的操作。主要分为:局部变量、全局变量、下标类型
+ * 局部变量:主要调用exp2reg函数,该函数底层调用discharge2reg函数,通过值的不同类型,来实现不同的操作码生成操作
+ * 全局变量:全局变量首先会调用luaK_exp2anyreg函数,实际底层也是调用了exp2reg函数,针对不同值类型进行不同的操作码封装操作。然后调用luaK_codeABC函数,进行OP_SETUPVAL全局变量的设置操作。
+ * 下标类型:通过变量类型,来确定OP_SETTABLE或者OP_SETTABUP操作符,并调用luaK_codeABC函数进行操作码封装。
 * Generate code to store result of expression 'ex' into variable 'var'.
 */
 void luaK_storevar(FuncState *fs, expdesc *var, expdesc *ex)

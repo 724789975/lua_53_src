@@ -264,7 +264,7 @@ static void close_state (lua_State *L) {
 
 /**
  * 创建一个新的线程栈
- * LUA在main函数中,调用luaL_newstate()方法,创建了主线程(既：lua_State *L)
+ * LUA在main函数中,调用luaL_newstate()方法,创建了主线程(既:lua_State *L)
  * 主要用于实现Lua的协程实现(Lua没有多线程实现)
  */
 LUA_API lua_State *lua_newthread (lua_State *L) {
@@ -308,12 +308,12 @@ void luaE_freethread (lua_State *L, lua_State *L1) {
 
 /**
  * 分配lua_State和global_State
- * 说明：global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
+ * 说明:global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
  * 通过LG结构方式,每个线程会独立维护自己的线程栈和函数栈
  * 对外通过lua_State结构暴露给用户,而global_State挂载在lua_State结构上
  * 主要管理管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
- * global_State：全局状态机
- * lua_State：主线程栈结构
+ * global_State:全局状态机
+ * lua_State:主线程栈结构
  */
 LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;

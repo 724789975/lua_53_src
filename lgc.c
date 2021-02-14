@@ -154,7 +154,7 @@ static int iscleared (global_State *g, const TValue *o) {
  * luaC_barrier_函数用来实现“向前”的barrier。
  * “向前”的意思就是当一个black对象需要引用一个white对象时,立即mark这个white对象。
  * 这样white对象就变为gray对象,等待下一步的扫描。
- * 这也就是帮助gc向前标识一步。luaC_barrier_函数被用在以下引用变化处：
+ * 这也就是帮助gc向前标识一步。luaC_barrier_函数被用在以下引用变化处:
  * 虚拟机执行过程中或者通过api修改close upvalue对其他对象的引用
  * 通过api设置userdata或table的metatable引用
  * 通过api设置userdata的env table引用

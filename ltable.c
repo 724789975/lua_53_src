@@ -364,10 +364,10 @@ static void auxsetnode(lua_State *L, void *ud)
 
 /**
  * 重新设置Table的大小
- * 说明：luaH_new方法仅仅是初始化了一个Table,真正Table容器大小,需要调用此方法实现
+ * 说明:luaH_new方法仅仅是初始化了一个Table,真正Table容器大小,需要调用此方法实现
  *
- * nasize：数组节点的大小
- * nhsize：hash节点的大小
+ * nasize:数组节点的大小
+ * nhsize:hash节点的大小
  */
 void luaH_resize(lua_State *L, Table *t, unsigned int nasize,
                  unsigned int nhsize)
@@ -453,10 +453,10 @@ static void rehash(lua_State *L, Table *t, const TValue *ek)
  * 创建一个table
  * table内容由luaC_newobj创建分配,并且会挂载到global_State->frealloc上统一管理
  *
- * Table使用方式：
- * 数组结构：fruits = {"banana","orange","apple"}
- * 节点结构：a = {x=12,mutou=99,[3]="hello"}
- * table中带table结构：local a = {{x = 1,y=2},{x = 3,y = 10}}
+ * Table使用方式:
+ * 数组结构:fruits = {"banana","orange","apple"}
+ * 节点结构:a = {x=12,mutou=99,[3]="hello"}
+ * table中带table结构:local a = {{x = 1,y=2},{x = 3,y = 10}}
  */
 Table *luaH_new(lua_State *L)
 {
@@ -682,7 +682,7 @@ const TValue *luaH_get(Table *t, const TValue *key)
 ** barrier and invalidate the TM cache.
 ** 在Table上设置一个值,然后返回TValue对象
 **
-** 说明：
+** 说明:
 ** 优先在t->array数组上查询,是否有节点可以存储,如果key小于arraysize,则放置在array上
 ** 调用luaH_newkey,在table上寻找可以设置key的node节点,设置成功后,返回Node->i_val
 ** node节点k=v形式
@@ -698,7 +698,7 @@ TValue *luaH_set(lua_State *L, Table *t, const TValue *key)
 
 /**
  * 在Table上设置key为数字类型的节点
- * 说明：
+ * 说明:
  * 1. 优先在t->array数组上查询,是否有节点可以存储,如果key小于arraysize,则放置在array上
  * 2. 如果数字大于arraysize,则在Node节点上处理
  * 3. 如果没有查询到p,则调用luaH_newkey创建一个新的Node节点用于存储value

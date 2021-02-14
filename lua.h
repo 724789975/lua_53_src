@@ -143,12 +143,12 @@ extern const char lua_ident[];
  */
 /**
  * 分配lua_State和global_State
- * 说明：global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
+ * 说明:global_State全局表会挂载在lua_State结构上,此方法分配的是主线程栈。如果实现协程,则通过lua_newthread分配新的lua_State栈
  * 通过LG结构方式,每个线程会独立维护自己的线程栈和函数栈
  * 对外通过lua_State结构暴露给用户,而global_State挂载在lua_State结构上
  * 主要管理管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
- * global_State：全局状态机
- * lua_State：主线程栈结构
+ * global_State:全局状态机
+ * lua_State:主线程栈结构
  */
 LUA_API lua_State *(lua_newstate) (lua_Alloc f, void *ud);
 LUA_API void       (lua_close) (lua_State *L);
@@ -214,8 +214,8 @@ LUA_API int             (lua_isuserdata) (lua_State *L, int idx);
 LUA_API int             (lua_type) (lua_State *L, int idx);
 /**
  * 类型编号转成类型名称
- * 类型数组： luaT_typenames_[LUA_TOTALTAGS]
- * 类型：nil=null boolean=布尔 function=方法 string=字符串
+ * 类型数组: luaT_typenames_[LUA_TOTALTAGS]
+ * 类型:nil=null boolean=布尔 function=方法 string=字符串
  */
 LUA_API const char     *(lua_typename) (lua_State *L, int tp);
 
@@ -225,7 +225,7 @@ LUA_API const char     *(lua_typename) (lua_State *L, int tp);
 LUA_API lua_Number      (lua_tonumberx) (lua_State *L, int idx, int *isnum);
 /**
  * 把给定索引处的 Lua 值转换为 lua_Integer 这样一个有符号整数类型
- * 必须：数字/字符串类型数字
+ * 必须:数字/字符串类型数字
  */
 LUA_API lua_Integer     (lua_tointegerx) (lua_State *L, int idx, int *isnum);
 /**
@@ -567,7 +567,7 @@ struct lua_Debug {
 	 */
 	const char *name;
 	/**
-	 * (n) name域的含义。 可能的取值为： global、 local、 method、 field或者空字符串。空字符串意味着Lua无法找到这个函数名
+	 * (n) name域的含义。 可能的取值为: global、 local、 method、 field或者空字符串。空字符串意味着Lua无法找到这个函数名
 	 * 'global', 'local', 'field', 'method'
 	 */
 	const char *namewhat;

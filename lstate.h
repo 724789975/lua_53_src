@@ -194,7 +194,7 @@ typedef struct CallInfo {
 /*
  ** 'global state', shared by all threads of this state
  ** lua 全局状态机
- ** 作用：管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
+ ** 作用:管理全局数据,全局字符串表、内存管理函数、 GC 把所有对象串联起来的信息、内存等
  */
 typedef struct global_State {
 	/**
@@ -247,7 +247,7 @@ typedef struct global_State {
 	/**
 	 * state of garbage collector
 	 * 存放GC状态，
-	 * 分别有以下几种：
+	 * 分别有以下几种:
 	 * GCSpause 7 处于两次完整 GC 流程中间的休息状态
 	 * GCSpause 到 GCSpropagate : 一次性标记 root set
 	 * GCSpropagate	0 * 可以分多次执行，直到 gray 链表处理完，进入 GCSatomic
@@ -371,7 +371,7 @@ typedef struct global_State {
 /*
  ** 'per thread' state
  ** Lua 主线程 栈 数据结构
- ** 作用：管理整个栈和当前函数使用的栈的情况,最主要的功能就是函数调用以及和c的通信
+ ** 作用:管理整个栈和当前函数使用的栈的情况,最主要的功能就是函数调用以及和c的通信
  */
 struct lua_State {
 	CommonHeader;

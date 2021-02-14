@@ -72,9 +72,9 @@ LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
 #define opmode(t,a,b,c,m) (((t)<<7) | ((a)<<6) | ((b)<<4) | ((c)<<2) | (m))
 
 //T::表示这是不是一条逻辑测试相关的指令,这种指令可能会将pc指针自增l。 
-// A： 表示这个指令会不会赋值给R(A)。 
+// A: 表示这个指令会不会赋值给R(A)。 
 // B/C: B、 E参数的格式
-//mode： 这个OpCode的格式。
+//mode: 这个OpCode的格式。
 LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
 /*       T  A    B       C     mode		   opcode	*/
   opmode(0, 1, OpArgR, OpArgN, iABC)		/* OP_MOVE */

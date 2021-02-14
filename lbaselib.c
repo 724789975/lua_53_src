@@ -456,10 +456,10 @@ static int luaB_tostring (lua_State *L) {
 }
 
 /*
-** loadfile：只会加载文件,编译代码,不会运行文件里的代码
-** dofile：会加载文件并执行文件,对于相同的文件每次都会执行
-** load：从字符串中读取代码
-** require：加载文件,如果已经加载过了,则不加载
+** loadfile:只会加载文件,编译代码,不会运行文件里的代码
+** dofile:会加载文件并执行文件,对于相同的文件每次都会执行
+** load:从字符串中读取代码
+** require:加载文件,如果已经加载过了,则不加载
 */
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},

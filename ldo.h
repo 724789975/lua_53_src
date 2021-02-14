@@ -44,10 +44,10 @@ LUAI_FUNC void luaD_call (lua_State *L, StkId func, int nResults);
 LUAI_FUNC void luaD_callnoyield (lua_State *L, StkId func, int nResults);
 /**
  * 函数调用主方法(异常保护方式)
- * func：f_call方法
- * u：CallS 调用的方法等信息
- * old_top：函数调用前的栈顶 L->top
- * ef：错误状态
+ * func:f_call方法
+ * u:CallS 调用的方法等信息
+ * old_top:函数调用前的栈顶 L->top
+ * ef:错误状态
  */
 LUAI_FUNC int luaD_pcall (lua_State *L, Pfunc func, void *u,
                                         ptrdiff_t oldtop, ptrdiff_t ef);

@@ -553,7 +553,7 @@ static int handle_luainit (lua_State *L) {
 */
 /* idx=1 则获取操作栈从底部开始的第2个栈内容,第一个栈内容未ci->func 函数pmain的栈 */
 static int pmain (lua_State *L) {
-  int argc = (int)lua_tointeger(L, 1);//从L->top结构上,获取argc参数  对应函数：lua_pushinteger
+  int argc = (int)lua_tointeger(L, 1);//从L->top结构上,获取argc参数  对应函数:lua_pushinteger
   char **argv = (char **)lua_touserdata(L, 2);
   int script;
   int args = collectargs(argv, &script);
@@ -594,12 +594,12 @@ static int pmain (lua_State *L) {
 }
 
 /**
- * argc：行参数的个数
- * argv：每个参数的值,指针结构
+ * argc:行参数的个数
+ * argv:每个参数的值,指针结构
  */
 int main (int argc, char **argv) {
   int status, result;
-  /* 第一步：创建一个主线程栈数据结构 */
+  /* 第一步:创建一个主线程栈数据结构 */
   lua_State *L = luaL_newstate();  /* create state */
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
