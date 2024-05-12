@@ -2,12 +2,12 @@
 ** lua库说明
 ** lauxlib.c	库编写用到的辅助函数库 
 ** lbaselib.c	基础库 
-** ldblib.c	  Debug 库 
+** ldblib.c		Debug 库 
 ** linit.c		内嵌库的初始化 
-** liolib.c	  IO 库 
+** liolib.c		IO 库 
 ** lmathlib.c	数学库 
 ** loadlib.c	动态扩展库管理 
-** loslib.c	  OS 库 
+** loslib.c		OS 库 
 ** lstrlib.c	字符串库 
 ** ltablib.c	表处理库
 */
@@ -15,16 +15,16 @@
 术语:
 Instruction Pointer :指令指针 来保存下一个将执行的指令地址。 在Lua 代码中， IP对应的是PC指针 pc指针存放的是虚拟机OpCode代码
 
-Tvaluefield             ----------> Value                ---------> GCObject              ------------> GCheader              ------------> CommonHeader
-Value value ------------|           GCObject *gc --------|          GCheader gch ---------|             CommonHeader ---------|             GCObject *next
-int tt                              void *p                         union TString ts                                                        lu_byte tt
-                                    lua_Number n                    union Udata u                                                           lu_byte marked
-                                    int b                           union Closure cl
-                                    lua_CFunction f                 struct Table h
-                                    lua_Integer i                   struct Proto p
-                                                                    struct UpVal uv
-                                                                    struct lua_State th
-
+Tvaluefields(struct) --> Value(union)     --> GCObject(头,类似基类) ---> CommonHeader
+Value value ---------|   GCObject *gc ----|   CommonHeader --------|    GCObject *next
+int tt                   void *p              以下类似继承               lu_byte tt
+                         lua_Number n         struct TString ts         lu_byte marked
+                         int b                struct Udata u       
+                         lua_CFunction f      union Closure cl
+                         lua_Integer i        struct Table h
+                                              struct Proto p
+                                              struct UpVal uv
+                                              struct lua_State th
 
 
 (1)在非parser函数中,对代码文件的分析返回了Proto指针。 这个指针会保存在Closure指针 中,留待后续继续使用。
