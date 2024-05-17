@@ -111,13 +111,19 @@ static int luaB_auxwrap (lua_State *L) {
  */
 static int luaB_cocreate (lua_State *L) {
 	lua_State *NL;
+
+    /**
+     * 检查当前栈顶的元素是不是一个函数对象，
+     * 因为需要一个函数作为协程开始运行时的主函数。
+     * 这个主函数必须是Lua函数，C函数将会报
+     **/
 	luaL_checktype(L, 1, LUA_TFUNCTION);
+
 	NL = lua_newthread(L);/* new一个新协程 */
 	lua_pushvalue(L, 1);  /* 将CallInfo操作栈上的协程回调函数,移动到L->top数据栈顶部 move function to top */
 	lua_xmove(L, NL, 1);  /* 拷贝回调函数到协程的数据栈上 move function from L to NL */
 	return 1;
 }
-
 
 static int luaB_cowrap (lua_State *L) {
 	luaB_cocreate(L);
