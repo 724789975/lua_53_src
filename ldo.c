@@ -470,7 +470,7 @@ Cfunc: {
 		   lua_lock(L);
 		   api_checknelems(L, n);
 		   luaD_poscall(L, ci, L->top - n, n); //调整堆栈
-		   return 1;
+		   return 1; /*返回1 C语言本身函数*/
 	   }
 		case LUA_TLCL: {  /* Lua方法 Lua function: prepare its call */
 						   StkId base;
@@ -574,13 +574,14 @@ static void finishCcall (lua_State *L, int status) {
 }
 
 
-/*
- ** Executes "full continuation" (everything in the stack) of a
- ** previously interrupted coroutine until the stack is empty (or another
- ** interruption long-jumps out of the loop). If the coroutine is
- ** recovering from an error, 'ud' points to the error status, which must
- ** be passed to the first continuation function (otherwise the default
- ** status is LUA_YIELD).
+/**
+ * Executes "full continuation" (everything in the stack) of a
+ * previously interrupted coroutine until the stack is empty (or another
+ * interruption long-jumps out of the loop). If the coroutine is
+ * recovering from an error, 'ud' points to the error status, which must
+ * be passed to the first continuation function (otherwise the default
+ * status is LUA_YIELD).
+ * 执行接下来的字节码，如果是停在了C函数，则会调用 finishCcall 去执行完剩余的C函数。
  */
 static void unroll (lua_State *L, void *ud) {
 	if (ud != NULL)  /* error status? */
@@ -645,29 +646,42 @@ static int resume_error (lua_State *L, const char *msg, int narg) {
 	return LUA_ERRRUN;
 }
 
-
-/*
- ** resume函数通过L->status去判断执行状态。
- ** 当L->status=LUA_OK,则正常启动一个函数调用流程
- ** 当L->status=LUA_YIELD,则恢复中断的协程调用,并将状态设置为LUA_OK恢复调用
- ** 中断恢复,我们需要调用luaD_poscall进行yield函数执行的时候的堆栈调整,然后调用unroll,执行恢复动作。
- ** Do the work for 'lua_resume' in protected mode. Most of the work
- ** depends on the status of the coroutine: initial state, suspended
- ** inside a hook, or regularly suspended (optionally with a continuation
- ** function), plus erroneous cases: non-suspended coroutine or dead
- ** coroutine.
+/**
+ * resume函数通过L->status去判断执行状态。
+ * 当L->status=LUA_OK,则正常启动一个函数调用流程
+ * 当L->status=LUA_YIELD,则恢复中断的协程调用,并将状态设置为LUA_OK恢复调用中断恢复,
+ * 我们需要调用luaD_poscall进行yield函数执行的时候的堆栈调整,然后调用unroll,执行恢复动作。
+ * Do the work for 'lua_resume' in protected mode. Most of the work
+ * depends on the status of the coroutine: initial state, suspended
+ * inside a hook, or regularly suspended (optionally with a continuation
+ * function), plus erroneous cases: non-suspended coroutine or dead
+ * coroutine.
  */
 static void resume (lua_State *L, void *ud) {
 	int n = *(cast(int*, ud));  /* number of arguments */
 	StkId firstArg = L->top - n;  /* first argument */
 	CallInfo *ci = L->ci;
-	/* 如果L->status 不为中断状态(Lua中用法:coroutine.resume(co2)) */
+
+	/*
+	 * 如果L->status 不为中断状态(LUA_OK, Lua中用法:coroutine.resume(co2))
+	 * 那么说明它是第一次执行resume操作，
+	 * 此时调用luaD_precall做函数调用前的准备工作。
+	 * 如果luaD_precall函数的返回值不是0，说明是在C函数中进行resume操作的，
+	 * 此时并不需要后面的luaV_execute函数，就直接返回了。
+	 */
 	if (L->status == LUA_OK) {  /* starting a coroutine? */
 		if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  /* Lua function? */
 			luaV_execute(L);  /* call it */
 	}
 	else {  /* resuming from previous yield */
-		/* 如果恢复中断挂起情况 */
+		/* 
+		 * 如果恢复中断挂起情况
+		 * 就从之前的YIELD状态中继续执行，
+		 * 首先将协程的状态置为LUA_OK，
+		 * 其次判断此时ci的类型，如果不是Lua函数，说明之前是被中断的函数调用，
+		 * 此时调用luaD_poscall函数继续完成未完的函数操作；
+		 * 否则直接调用luaV_execute函数继续执行Lua代码。
+		 */
 		lua_assert(L->status == LUA_YIELD);
 		L->status = LUA_OK;  /* 调整协程栈的状态 mark that it is running (again) */
 		ci->func = restorestack(L, ci->extra);
@@ -725,7 +739,7 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs) {
 	else {  /* continue running after recoverable errors */
 		while (errorstatus(status) && recover(L, status)) {
 			/* unroll continuation */
-			status = luaD_rawrunprotected(L, unroll, &status); //回调函数resume,入参L为协程栈
+			status = luaD_rawrunprotected(L, unroll, &status); //回调函数unroll,入参L为协程栈
 		}
 		if (errorstatus(status)) {  /* unrecoverable error? */
 			L->status = cast_byte(status);  /* mark thread as 'dead' */
@@ -783,7 +797,7 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
  * 函数调用主方法(异常保护方式)
  * func:f_call方法
  * u:CallS 调用的方法等信息
- * old_top:函数调用前的栈顶 L->top
+ * old_top:函数调用前的栈顶 实际上这个指针是通过savestack宏来计算的，而根据这个值进行栈环境的恢复则使用的是restorestack宏 L->top
  * ef:错误状态
  */
 int luaD_pcall (lua_State *L, Pfunc func, void *u,

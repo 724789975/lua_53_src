@@ -97,7 +97,7 @@ typedef struct stringtable {
  拆解为以下结构
  typedef struct LuaCallInfo  {
 // DataStack  [base,...,top]
-StackId base; //数据栈
+StkId base; //数据栈
 StkId top;   //数据栈
 
 // Closure
@@ -126,7 +126,7 @@ StkId top;
 // Closure
 
 //一个CClosure(lua_CFunction+闭包的TValues数组,代码和数据都简单多了)
-//执行的过程也别Lua CallInfo简单多了,直接调用CClosure里面的lua_CFunction即可
+//执行的过程也比Lua CallInfo简单多了,直接调用CClosure里面的lua_CFunction即可
 StkId func;   
 
 ptrdiff_t extra;
@@ -147,25 +147,35 @@ struct CallInfo *previous, *next;
 }
 */
 typedef struct CallInfo {
-	StkId func;  /* 当前调用栈的调用指针处 function index in the stack */
+	/**
+	 * 当前调用栈的调用指针处
+	 * function index in the stack
+	 */
+	StkId func;
+
 	StkId	top;  /* 调用栈的栈顶 top for this function */
-	struct CallInfo *previous, *next;  /* dynamic call link */
+
+	struct CallInfo *previous, *next;  /* 串起动态增减的CallStack dynamic call link */
 	union {
 		struct {  /* only for Lua functions */
 			StkId base;  /* base for this function */
-			const Instruction *savedpc;
+			const Instruction *savedpc; /*当前执行的指令*/
 		} l;
 		struct {  /* only for C functions */
 			lua_KFunction k;  /* continuation in case of yields */
-			ptrdiff_t old_errfunc;
+			ptrdiff_t old_errfunc;/*C函数的执行超出了Lua的控制范围,每一层执行都需要有一个old_errfunc,用以错误处理*/
 			lua_KContext ctx;  /* context info. in case of yields */
 		} c;
 	} u;
 	ptrdiff_t extra;/*在执行过程中临时保持func用的*/
-	short nresults;  /* expected number of results from this function */
-	unsigned short callstatus;
-} CallInfo;
 
+	/**
+	 * 描述返回结果的个数,便于在执行结束的时候调整top
+	 * expected number of results from this function
+	 */
+	short nresults;
+	unsigned short callstatus; /*调用后的结果*/
+} CallInfo;
 
 /*
  ** Bits in CallInfo status
@@ -380,9 +390,11 @@ struct lua_State {
 	StkId top;  /*线程栈的栈顶指针 当前械的下一个可用位置 first free slot in the stack */
 	global_State *l_G;/* 这个是Lua的全局对象,所有的lua_State共享一个global_State,global_State里塞进了各种全局字段 */
 	CallInfo *ci;  /*当前运行函数信息 call info for current function */
+	CallInfo base_ci;  /*调用栈的头部指针  CallInfo for first level (C calling Lua) */
 	const Instruction *oldpc;  /*在当前thread 的解释执行指令的过程中,指向最后一次执行的指令的指针 last pc traced */
 	StkId stack_last;  /* 线程栈的最后一个位置 last free slot in the stack */
 	StkId stack;  /* 栈的指针,当前执行的位置 stack base */
+
 	/**
 	 * 从CallStack的栈底到栈顶的所有open的UpVal也构成了一种Stack
 	 * Lua把这些open状态的UpVal用链表串在一起
@@ -391,16 +403,16 @@ struct lua_State {
 	 * list of open upvalues in this stack
 	 */
 	UpVal *openupval;
+
 	GCObject *gclist;/* GC列表 */
 	struct lua_State *twups;  /* 那些闭包了当前lua_State的变量的其他协程 list of threads with open upvalues */
 	struct lua_longjmp *errorJmp;  /* current error recover point */
-	CallInfo base_ci;  /*调用栈的头部指针  CallInfo for first level (C calling Lua) */
 	volatile lua_Hook hook;
 	ptrdiff_t errfunc;  /* current error handling function (stack index) */
 	int stacksize;
 	int basehookcount;
 	int hookcount;
-	unsigned short nny;  /* number of non-yieldable calls in stack */
+	unsigned short nny;  /* non-yieldable 的调用个数 number of non-yieldable calls in stack */
 	unsigned short nCcalls;  /* 记录CallStack动态增减过程中调用的C函数的个数 number of nested C calls */
 	l_signalT hookmask;
 	lu_byte allowhook;

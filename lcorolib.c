@@ -41,6 +41,11 @@ static int auxresume (lua_State *L, lua_State *co, int narg) {
 		return -1;  /* error flag */
 	}
 	lua_xmove(L, co, narg);//将L上的栈数据拷贝到co上
+	
+	/**
+	 * 当lua_resume函数返回时，说明该协程已经执行完毕，
+	 * 通过lua_xmove函数将yield传入的参数传递回启动该协程的协程。
+	 */
 	status = lua_resume(co, L, narg);
 	if (status == LUA_OK || status == LUA_YIELD) {
 		int nres = lua_gettop(co);
